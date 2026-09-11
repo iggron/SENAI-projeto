@@ -20,6 +20,3 @@ if (isset($_GET['nome'])) {
 
     }
 }
-
-
-oi

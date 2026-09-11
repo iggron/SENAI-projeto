@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Água Mágica - Caveira Boss Aprimorada</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            overflow: hidden;
+            background: #020b1a;
+            cursor: none;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        .ui {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background: rgba(20, 60, 100, 0.7);
+            border: 1px solid rgba(120, 190, 255, 0.4);
+            color: #c8e8ff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            backdrop-filter: blur(6px);
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        button:hover {
+            background: rgba(30, 90, 150, 0.85);
+            border-color: rgba(160, 220, 255, 0.7);
+        }
+        button.active {
+            background: rgba(40, 120, 200, 0.9);
+            border-color: #7ecbff;
+            box-shadow: 0 0 12px rgba(80, 180, 255, 0.4);
+        }
+        .info {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(180, 230, 255, 0.6);
+            font-size: 13px;
+            pointer-events: none;
+            z-index: 10;
+            text-align: center;
+            line-height: 1.55;
+            text-shadow: 0 0 6px rgba(0,0,0,0.8);
+        }
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: rgba(220, 240, 255, 0.8);
+            font-size: 13px;
+            z-index: 20;
+            text-align: right;
+            line-height: 1.5;
+            pointer-events: none;
+            white-space: pre-line;
+        }
+        #healthContainer {
+            position: fixed;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(420px, 85vw);
+            z-index: 30;
+            display: none;
+            pointer-events: none;
+        }
+        #healthLabel {
+            color: #ffb0b0;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 6px;
+            text-shadow: 0 0 8px rgba(255,50,50,0.6);
+            font-weight: bold;
+        }
+        #healthBarBg {
+            width: 100%;
+            height: 18px;
+            background: rgba(40, 10, 10, 0.85);
+            border: 2px solid rgba(255, 80, 80, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 12px rgba(255, 40, 40, 0.3);
+        }
+        #healthBar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #8b0000, #ff3030, #ff6b6b);
+            border-radius: 8px;
+            transition: width 0.25s ease;
+            box-shadow: inset 0 0 10px rgba(255,200,200,0.3);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="ui">
+        <button id="rainBtn">Chuva: Desligada</button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div id="healthContainer">
+        <div id="healthLabel">💀 Caveira Boss</div>
+        <div id="healthBarBg">
+            <div id="healthBar"></div>
+        </div>
+    </div>
+
+    <div class="info">
+        Mouse = Ondas • Clique = Bomba • E = Sucção Roxa (15s) • R = Caveira Boss (60s)<br>
+        Acerte a caveira com 10 bombas. Cuidado: Se um tiro te acertar, a caveira foge!
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const rainBtn = document.getElementById('rainBtn');
+        const statusEl = document.getElementById('status');
+        const healthContainer = document.getElementById('healthContainer');
+        const healthBar = document.getElementById('healthBar');
+        const healthLabel = document.getElementById('healthLabel');
+
+        let width, height, cols, rows;
+        const resolution = 7;
+
+        let current = [];
+        let previous = [];
+
+        const damping = 0.965;
+        const force = 65;
+
+        let mouse = { x: -1000, y: -1000 };
+        let time = 0;
+
+        let rainEnabled = false;
+        let raindrops = [];
+        const maxDrops = 160;
+
+        let bombs = [];
+        let explosions = [];
+
+        let purpleMode = false;
+        let purpleTimer = 0;
+        const PURPLE_DURATION = 900;
+
+        let redMode = false;
+        let redTimer = 0;
+        const RED_DURATION = 3600;
+
+        let skullHealth = 10;
+        const SKULL_MAX_HEALTH = 10;
+
+        let dust = [];
+        let skulls = [];
+        let fragments = [];
+        let skullShots = [];
+
+        function init() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            cols = Math.floor(width / resolution) + 2;
+            rows = Math.floor(height / resolution) + 2;
+            current = new Array(cols * rows).fill(0);
+            previous = new Array(cols * rows).fill(0);
+        }
+        window.addEventListener('resize', init);
+        init();
+
+        rainBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            rainEnabled = !rainEnabled;
+            rainBtn.textContent = rainEnabled ? 'Chuva: Ligada' : 'Chuva: Desligada';
+            rainBtn.classList.toggle('active', rainEnabled);
+            if (!rainEnabled) raindrops = [];
+        });
+
+        function addForce(x, y, strength = force, radius = 2.8) {
+            const col = Math.floor(x / resolution);
+            const row = Math.floor(y / resolution);
+            const r = Math.ceil(radius);
+            for (let i = -r; i <= r; i++) {
+                for (let j = -r; j <= r; j++) {
+                    const c = col + i;
+                    const rr = row + j;
+                    if (c > 0 && c < cols - 1 && rr > 0 && rr < rows - 1) {
+                        const dist = Math.sqrt(i * i + j * j);
+                        if (dist < radius + 0.5) {
+                            const index = c + rr * cols;
+                            const falloff = 1 - dist / (radius + 0.5);
+                            current[index] += strength * falloff * falloff;
+                        }
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            addForce(mouse.x, mouse.y);
+        });
+
+        function spawnBomb(x, y) {
+            bombs.push({ x, y, life: 0, maxLife: 55, radius: 14, exploded: false });
+        }
+        window.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') return;
+            spawnBomb(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+
+            if (key === 'e') {
+                purpleMode = true;
+                purpleTimer = PURPLE_DURATION;
+                for (let i = 0; i < 50; i++) {
+                    dust.push({
+                        x: mouse.x + (Math.random() - 0.5) * 90,
+                        y: mouse.y + (Math.random() - 0.5) * 50,
+                        vx: (Math.random() - 0.5) * 7,
+                        vy: -2 - Math.random() * 6,
+                        life: 45 + Math.random() * 35,
+                        size: 2 + Math.random() * 3.5,
+                        color: `hsl(${270 + Math.random() * 40}, 85%, ${50 + Math.random() * 30}%)`
+                    });
+                }
+            }
+
+            if (key === 'r') {
+                redMode = true;
+                redTimer = RED_DURATION;
+                skullHealth = SKULL_MAX_HEALTH;
+                updateHealthBar();
+                healthContainer.style.display = 'block';
+                skulls = [];
+                fragments = [];
+                skullShots = [];
+
+                skulls.push({
+                    x: width / 2,
+                    y: height + 160,
+                    targetY: height * 0.36,
+                    vy: -1.3,
+                    size: 1.1,
+                    sinking: false,
+                    emergeProgress: 0,
+                    dead: false,
+                    shootCooldown: 0,
+                    jawOpen: 0
+                });
+            }
+        });
+
+        function updateHealthBar() {
+            const pct = Math.max(0, (skullHealth / SKULL_MAX_HEALTH) * 100);
+            healthBar.style.width = pct + '%';
+            healthLabel.textContent = `💀 Caveira Boss  —  ${skullHealth}/${SKULL_MAX_HEALTH}`;
+        }
+
+        function damageSkull(amount, impactX, impactY) {
+            if (!redMode || skulls.length === 0 || skulls[0].dead) return;
+
+            skullHealth -= amount;
+            updateHealthBar();
+
+            if (skulls[0]) {
+                skulls[0].x += (Math.random() - 0.5) * 18;
+            }
+
+            if (skullHealth <= 0) {
+                defeatSkull(impactX, impactY);
+            }
+        }
+
+        function playerHit() {
+            if (!redMode || skulls.length === 0 || skulls[0].sinking || skulls[0].dead) return;
+            
+            const sk = skulls[0];
+            sk.sinking = true;
+            addForce(mouse.x, mouse.y, -300, 10);
+            
+            // Efeito visual de impacto no jogador
+            for (let i = 0; i < 25; i++) {
+                dust.push({
+                    x: mouse.x,
+                    y: mouse.y,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.5) * 12,
+                    life: 30,
+                    size: 3 + Math.random() * 3,
+                    color: '#ff2222'
+                });
+            }
+
+            setTimeout(() => {
+                redMode = false;
+                skulls = [];
+                skullShots = [];
+                healthContainer.style.display = 'none';
+            }, 600);
+        }
+
+        function defeatSkull(ix, iy) {
+            const sk = skulls[0];
+            if (!sk || sk.dead) return;
+            sk.dead = true;
+
+            addForce(sk.x, sk.y, 450, 14);
+
+            for (let i = 0; i < 35; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 5 + Math.random() * 12;
+                fragments.push({
+                    x: sk.x + (Math.random() - 0.5) * 50,
+                    y: sk.y + (Math.random() - 0.5) * 40,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 4,
+                    rot: Math.random() * Math.PI * 2,
+                    rotSpeed: (Math.random() - 0.5) * 0.4,
+                    size: 0.8 + Math.random() * 1.2,
+                    life: 100 + Math.random() * 50
+                });
+            }
+
+            skulls = [];
+            skullShots = [];
+
+            setTimeout(() => {
+                redMode = false;
+                redTimer = 0;
+                healthContainer.style.display = 'none';
+            }, 400);
+        }
+
+        function updateRain() {
+            if (!rainEnabled) return;
+            if (raindrops.length < maxDrops && Math.random() < 0.7) {
+                raindrops.push({
+                    x: Math.random() * width,
+                    y: -30,
+                    speed: 9 + Math.random() * 7,
+                    length: 12 + Math.random() * 14,
+                    hitY: 40 + Math.random() * (height - 80)
+                });
+            }
+            for (let i = raindrops.length - 1; i >= 0; i--) {
+                const drop = raindrops[i];
+                drop.y += drop.speed;
+                if (drop.y >= drop.hitY) {
+                    addForce(drop.x, drop.y, 20, 2.2);
+                    raindrops.splice(i, 1);
+                }
+            }
+        }
+
+        function drawRain() {
+            ctx.strokeStyle = 'rgba(180, 220, 255, 0.4)';
+            ctx.lineWidth = 1.2;
+            for (const drop of raindrops) {
+                ctx.beginPath();
+                ctx.moveTo(drop.x, drop.y);
+                ctx.lineTo(drop.x, drop.y + drop.length);
+                ctx.stroke();
+            }
+        }
+
+        // ===== BOMBAS (SUCÇÃO CORRIGIDA) =====
+        function updateBombs() {
+            for (let i = bombs.length - 1; i >= 0; i--) {
+                const b = bombs[i];
+                b.life++;
+
+                // SUCÇÃO ATIVA durante o tempo de vida no modo Roxo
+                if (purpleMode) {
+                    // Puxa a água para dentro continuamente
+                    addForce(b.x, b.y, -25, 6);
+
+                    // Puxa tiros da caveira e poeira em direção à bomba
+                    for (const shot of skullShots) {
+                        const dx = b.x - shot.x;
+                        const dy = b.y - shot.y;
+                        const dist = Math.hypot(dx, dy);
+                        if (dist < 220 && dist > 5) {
+                            shot.vx += (dx / dist) * 0.45;
+                            shot.vy += (dy / dist) * 0.45;
+                        }
+                    }
+                    for (const d of dust) {
+                        const dx = b.x - d.x;
+                        const dy = b.y - d.y;
+                        const dist = Math.hypot(dx, dy);
+                        if (dist < 200 && dist > 5) {
+                            d.vx += (dx / dist) * 0.35;
+                            d.vy += (dy / dist) * 0.35;
+                        }
+                    }
+                }
+
+                if (b.life >= b.maxLife && !b.exploded) {
+                    b.exploded = true;
+
+                    if (redMode && skulls.length > 0 && !skulls[0].dead) {
+                        const sk = skulls[0];
+                        if (Math.hypot(b.x - sk.x, b.y - sk.y) < 130) {
+                            damageSkull(1, b.x, b.y);
+                        }
+                    }
+
+                    if (purpleMode) {
+                        // Grande implosão
+                        addForce(b.x, b.y, -600, 16);
+                    } else {
+                        addForce(b.x, b.y, 350, 9.5);
+                    }
+                    explosions.push({ x: b.x, y: b.y, life: 0, maxLife: 35, radius: 18, suck: purpleMode });
+                    bombs.splice(i, 1);
+                }
+            }
+        }
+
+        function updateExplosions() {
+            for (let i = explosions.length - 1; i >= 0; i--) {
+                const ex = explosions[i];
+                ex.life++;
+                ex.radius += ex.suck ? 4.5 : 6.8;
+                if (ex.life >= ex.maxLife) explosions.splice(i, 1);
+            }
+        }
+
+        function drawBombs() {
+            for (const b of bombs) {
+                const pulse = 1 + Math.sin(b.life * 0.4) * 0.15;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius * pulse, 0, Math.PI * 2);
+                ctx.fillStyle = purpleMode ? '#1e052d' : '#1a1a1a';
+                ctx.fill();
+                ctx.strokeStyle = purpleMode ? '#a844ff' : '#666';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Brilho pulsante
+                const glowCol = purpleMode ? 'rgba(180, 80, 255, 0.6)' : 'rgba(255, 80, 30, 0.5)';
+                const glow = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.radius * 2.5);
+                glow.addColorStop(0, glowCol);
+                glow.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius * 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = glow;
+                ctx.fill();
+            }
+        }
+
+        function drawExplosions() {
+            for (const ex of explosions) {
+                const progress = ex.life / ex.maxLife;
+                const alpha = 1 - progress;
+                ctx.beginPath();
+                ctx.arc(ex.x, ex.y, ex.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = ex.suck ? `rgba(180, 70, 255, ${alpha})` : `rgba(255, 160, 50, ${alpha})`;
+                ctx.lineWidth = ex.suck ? 6 : 4;
+                ctx.stroke();
+            }
+        }
+
+        // ===== TIROS DA CAVEIRA =====
+        function updateSkullShots() {
+            for (let i = skullShots.length - 1; i >= 0; i--) {
+                const s = skullShots[i];
+                s.x += s.vx;
+                s.y += s.vy;
+                s.life--;
+
+                // Adiciona turbulência na água ao passar
+                if (s.life % 2 === 0) {
+                    addForce(s.x, s.y, 14, 2.5);
+                }
+
+                // Checa Colisão com o jogador (Mouse)
+                if (Math.hypot(s.x - mouse.x, s.y - mouse.y) < s.radius + 12) {
+                    playerHit();
+                    skullShots.splice(i, 1);
+                    continue;
+                }
+
+                if (s.life <= 0 || s.x < -50 || s.x > width + 50 || s.y < -50 || s.y > height + 50) {
+                    skullShots.splice(i, 1);
+                }
+            }
+        }
+
+        function drawSkullShots() {
+            for (const s of skullShots) {
+                ctx.save();
+                const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.radius * 2);
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(0.3, '#ff3333');
+                grad.addColorStop(1, 'rgba(150, 0, 0, 0)');
+                
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.radius * 2, 0, Math.PI * 2);
+                ctx.fillStyle = grad;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // ===== DESENHO DA CAVEIRA APRIMORADA =====
+        function drawGiantSkull(x, y, scale, alpha = 1) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+            ctx.globalAlpha = alpha;
+
+            // Aura sombria em volta da caveira
+            const aura = ctx.createRadialGradient(0, -20, 20, 0, -20, 120);
+            aura.addColorStop(0, 'rgba(180, 20, 20, 0.35)');
+            aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = aura;
+            ctx.beginPath();
+            ctx.arc(0, -20, 130, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Chifres
+            ctx.fillStyle = '#221d1a';
+            ctx.beginPath();
+            ctx.moveTo(-45, -50);
+            ctx.quadraticCurveTo(-90, -90, -75, -20);
+            ctx.quadraticCurveTo(-60, -40, -40, -35);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(45, -50);
+            ctx.quadraticCurveTo(90, -90, 75, -20);
+            ctx.quadraticCurveTo(60, -40, 40, -35);
+            ctx.fill();
+
+            // Cabeça Principal
+            ctx.fillStyle = '#e3dad0';
+            ctx.beginPath();
+            ctx.moveTo(-50, -60);
+            ctx.bezierCurveTo(-55, -110, 55, -110, 50, -60);
+            ctx.bezierCurveTo(65, -30, 55, 10, 35, 20);
+            ctx.lineTo(-35, 20);
+            ctx.bezierCurveTo(-55, 10, -65, -30, -50, -60);
+            ctx.fill();
+
+            // Sombreamento
+            ctx.fillStyle = '#b0a394';
+            ctx.beginPath();
+            ctx.arc(0, -10, 48, 0.2, Math.PI - 0.2);
+            ctx.fill();
+
+            // Órbitas oculares
+            ctx.fillStyle = '#120a0a';
+            ctx.beginPath();
+            ctx.ellipse(-22, -35, 15, 18, -0.1, 0, Math.PI * 2);
+            ctx.ellipse(22, -35, 15, 18, 0.1, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Olhos vermelhos brilhantes
+            const eyeGlow = ctx.createRadialGradient(0, 0, 2, 0, 0, 10);
+            eyeGlow.addColorStop(0, '#ffffff');
+            eyeGlow.addColorStop(0.5, '#ff1111');
+            eyeGlow.addColorStop(1, 'rgba(255,0,0,0)');
+
+            ctx.save();
+            ctx.translate(-22, -35);
+            ctx.fillStyle = eyeGlow;
+            ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(22, -35);
+            ctx.fillStyle = eyeGlow;
+            ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+
+            // Nariz
+            ctx.fillStyle = '#1a1311';
+            ctx.beginPath();
+            ctx.moveTo(0, -18);
+            ctx.lineTo(-7, -2);
+            ctx.lineTo(7, -2);
+            ctx.closePath();
+            ctx.fill();
+
+            // Mandíbula (Com Animação de Abertura)
+            const sk = skulls[0];
+            const jawOffset = sk ? sk.jawOpen : 0;
+
+            ctx.save();
+            ctx.translate(0, jawOffset);
+            ctx.fillStyle = '#d4c7b8';
+            ctx.beginPath();
+            ctx.roundRect(-28, 22, 56, 26, [0, 0, 10, 10]);
+            ctx.fill();
+
+            // Dentes
+            ctx.fillStyle = '#f7f3ec';
+            for (let i = -20; i <= 20; i += 8) {
+                ctx.fillRect(i - 2, 16, 5, 8);
+                ctx.fillRect(i - 2, 23, 5, 8);
+            }
+            ctx.restore();
+
+            ctx.restore();
+        }
+
+        function updateSkulls() {
+            for (const sk of skulls) {
+                if (sk.dead) continue;
+                if (!sk.sinking) {
+                    if (sk.y > sk.targetY) {
+                        sk.y += sk.vy;
+                        sk.emergeProgress = Math.min(1, 1 - (sk.y - sk.targetY) / (height * 0.5));
+                    } else {
+                        sk.y = sk.targetY + Math.sin(time * 1.5) * 6;
+                        sk.emergeProgress = 1;
+
+                        // Lógica de Tiro
+                        sk.shootCooldown++;
+                        if (sk.shootCooldown > 110) {
+                            sk.jawOpen = 12; // Abre a boca
+                            if (sk.shootCooldown > 125) {
+                                // Dispara projétil
+                                const angle = Math.atan2(mouse.y - sk.y, mouse.x - sk.x);
+                                const speed = 6.5;
+                                skullShots.push({
+                                    x: sk.x,
+                                    y: sk.y + 20,
+                                    vx: Math.cos(angle) * speed,
+                                    vy: Math.sin(angle) * speed,
+                                    radius: 10,
+                                    life: 240
+                                });
+                                sk.shootCooldown = 0;
+                            }
+                        } else if (sk.jawOpen > 0) {
+                            sk.jawOpen -= 0.8;
+                        }
+                    }
+                } else {
+                    sk.y += 6;
+                }
+            }
+        }
+
+        function drawSkulls() {
+            for (const sk of skulls) {
+                if (sk.dead) continue;
+                drawGiantSkull(sk.x, sk.y, sk.size, 0.95);
+            }
+        }
+
+        function updateWater() {
+            time += 0.012;
+
+            if (purpleMode) {
+                purpleTimer--;
+                if (purpleTimer <= 0) purpleMode = false;
+            }
+            if (redMode) {
+                redTimer--;
+                if (redTimer <= 0 && skulls.length > 0 && !skulls[0].dead) {
+                    skulls[0].sinking = true;
+                }
+            }
+
+            let statusText = '';
+            if (purpleMode) statusText += `💧 Sucção Roxa: ${(purpleTimer / 60).toFixed(1)}s\n`;
+            if (redMode && redTimer > 0) statusText += `💀 Boss Caveira: ${(redTimer / 60).toFixed(1)}s`;
+            statusEl.textContent = statusText;
+
+            for (let i = 1; i < cols - 1; i++) {
+                for (let j = 1; j < rows - 1; j++) {
+                    const index = i + j * cols;
+                    current[index] = (
+                        previous[index - 1] + previous[index + 1] +
+                        previous[index - cols] + previous[index + cols]
+                    ) / 2 - current[index];
+                    current[index] *= damping;
+                }
+            }
+            [current, previous] = [previous, current];
+        }
+
+        function drawWater() {
+            let c1 = redMode ? '#1a0505' : purpleMode ? '#0f0518' : '#02101f';
+            let c2 = redMode ? '#3a0a0a' : purpleMode ? '#1a0a2e' : '#041e38';
+
+            const bg = ctx.createLinearGradient(0, 0, 0, height);
+            bg.addColorStop(0, c1);
+            bg.addColorStop(1, c2);
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, width, height);
+
+            for (let i = 0; i < cols - 1; i++) {
+                for (let j = 0; j < rows - 1; j++) {
+                    const index = i + j * cols;
+                    const h = current[index];
+                    if (Math.abs(h) < 0.35) continue;
+
+                    const x = i * resolution;
+                    const y = j * resolution;
+                    const intensity = Math.min(Math.abs(h) / 26, 1);
+
+                    let r = redMode ? 200 : purpleMode ? 160 : 80;
+                    let g = redMode ? 30 : purpleMode ? 60 : 160;
+                    let b = redMode ? 30 : purpleMode ? 240 : 235;
+
+                    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.2 + intensity * 0.5})`;
+                    ctx.fillRect(x, y, resolution, resolution);
+                }
+            }
+
+            // Mira do Cursor do Jogador
+            ctx.strokeStyle = redMode ? '#ff4444' : purpleMode ? '#d070ff' : '#7ecbff';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(mouse.x, mouse.y, 10, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function loop() {
+            ctx.clearRect(0, 0, width, height);
+
+            updateWater();
+            drawWater();
+
+            updateRain();
+            drawRain();
+
+            updateBombs();
+            drawBombs();
+
+            updateExplosions();
+            drawExplosions();
+
+            updateSkulls();
+            drawSkulls();
+
+            updateSkullShots();
+            drawSkullShots();
+
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
+</body>
+</html>

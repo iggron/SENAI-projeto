@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOOM Clássico - HTML5</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    user-select: none;
+  }
+  #game {
+    position: relative;
+    border: 4px solid #333;
+    box-shadow: 0 0 30px #f00;
+  }
+  canvas {
+    display: block;
+    image-rendering: pixelated;
+    cursor: crosshair;
+  }
+  #hud {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 48px;
+    background: linear-gradient(#222, #111);
+    border-top: 2px solid #555;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    font-size: 18px;
+    color: #0f0;
+    text-shadow: 0 0 5px #0f0;
+  }
+  #hud span { min-width: 100px; text-align: center; }
+  #title {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 32px;
+    color: #f00;
+    text-shadow: 0 0 10px #f00, 0 0 20px #f00;
+    letter-spacing: 8px;
+    pointer-events: none;
+  }
+  #msg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    color: #ff0;
+    text-shadow: 0 0 10px #f00;
+    text-align: center;
+    pointer-events: none;
+    display: none;
+  }
+  #start {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    cursor: pointer;
+  }
+  #start h1 {
+    font-size: 64px;
+    color: #f00;
+    text-shadow: 0 0 20px #f00;
+    margin-bottom: 20px;
+    letter-spacing: 12px;
+  }
+  #start p { color: #aaa; margin: 8px; font-size: 16px; }
+  #start .btn {
+    margin-top: 30px;
+    padding: 12px 40px;
+    background: #300;
+    border: 2px solid #f00;
+    color: #f00;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  #start .btn:hover { background: #500; }
+</style>
+</head>
+<body>
+<div id="game">
+  <canvas id="c" width="640" height="400"></canvas>
+  <div id="hud">
+    <span id="health">♥ 100</span>
+    <span id="ammo">BULLETS 50</span>
+    <span id="kills">KILLS 0</span>
+    <span id="level">E1M1</span>
+  </div>
+  <div id="title">DOOM</div>
+  <div id="msg"></div>
+  <div id="start">
+    <h1>DOOM</h1>
+    <p>Clássico Raycasting em HTML5</p>
+    <p>WASD / Setas → mover</p>
+    <p>Mouse → olhar | Clique / Espaço → atirar</p>
+    <p>ESC → soltar mouse</p>
+    <div class="btn">CLIQUE PARA JOGAR</div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
+const halfH = H / 2;
+
+// Mapa (1 = parede, 0 = vazio, 2 = inimigo spawn)
+const map = [
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,1,1,0,0,0,1,1,0,0,0,1,1,0,1],
+  [1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],
+  [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+  [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+  [1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],
+  [1,0,1,1,0,0,0,1,1,0,0,0,1,1,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,1,1,0,0,0,0,1,1,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,1,0,0,0,0,1,1,0,0,0,0,1,0,1],
+  [1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],
+  [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+];
+const mapW = map[0].length;
+const mapH = map.length;
+const tileSize = 64;
+
+// Player
+let player = {
+  x: 1.5 * tileSize,
+  y: 1.5 * tileSize,
+  angle: 0,
+  fov: Math.PI / 3,
+  speed: 3.2,
+  rotSpeed: 0.045,
+  health: 100,
+  ammo: 50,
+  kills: 0
+};
+
+// Inimigos
+let enemies = [
+  {x: 8*tileSize, y: 3*tileSize, hp: 30, alive: true, frame: 0},
+  {x: 12*tileSize, y: 5*tileSize, hp: 30, alive: true, frame: 0},
+  {x: 4*tileSize, y: 10*tileSize, hp: 30, alive: true, frame: 0},
+  {x: 10*tileSize, y: 12*tileSize, hp: 40, alive: true, frame: 0},
+  {x: 6*tileSize, y: 7*tileSize, hp: 30, alive: true, frame: 0}
+];
+
+// Controles
+const keys = {};
+let mouseLocked = false;
+let shooting = false;
+let shootCooldown = 0;
+let gameStarted = false;
+let gameOver = false;
+let win = false;
+
+// Cores de parede (estilo Doom)
+const wallColors = [
+  null,
+  ['#8B0000','#5C0000'], // vermelho escuro
+  ['#4A4A4A','#2A2A2A'], // cinza
+  ['#006400','#003300'], // verde
+  ['#8B4513','#5C2E0A']  // marrom
+];
+
+document.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (e.code === 'Space' && gameStarted && !gameOver) shoot();
+  if (e.code === 'Escape') document.exitPointerLock();
+});
+document.addEventListener('keyup', e => keys[e.code] = false);
+
+canvas.addEventListener('click', () => {
+  if (!gameStarted) return;
+  canvas.requestPointerLock();
+  shoot();
+});
+
+document.addEventListener('pointerlockchange', () => {
+  mouseLocked = document.pointerLockElement === canvas;
+});
+
+document.addEventListener('mousemove', e => {
+  if (mouseLocked && gameStarted && !gameOver) {
+    player.angle += e.movementX * 0.0025;
+  }
+});
+
+document.getElementById('start').addEventListener('click', () => {
+  document.getElementById('start').style.display = 'none';
+  gameStarted = true;
+  canvas.requestPointerLock();
+  loop();
+});
+
+function shoot() {
+  if (shootCooldown > 0 || player.ammo <= 0 || gameOver) return;
+  player.ammo--;
+  shootCooldown = 12;
+  shooting = true;
+
+  // Raycast para acertar inimigo
+  const dirX = Math.cos(player.angle);
+  const dirY = Math.sin(player.angle);
+  let hit = false;
+
+  for (let dist = 0; dist < 800; dist += 4) {
+    const cx = player.x + dirX * dist;
+    const cy = player.y + dirY * dist;
+    const mx = Math.floor(cx / tileSize);
+    const my = Math.floor(cy / tileSize);
+    if (mx < 0 || my < 0 || mx >= mapW || my >= mapH || map[my][mx] === 1) break;
+
+    for (let e of enemies) {
+      if (!e.alive) continue;
+      const dx = e.x - cx;
+      const dy = e.y - cy;
+      if (dx*dx + dy*dy < 900) { // ~30px
+        e.hp -= 15;
+        if (e.hp <= 0) {
+          e.alive = false;
+          player.kills++;
+          showMsg('GOTCHA!', 800);
+        }
+        hit = true;
+        break;
+      }
+    }
+    if (hit) break;
+  }
+  updateHUD();
+}
+
+function showMsg(txt, time) {
+  const el = document.getElementById('msg');
+  el.textContent = txt;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', time);
+}
+
+function updateHUD() {
+  document.getElementById('health').textContent = '♥ ' + Math.max(0, player.health);
+  document.getElementById('ammo').textContent = 'BULLETS ' + player.ammo;
+  document.getElementById('kills').textContent = 'KILLS ' + player.kills;
+}
+
+function movePlayer() {
+  if (gameOver) return;
+
+  let moveX = 0, moveY = 0;
+  if (keys['KeyW'] || keys['ArrowUp']) {
+    moveX += Math.cos(player.angle) * player.speed;
+    moveY += Math.sin(player.angle) * player.speed;
+  }
+  if (keys['KeyS'] || keys['ArrowDown']) {
+    moveX -= Math.cos(player.angle) * player.speed;
+    moveY -= Math.sin(player.angle) * player.speed;
+  }
+  if (keys['KeyA']) {
+    moveX += Math.cos(player.angle - Math.PI/2) * player.speed * 0.7;
+    moveY += Math.sin(player.angle - Math.PI/2) * player.speed * 0.7;
+  }
+  if (keys['KeyD']) {
+    moveX += Math.cos(player.angle + Math.PI/2) * player.speed * 0.7;
+    moveY += Math.sin(player.angle + Math.PI/2) * player.speed * 0.7;
+  }
+  if (keys['ArrowLeft']) player.angle -= player.rotSpeed;
+  if (keys['ArrowRight']) player.angle += player.rotSpeed;
+
+  // Colisão
+  const newX = player.x + moveX;
+  const newY = player.y + moveY;
+  const margin = 12;
+
+  if (map[Math.floor(player.y / tileSize)][Math.floor((newX + margin) / tileSize)] !== 1 &&
+      map[Math.floor(player.y / tileSize)][Math.floor((newX - margin) / tileSize)] !== 1) {
+    player.x = newX;
+  }
+  if (map[Math.floor((newY + margin) / tileSize)][Math.floor(player.x / tileSize)] !== 1 &&
+      map[Math.floor((newY - margin) / tileSize)][Math.floor(player.x / tileSize)] !== 1) {
+    player.y = newY;
+  }
+}
+
+function castRay(angle) {
+  const sin = Math.sin(angle);
+  const cos = Math.cos(angle);
+  let dist = 0;
+  let hit = false;
+  let side = 0;
+  let mapX, mapY;
+
+  while (dist < 1200) {
+    dist += 2;
+    const x = player.x + cos * dist;
+    const y = player.y + sin * dist;
+    mapX = Math.floor(x / tileSize);
+    mapY = Math.floor(y / tileSize);
+
+    if (mapX < 0 || mapY < 0 || mapX >= mapW || mapY >= mapH || map[mapY][mapX] === 1) {
+      hit = true;
+      // Determinar lado (aproximado)
+      const prevX = player.x + cos * (dist - 2);
+      const prevY = player.y + sin * (dist - 2);
+      if (Math.floor(prevX / tileSize) !== mapX) side = 0;
+      else side = 1;
+      break;
+    }
+  }
+  return { dist, hit, side, mapX, mapY };
+}
+
+function render() {
+  // Teto
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, W, halfH);
+  // Chão
+  ctx.fillStyle = '#0d0d0d';
+  ctx.fillRect(0, halfH, W, halfH);
+
+  const rays = 160;
+  const step = player.fov / rays;
+
+  for (let i = 0; i < rays; i++) {
+    const rayAngle = player.angle - player.fov / 2 + i * step;
+    const { dist, side } = castRay(rayAngle);
+
+    // Correção fisheye
+    const corrected = dist * Math.cos(rayAngle - player.angle);
+    const wallH = Math.min(H, (tileSize * 280) / corrected);
+    const wallTop = (H - wallH) / 2;
+
+    // Cor baseada na distância + lado
+    const shade = Math.max(0.15, 1 - corrected / 900);
+    let r = Math.floor(140 * shade);
+    let g = Math.floor(20 * shade);
+    let b = Math.floor(20 * shade);
+    if (side === 1) { r = Math.floor(r * 0.7); g = Math.floor(g * 0.7); b = Math.floor(b * 0.7); }
+
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fillRect(i * (W / rays), wallTop, W / rays + 1, wallH);
+  }
+
+  // Inimigos (sprites simples)
+  const sorted = enemies
+    .filter(e => e.alive)
+    .map(e => {
+      const dx = e.x - player.x;
+      const dy = e.y - player.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      let ang = Math.atan2(dy, dx) - player.angle;
+      while (ang > Math.PI) ang -= Math.PI*2;
+      while (ang < -Math.PI) ang += Math.PI*2;
+      return {e, dist, ang};
+    })
+    .filter(s => Math.abs(s.ang) < player.fov / 1.5)
+    .sort((a,b) => b.dist - a.dist);
+
+  for (let s of sorted) {
+    const size = Math.min(300, (tileSize * 400) / s.dist);
+    const screenX = (0.5 + s.ang / player.fov) * W - size / 2;
+    const screenY = halfH - size / 2;
+
+    // Corpo do inimigo (imp estilo)
+    ctx.fillStyle = '#4a0000';
+    ctx.fillRect(screenX + size*0.2, screenY + size*0.3, size*0.6, size*0.7);
+    // Cabeça
+    ctx.fillStyle = '#6b0000';
+    ctx.beginPath();
+    ctx.arc(screenX + size/2, screenY + size*0.25, size*0.22, 0, Math.PI*2);
+    ctx.fill();
+    // Olhos
+    ctx.fillStyle = '#ff0';
+    ctx.fillRect(screenX + size*0.35, screenY + size*0.18, size*0.1, size*0.08);
+    ctx.fillRect(screenX + size*0.55, screenY + size*0.18, size*0.1, size*0.08);
+  }
+
+  // Arma (pistola estilo)
+  if (shooting) {
+    ctx.fillStyle = '#ff0';
+    ctx.fillRect(W/2 - 8, H - 90, 16, 30);
+    shooting = false;
+  }
+  // Pistola
+  ctx.fillStyle = '#333';
+  ctx.fillRect(W/2 - 25, H - 70, 50, 40);
+  ctx.fillStyle = '#555';
+  ctx.fillRect(W/2 - 10, H - 95, 20, 30);
+  ctx.fillStyle = '#222';
+  ctx.fillRect(W/2 - 6, H - 110, 12, 20);
+
+  // Mira
+  ctx.strokeStyle = '#0f0';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(W/2 - 12, halfH); ctx.lineTo(W/2 - 4, halfH);
+  ctx.moveTo(W/2 + 4, halfH); ctx.lineTo(W/2 + 12, halfH);
+  ctx.moveTo(W/2, halfH - 12); ctx.lineTo(W/2, halfH - 4);
+  ctx.moveTo(W/2, halfH + 4); ctx.lineTo(W/2, halfH + 12);
+  ctx.stroke();
+}
+
+function enemyAI() {
+  for (let e of enemies) {
+    if (!e.alive) continue;
+    const dx = player.x - e.x;
+    const dy = player.y - e.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+
+    if (dist < 400) {
+      // Perseguir
+      const speed = 1.1;
+      e.x += (dx / dist) * speed;
+      e.y += (dy / dist) * speed;
+
+      // Atacar se perto
+      if (dist < 50 && Math.random() < 0.03) {
+        player.health -= 8;
+        showMsg('OUCH!', 400);
+        updateHUD();
+        if (player.health <= 0) {
+          player.health = 0;
+          gameOver = true;
+          showMsg('YOU DIED\nPress F5 to restart', 99999);
+        }
+      }
+    }
+  }
+
+  // Vitória
+  if (enemies.every(e => !e.alive) && !win) {
+    win = true;
+    showMsg('LEVEL CLEARED!\nYou are the Doomguy!', 5000);
+  }
+}
+
+function loop() {
+  if (!gameStarted) return;
+  movePlayer();
+  if (shootCooldown > 0) shootCooldown--;
+  enemyAI();
+  render();
+  requestAnimationFrame(loop);
+}
+
+updateHUD();
+</script>
+</body>
+</html>

@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz SQL Server - 40 Questões Práticas</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-purple: #c084fc;
+            --correct-green: #22c55e;
+            --wrong-red: #ef4444;
+            --code-bg: #090d16;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: var(--accent-blue);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background-color: var(--card-bg);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            background-color: var(--accent-blue);
+            color: var(--bg-color);
+            border-color: var(--accent-blue);
+        }
+
+        /* Quiz Card */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .badge {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .counter {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent-blue);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        code {
+            background-color: var(--code-bg);
+            color: var(--accent-purple);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 14px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not([disabled]) {
+            border-color: var(--accent-blue);
+            background-color: rgba(56, 189, 248, 0.08);
+        }
+
+        .option-btn.correct {
+            background-color: rgba(34, 197, 94, 0.2);
+            border-color: var(--correct-green);
+            color: #4ade80;
+        }
+
+        .option-btn.wrong {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-color: var(--wrong-red);
+            color: #f87171;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--code-bg);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-action {
+            background-color: var(--accent-blue);
+            color: var(--bg-color);
+            border: none;
+            padding: 10px 22px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: none;
+        }
+
+        .btn-action:hover {
+            opacity: 0.9;
+        }
+
+        /* Result Screen */
+        .results-container {
+            display: none;
+            text-align: center;
+        }
+
+        .results-title {
+            color: var(--accent-blue);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .score-big {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 15px 0;
+            color: var(--text-main);
+        }
+
+        .topic-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .topic-card {
+            background-color: var(--code-bg);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .topic-card h4 {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .topic-card p {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+        }
+
+        .restart-btn {
+            background-color: var(--accent-blue);
+            color: var(--bg-color);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Quiz SQL Server</h1>
+        <p>40 Perguntas Práticas: CREATE TABLE, DESC/sp_help, INSERT e SELECT</p>
+    </header>
+
+    <div class="filter-tabs">
+        <button class="tab-btn active" onclick="setFilter('ALL')">Todos (40)</button>
+        <button class="tab-btn" onclick="setFilter('CREATE TABLE')">CREATE TABLE (10)</button>
+        <button class="tab-btn" onclick="setFilter('DESC / ESTRUTURA')">DESC / Estrutura (10)</button>
+        <button class="tab-btn" onclick="setFilter('INSERT')">INSERT (10)</button>
+        <button class="tab-btn" onclick="setFilter('SELECT')">SELECT (10)</button>
+    </div>
+
+    <div class="card" id="quiz-card">
+        <div class="quiz-header">
+            <span class="badge" id="topic-badge">Tópico</span>
+            <span class="counter" id="progress-text">Pergunta 1 de 40</span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="question-text" id="question-text">Carregando pergunta...</div>
+
+        <div class="options-grid" id="options-container"></div>
+
+        <div class="explanation" id="explanation-box"></div>
+
+        <div class="footer">
+            <button class="btn-action" id="next-btn" onclick="nextQuestion()">Próxima Pergunta</button>
+        </div>
+    </div>
+
+    <div class="card results-container" id="results-card">
+        <h2 class="results-title">Quiz Concluído!</h2>
+        <p>Confira seu desempenho detalhado:</p>
+        
+        <div class="score-big" id="final-score">0 / 40</div>
+
+        <div class="topic-breakdown" id="topic-breakdown"></div>
+
+        <button class="restart-btn" onclick="restartQuiz()">Refazer Quiz</button>
+    </div>
+</div>
+
+<script>
+    const allQuestions = [
+        // --- 1. CREATE TABLE (10 Perguntas) ---
+        {
+            topic: "CREATE TABLE",
+            question: "Qual palavra-chave é usada no SQL Server para definir que um campo numérico terá incremento automático de valores?",
+            options: [
+                "AUTO_INCREMENT",
+                "IDENTITY(1,1)",
+                "SERIAL",
+                "AUTO_NUMBER"
+            ],
+            correct: 1,
+            explanation: "No SQL Server (T-SQL), utiliza-se o atributo <code>IDENTITY(semente, incremento)</code>. O comando <code>AUTO_INCREMENT</code> é usado no MySQL e <code>SERIAL</code> no PostgreSQL."
+        },
+        {
+            topic: "CREATE TABLE",
+            question: "Qual o tipo de dado apropriado no SQL Server para armazenar textos em formato Unicode (ex: caracteres especiais e acentuação universal) de tamanho variável?",
+            options: [
+                "VARCHAR",
+                "NVARCHAR",
+                "CHAR",
+                "TEXT"
+            ],
+            correct: 1,
+            explanation: "O prefixo 'N' em <code>NVARCHAR</code> indica suporte a Unicode (UTF-16), onde cada caractere ocupa 2 bytes. O <code>VARCHAR</code> armazena caracteres não-Unicode."
+        },
+        {
+            topic: "CREATE TABLE",
+            question: "Como se define uma restrição para garantir que os valores da coluna 'Idade' sejam maiores ou iguais a 18 na criação da tabela?",
+            options: [
+                "CHECK (Idade >= 18)",
+                "WHERE (Idade >= 18)",
+                "CONSTRAINT VALIDATE (Idade >= 18)",
+                "HAVING (Idade >= 18)"
+            ],
+            correct: 0,
+            explanation: "A instrução <code>CHECK</code> define uma regra de validação lógica que todos os dados inseridos ou alterados na coluna devem cumprir."
+        },
+        {
+            topic: "CREATE TABLE",
+            question: "O que acontece ao definir uma coluna com a restrição <code>UNIQUE</code> no SQL Server em relação a valores nulos (NULL)?",
+            options: [
+                "Permite múltiplos valores NULL sem restrição.",
+                "Impede totalmente a inserção de valores NULL.",
+                "Permite no máximo apenas 1 valor NULL na coluna.",
+                "Converte automaticamente valores NULL em string vazia."
+            ],
+            correct: 2,
+            explanation: "No SQL Server, a restrição <code>UNIQUE</code> padrão considera que dois valores NULL são iguais, permitindo no máximo um único registro com valor NULL na coluna."
+        },
+        {
+            topic: "CREATE TABLE",
+            question: "Como criar uma tabela temporária local no SQL Server que seja visível apenas na sessão atual do usuário?",
+            options: [
+                "CREATE TABLE #MinhaTabela (...);",
+                "CREATE TABLE ##MinhaTabela (...);",
+                "CREATE TEMP TABLE MinhaTabela (...);",
+                "CREATE TABLE @MinhaTabela (...);"
+            ],
+            correct: 0,
+            explanation: "Um único caractere cerquilha (<code>#Tabela</code>) cria uma tabela temporária local. Dois caracteres (<code>##Tabela</code>) criam uma tabela temporária global."
+        },
+        {
+            topic: "CREATE TABLE",
+            question: "Qual cláusula atribui automaticamente a data e hora atuais do sistema a uma coluna caso nenhum valor seja fornecido no INSERT?",
+            options: [
+                "DEFAULT GETDATE()",
+                "SET NOW()",
+                "AUTO CURRENT_TIMESTAMP",
+                "PRIMARY DATE"
+            ],
+            correct: 0,
+            explanation: "A cláusula <code>DEFAULT</code> atribui um valor padrão a uma coluna. A função <code>GETDATE()</code> do SQL Server retorna a data/hora atual do servidor."
+        },
+        {
+            topic: "CREATE TABLE",
+            question: "Como definir uma Chave Estrangeira (Foreign Key) diretamente no script DDL apontando para a tabela 'Cidades'?",
+            options: [
+                "CidadeId INT FOREIGN KEY REFERENCES Cidades(Id)",
+                "CidadeId INT LINK Cidades(Id)",
+                "CidadeId INT CONNECT TO Cidades(Id)",
+                "CidadeId INT JOIN Cidades(Id)"
+            ],
+            correct: 0,
+            explanation: "A sintaxe padrão de coluna é <code>TabelaId INT FOREIGN KEY REFERENCES NomeTabelaPai(ColunaChave)</code>."
+        },
+        {
+            topic: "CREATE TABLE",
+            question: "Qual tipo de dado é ideal para armazenar valores monetários com precisão fixa de 4 casas decimais no SQL Server?",
+            options: [
+                "FLOAT",
+                "MONEY",
+                "REAL",
+                "DOUBLE"
+            ],
+            correct: 1,
+            explanation: "O SQL Server possui o tipo de dado nativo <code>MONEY</code> (ou <code>DECIMAL/NUMERIC</code>) para valores financeiros. <code>FLOAT</code> e <code>REAL</code> são tipos de ponto flutuante de precisão aproximada."
+        },
+        {
+            topic: "CREATE TABLE",
+            question: "Qual opção de chave primária impede que a tabela aceite linhas duplicadas e fisicamente reordena os dados no disco por padrão?",
+            options: [
+                "PRIMARY KEY NONCLUSTERED",
+                "PRIMARY KEY CLUSTERED",
+                "UNIQUE INDEX ONLY",
+                "INDEXED PRIMARY"
+            ],
+            correct: 1,
+            explanation: "Por padrão, ao criar uma <code>PRIMARY KEY</code> no SQL Server sem especificar o tipo, é criado um índice clusterizado (<code>CLUSTERED</code>), que define a ordem física de armazenamento dos dados."
+        },
+        {
+            topic: "CREATE TABLE",
+            question: "Qual o limite de tamanho padrão em bytes para o tipo de dados <code>VARCHAR(MAX)</code> no SQL Server?",
+            options: [
+                "8.000 bytes",
+                "65.535 bytes",
+                "2 Gigabytes (2GB)",
+                "Ilimitado sem restrições físicas"
+            ],
+            correct: 2,
+            explanation: "O especificador <code>MAX</code> permite armazenar até 2^31-1 bytes de dados (aproximadamente 2 GB) fora da página de dados tradicional de 8KB."
+        },
+
+        // --- 2. DESC / ESTRUTURA DA TABELA (10 Perguntas) ---
+        {
+            topic: "DESC / ESTRUTURA",
+            question: "O comando <code>DESC</code>/<code>DESCRIBE</code> não existe nativamente no SQL Server. Qual Stored Procedure de sistema substitui o <code>DESC</code> para exibir a estrutura de uma tabela?",
+            options: [
+                "EXEC sp_columns 'NomeTabela';",
+                "EXEC sp_help 'NomeTabela';",
+                "EXEC sp_tables 'NomeTabela';",
+                "EXEC sp_structure 'NomeTabela';"
+            ],
+            correct: 1,
+            explanation: "A Stored Procedure <code>EXEC sp_help 'NomeTabela'</code> exibe os detalhes completos de um objeto no SQL Server (colunas, tipos, chaves, índices e restrições)."
+        },
+        {
+            topic: "DESC / ESTRUTURA",
+            question: "Qual View de Sistema padrão ANSI pode ser consultada via SELECT para obter o nome das colunas e tipos de dados de uma tabela?",
+            options: [
+                "INFORMATION_SCHEMA.COLUMNS",
+                "SYS.TABLE_STRUCTURE",
+                "SYSTEM.ALL_COLUMNS",
+                "MASTER.DBO.COLUMNS"
+            ],
+            correct: 0,
+            explanation: "A view <code>INFORMATION_SCHEMA.COLUMNS</code> é o padrão ISO/ANSI suportado pelo SQL Server para inspecionar metadados de colunas."
+        },
+        {
+            topic: "DESC / ESTRUTURA",
+            question: "Qual Stored Procedure exibe apenas a lista detalhada das colunas, tipos de dados e se aceitam NULL para uma tabela específica?",
+            options: [
+                "EXEC sp_columns 'NomeTabela';",
+                "EXEC sp_showcols 'NomeTabela';",
+                "EXEC sp_list 'NomeTabela';",
+                "EXEC sp_describe 'NomeTabela';"
+            ],
+            correct: 0,
+            explanation: "<code>sp_columns 'Tabela'</code> retorna um conjunto de dados focado exclusivamente nas colunas da tabela e suas propriedades técnicas."
+        },
+        {
+            topic: "DESC / ESTRUTURA",
+            question: "Como visualizar o script SQL / código fonte de criação de uma View, Procedure ou Trigger no SQL Server?",
+            options: [
+                "EXEC sp_helptext 'NomeDoObjeto';",
+                "EXEC sp_code 'NomeDoObjeto';",
+                "SELECT SCRIPT FROM sys.objects;",
+                "SHOW CREATE PROCEDURE NomeDoObjeto;"
+            ],
+            correct: 0,
+            explanation: "<code>EXEC sp_helptext 'NomeObjeto'</code> imprime o texto não criptografado com a definição do objeto de banco de dados."
+        },
+        {
+            topic: "DESC / ESTRUTURA",
+            question: "Qual Stored Procedure de sistema exibe o uso de espaço em disco (tamanho reservado, tamanho dos dados e índices) de uma tabela?",
+            options: [
+                "EXEC sp_diskusage 'NomeTabela';",
+                "EXEC sp_spaceused 'NomeTabela';",
+                "EXEC sp_table_size 'NomeTabela';",
+                "EXEC sp_bytes 'NomeTabela';"
+            ],
+            correct: 1,
+            explanation: "<code>EXEC sp_spaceused 'NomeTabela'</code> calcula e exibe o número de linhas, espaço reservado e espaço consumido por dados e índices."
+        },
+        {
+            topic: "DESC / ESTRUTURA",
+            question: "Qual função do T-SQL retorna o ID numérico de objeto de uma tabela para verificar rapidamente se ela existe no banco?",
+            options: [
+                "OBJECT_ID('dbo.NomeTabela')",
+                "GET_OBJECT_ID('NomeTabela')",
+                "TABLE_ID('NomeTabela')",
+                "FIND_OBJECT('NomeTabela')"
+            ],
+            correct: 0,
+            explanation: "A função <code>OBJECT_ID('NomeTabela')</code> retorna o identificador interno do objeto. Se a tabela não existir no banco de dados atual, retorna <code>NULL</code>."
+        },
+        {
+            topic: "DESC / ESTRUTURA",
+            question: "Qual Stored Procedure de sistema exibe informações detalhadas sobre as restrições (Constraints e Keys) aplicadas a uma tabela?",
+            options: [
+                "EXEC sp_helpconstraint 'NomeTabela';",
+                "EXEC sp_constraints 'NomeTabela';",
+                "EXEC sp_showkeys 'NomeTabela';",
+                "EXEC sp_check_rules 'NomeTabela';"
+            ],
+            correct: 0,
+            explanation: "<code>sp_helpconstraint 'NomeTabela'</code> lista todas as chaves primárias, chaves estrangeiras, defaults e restrições CHECK da tabela."
+        },
+        {
+            topic: "DESC / ESTRUTURA",
+            question: "Qual tabela/view do catálogo do SQL Server guarda a lista de todas as tabelas criadas no banco de dados?",
+            options: [
+                "sys.tables",
+                "sys.all_data",
+                "master.tables",
+                "sys.db_objects"
+            ],
+            correct: 0,
+            explanation: "A visão de catálogo <code>sys.tables</code> contém uma linha para cada tabela do usuário criada no banco de dados do SQL Server."
+        },
+        {
+            topic: "DESC / ESTRUTURA",
+            question: "Qual procedimento de sistema exibe as Chaves Estrangeiras que apontam para uma determinada tabela pai?",
+            options: [
+                "EXEC sp_fkeys 'NomeTabelaPai';",
+                "EXEC sp_foreignkeys 'NomeTabelaPai';",
+                "EXEC sp_depends 'NomeTabelaPai';",
+                "EXEC sp_links 'NomeTabelaPai';"
+            ],
+            correct: 0,
+            explanation: "<code>sp_fkeys 'NomeTabelaPai'</code> retorna informações das chaves estrangeiras que fazem referência às chaves da tabela especificada."
+        },
+        {
+            topic: "DESC / ESTRUTURA",
+            question: "Qual a diferença entre a visão do catálogo nativa <code>sys.columns</code> e a view <code>INFORMATION_SCHEMA.COLUMNS</code>?",
+            options: [
+                "sys.columns contém apenas tabelas temporárias.",
+                "sys.columns é nativa do SQL Server com recursos específicos do T-SQL; INFORMATION_SCHEMA segue o padrão ANSI.",
+                "INFORMATION_SCHEMA exibe dados confidenciais e sys.columns exibe apenas nomes.",
+                "Não existe nenhuma diferença técnica."
+            ],
+            correct: 1,
+            explanation: "Visões do esquema <code>sys</code> expõem metadados específicos do ecossistema SQL Server/T-SQL, enquanto <code>INFORMATION_SCHEMA</code> garante portabilidade com o padrão SQL ANSI/ISO."
+        },
+
+        // --- 3. INSERT (10 Perguntas) ---
+        {
+            topic: "INSERT",
+            question: "Como inserir múltiplos registros de uma só vez em um único comando no SQL Server (T-SQL)?",
+            options: [
+                "INSERT INTO Clientes (Nome) VALUES ('Ana'), ('Carlos'), ('Bia');",
+                "INSERT INTO Clientes (Nome) VALUES ('Ana') AND ('Carlos');",
+                "INSERT MULTIPLE Clientes (Nome) ('Ana', 'Carlos');",
+                "ADD INTO Clientes (Nome) VALUES ('Ana', 'Carlos');"
+            ],
+            correct: 0,
+            explanation: "O construtor de valores de tabela permite inserir até 1000 linhas em uma única instrução <code>INSERT INTO ... VALUES (...), (...)</code>."
+        },
+        {
+            topic: "INSERT",
+            question: "O que deve ser executado para permitir a inserção manual de um valor em uma coluna configurada com o atributo <code>IDENTITY</code>?",
+            options: [
+                "SET IDENTITY_INSERT NomeTabela ON;",
+                "ALLOW IDENTITY_INSERT NomeTabela;",
+                "ALTER TABLE NomeTabela DISABLE IDENTITY;",
+                "SET AUTO_INCREMENT = OFF;"
+            ],
+            correct: 0,
+            explanation: "Por padrão, o SQL Server bloqueia inserções manuais em colunas Identity. O comando <code>SET IDENTITY_INSERT NomeTabela ON</code> permite essa operação temporariamente na sessão."
+        },
+        {
+            topic: "INSERT",
+            question: "Qual comando é usado para copiar dados de uma tabela existente e inseri-los em outra tabela já criada?",
+            options: [
+                "INSERT INTO TabelaDestino SELECT * FROM TabelaOrigem;",
+                "INSERT INTO TabelaDestino FROM SELECT * FROM TabelaOrigem;",
+                "COPY INTO TabelaDestino FROM TabelaOrigem;",
+                "MERGE TabelaOrigem INTO TabelaDestino;"
+            ],
+            correct: 0,
+            explanation: "A sintaxe <code>INSERT INTO Destino (Colunas) SELECT Colunas FROM Origem</code> copia linhas de uma consulta diretamente para uma tabela existente."
+        },
+        {
+            topic: "INSERT",
+            question: "Como criar uma nova tabela física no banco e povoá-la imediatamente a partir do resultado de uma instrução SELECT?",
+            options: [
+                "SELECT * INTO NovaTabela FROM TabelaAntiga;",
+                "CREATE TABLE NovaTabela AS SELECT * FROM TabelaAntiga;",
+                "INSERT NEW NovaTabela SELECT * FROM TabelaAntiga;",
+                "EXPORT TO NovaTabela SELECT * FROM TabelaAntiga;"
+            ],
+            correct: 0,
+            explanation: "A cláusula <code>SELECT ... INTO NovaTabela FROM ...</code> cria a tabela de destino automaticamente com base nos tipos de dados das colunas retornadas pela consulta."
+        },
+        {
+            topic: "INSERT",
+            question: "Qual função do T-SQL retorna o último valor de ID gerado por um <code>IDENTITY</code> dentro do MESMO escopo da execução atual?",
+            options: [
+                "SCOPE_IDENTITY()",
+                "@@IDENTITY",
+                "IDENT_CURRENT('Tabela')",
+                "LAST_INSERT_ID()"
+            ],
+            correct: 0,
+            explanation: "<code>SCOPE_IDENTITY()</code> é a opção mais segura, pois retorna o último valor gerado no escopo atual (evita pegar IDs gerados por Triggers em outras tabelas, diferente de <code>@@IDENTITY</code>)."
+        },
+        {
+            topic: "INSERT",
+            question: "Qual cláusula pode ser adicionada ao comando <code>INSERT</code> para retornar imediatamente os valores que foram recém-inseridos na tabela?",
+            options: [
+                "OUTPUT INSERTED.*",
+                "RETURNING ALL",
+                "SHOW INSERTED",
+                "SELECT NEW VALUES"
+            ],
+            correct: 0,
+            explanation: "A cláusula <code>OUTPUT INSERTED.Coluna</code> permite capturar e retornar os dados exatamente como foram gravados durante o comando de INSERT."
+        },
+        {
+            topic: "INSERT",
+            question: "Qual o resultado de executar <code>INSERT INTO Clientes DEFAULT VALUES;</code> em uma tabela onde todas as colunas possuem valores padrões (DEFAULT) ou aceitam NULL/Identity?",
+            options: [
+                "O comando falha porque precisa da cláusula VALUES obrigatória.",
+                "Insere uma nova linha preenchendo as colunas com seus respectivos valores padrão ou NULL/Identity.",
+                "Apaga os dados da tabela.",
+                "Apenas simula a inserção sem gravar nada."
+            ],
+            correct: 1,
+            explanation: "A instrução <code>DEFAULT VALUES</code> força a inserção de uma linha contendo os valores padrão predefinidos para todas as colunas."
+        },
+        {
+            topic: "INSERT",
+            question: "O que acontece ao tentar fazer um <code>INSERT</code> omitindo uma coluna que foi criada como <code>NOT NULL</code> e NÃO possui valor <code>DEFAULT</code> nem <code>IDENTITY</code>?",
+            options: [
+                "O SQL Server insere o valor 0 ou texto vazio automaticamente.",
+                "A instrução falha e lança um erro de violação de restrição.",
+                "A linha é inserida normalmente deixando a coluna nula.",
+                "A coluna é excluída da tabela."
+            ],
+            correct: 1,
+            explanation: "Se a coluna não aceita nulos (<code>NOT NULL</code>) e o banco não sabe qual valor padrão atribuir (sem <code>DEFAULT</code>/<code>IDENTITY</code>), o SQL Server bloqueia a operação e gera erro."
+        },
+        {
+            topic: "INSERT",
+            question: "Qual a diferença fundamental entre <code>SCOPE_IDENTITY()</code> e <code>IDENT_CURRENT('Tabela')</code>?",
+            options: [
+                "IDENT_CURRENT retorna o último ID gerado para uma tabela específica em qualquer sessão, enquanto SCOPE_IDENTITY é limitado à sessão e escopo atuais.",
+                "SCOPE_IDENTITY funciona apenas com tabelas temporárias.",
+                "IDENT_CURRENT retorna apenas números negativos.",
+                "Não existe diferença, são sinônimos perfeitos."
+            ],
+            correct: 0,
+            explanation: "<code>IDENT_CURRENT('Tabela')</code> ignora o escopo e a sessão atual, retornando o último valor Identity gerado para aquela tabela específica por QUALQUER usuário no banco de dados."
+        },
+        {
+            topic: "INSERT",
+            question: "Como realizar a inserção de um registro em uma tabela que possui um gatilho (Trigger) e impedir que mensagens do tipo '(1 linha afetada)' poluam o retorno do script?",
+            options: [
+                "SET NOCOUNT ON;",
+                "SET SILENT ON;",
+                "HIDE OUTPUT;",
+                "DISABLE MESSAGES;"
+            ],
+            correct: 0,
+            explanation: "O comando <code>SET NOCOUNT ON</code> impede o envio da mensagem que informa o número de linhas afetadas por cada instrução T-SQL."
+        },
+
+        // --- 4. SELECT (10 Perguntas) ---
+        {
+            topic: "SELECT",
+            question: "Qual cláusula no SQL Server é usada para limitar o número de linhas retornadas por uma consulta SELECT?",
+            options: [
+                "LIMIT 10",
+                "TOP (10)",
+                "FETCH FIRST 10",
+                "ROWNUM <= 10"
+            ],
+            correct: 1,
+            explanation: "No SQL Server (T-SQL), utiliza-se a palavra-chave <code>TOP (n)</code> logo após o SELECT. O comando <code>LIMIT</code> é usado no MySQL e PostgreSQL."
+        },
+        {
+            topic: "SELECT",
+            question: "Qual modificador no SELECT remove todas as linhas duplicadas do conjunto de resultados?",
+            options: [
+                "DISTINCT",
+                "UNIQUE",
+                "DIFFERENT",
+                "GROUP"
+            ],
+            correct: 0,
+            explanation: "A cláusula <code>SELECT DISTINCT</code> avalia as colunas selecionadas e remove linhas idênticas duplicadas do retorno."
+        },
+        {
+            topic: "SELECT",
+            question: "Qual a diferença entre a cláusula <code>WHERE</code> e a cláusula <code>HAVING</code> em uma consulta SELECT?",
+            options: [
+                "WHERE filtra linhas antes do agrupamento; HAVING filtra os resultados agrupados (após GROUP BY).",
+                "HAVING só funciona com strings e WHERE com números.",
+                "WHERE exige INNER JOIN e HAVING exige LEFT JOIN.",
+                "São perfeitamente idênticas e intercambiáveis."
+            ],
+            correct: 0,
+            explanation: "O <code>WHERE</code> se aplica a registros individuais antes de qualquer agregação. O <code>HAVING</code> é aplicado aos grupos resultantes da cláusula <code>GROUP BY</code>."
+        },
+        {
+            topic: "SELECT",
+            question: "O que o comando <code>SELECT TOP (5) WITH TIES ... ORDER BY Valor DESC</code> faz de especial?",
+            options: [
+                "Retorna os 5 maiores valores e inclui linhas adicionais que empatarem com o 5º lugar.",
+                "Elimina valores nulos automaticamente dos 5 primeiros.",
+                "Sorteia 5 valores aleatórios ordenados.",
+                "Cria um vínculo permanente entre as 5 linhas."
+            ],
+            correct: 0,
+            explanation: "A opção <code>WITH TIES</code> força a inclusão de registros extras caso eles tenham o mesmo valor do último registro limitado pelo <code>TOP</code> (requer <code>ORDER BY</code>)."
+        },
+        {
+            topic: "SELECT",
+            question: "Qual tipo de junção (JOIN) retorna TODOS os registros da tabela da esquerda, mesmo que não haja correspondência na tabela da direita?",
+            options: [
+                "INNER JOIN",
+                "LEFT JOIN (ou LEFT OUTER JOIN)",
+                "RIGHT JOIN",
+                "FULL JOIN"
+            ],
+            correct: 1,
+            explanation: "O <code>LEFT JOIN</code> preserva todas as linhas da tabela declarada no lado esquerdo da junção. Se não houver correspondência à direita, os campos retornam como <code>NULL</code>."
+        },
+        {
+            topic: "SELECT",
+            question: "Como verificar se uma coluna possui valor nulo (ausência de valor) na cláusula WHERE?",
+            options: [
+                "WHERE Coluna = NULL",
+                "WHERE Coluna IS NULL",
+                "WHERE Coluna == NULL",
+                "WHERE Coluna EQUALS NULL"
+            ],
+            correct: 1,
+            explanation: "Em SQL, o valor NULL representa o 'desconhecido'. Comparações com <code>= NULL</code> resultam em UNKNOWN. Deve-se utilizar os operadores <code>IS NULL</code> ou <code>IS NOT NULL</code>."
+        },
+        {
+            topic: "SELECT",
+            question: "Qual função do SQL Server substitui um valor <code>NULL</code> por um valor alternativo especificado?",
+            options: [
+                "ISNULL(Coluna, 'ValorSubstituto')",
+                "IFNULL(Coluna, 'ValorSubstituto')",
+                "NVL(Coluna, 'ValorSubstituto')",
+                "NULLFIX(Coluna, 'ValorSubstituto')"
+            ],
+            correct: 0,
+            explanation: "No SQL Server utiliza-se a função <code>ISNULL(Expressao, ValorSeNulo)</code> ou o padrão ANSI <code>COALESCE(...)</code>. <code>IFNULL</code> é do MySQL e <code>NVL</code> do Oracle."
+        },
+        {
+            topic: "SELECT",
+            question: "Qual operador é usado para buscar registros onde uma coluna de texto corresponda a um determinado padrão usando curingas (como % e _)?",
+            options: [
+                "LIKE",
+                "MATCH",
+                "CONTAINS",
+                "SEARCH"
+            ],
+            correct: 0,
+            explanation: "O operador <code>LIKE</code> habilita pesquisas por padrões de texto. O símbolo <code>%</code> representa qualquer sequência de caracteres e <code>_</code> representa um único caractere."
+        },
+        {
+            topic: "SELECT",
+            question: "Como funciona o operador <code>EXISTS</code> em uma subconsulta no SELECT?",
+            options: [
+                "Retorna VERDADEIRO se a subconsulta retornar pelo menos uma linha.",
+                "Retorna a média dos valores da subconsulta.",
+                "Verifica se a subconsulta contém erros de sintaxe.",
+                "Compara apenas a primeira coluna de cada tabela."
+            ],
+            correct: 0,
+            explanation: "<code>EXISTS (subquery)</code> testa a existência de registros e é otimizado para interromper o processamento assim que encontra a primeira linha correspondente."
+        },
+        {
+            topic: "SELECT",
+            question: "Qual instrução permite combinar os conjuntos de resultados de duas consultas SELECT, removendo automaticamente as linhas duplicadas entre elas?",
+            options: [
+                "UNION",
+                "UNION ALL",
+                "JOIN",
+                "MERGE"
+            ],
+            correct: 0,
+            explanation: "O operador <code>UNION</code> combina duas consultas e realiza uma operação de distinção para remover duplicatas. O <code>UNION ALL</code> mantém todas as linhas sem filtrar duplicatas."
+        }
+    ];
+
+    let currentFilter = "ALL";
+    let activeQuestions = [];
+    let currentIndex = 0;
+    let userAnswers = []; // Armazena respostas
+
+    function setFilter(filter) {
+        currentFilter = filter;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        restartQuiz();
+    }
+
+    function initQuiz() {
+        if (currentFilter === "ALL") {
+            activeQuestions = [...allQuestions];
+        } else {
+            activeQuestions = allQuestions.filter(q => q.topic === currentFilter);
+        }
+        
+        currentIndex = 0;
+        userAnswers = new Array(activeQuestions.length).fill(null);
+
+        document.getElementById('quiz-card').style.display = 'block';
+        document.getElementById('results-card').style.display = 'none';
+
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const q = activeQuestions[currentIndex];
+        
+        document.getElementById('topic-badge').innerText = q.topic;
+        document.getElementById('progress-text').innerText = `Pergunta ${currentIndex + 1} de ${activeQuestions.length}`;
+        
+        const progressPercent = ((currentIndex + 1) / activeQuestions.length) * 100;
+        document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+
+        document.getElementById('question-text').innerHTML = q.question;
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        const explanationBox = document.getElementById('explanation-box');
+        explanationBox.style.display = 'none';
+
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.style.display = 'none';
+
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt;
+            btn.onclick = () => handleAnswer(idx);
+            
+            // Se já respondeu
+            if (userAnswers[currentIndex] !== null) {
+                btn.disabled = true;
+                if (idx === q.correct) btn.classList.add('correct');
+                if (idx === userAnswers[currentIndex] && idx !== q.correct) btn.classList.add('wrong');
+            }
+
+            optionsContainer.appendChild(btn);
+        });
+
+        if (userAnswers[currentIndex] !== null) {
+            explanationBox.innerHTML = q.explanation;
+            explanationBox.style.display = 'block';
+            nextBtn.style.display = 'block';
+            nextBtn.innerText = currentIndex === activeQuestions.length - 1 ? 'Ver Resultado Final' : 'Próxima Pergunta';
+        }
+    }
+
+    function handleAnswer(selectedIdx) {
+        if (userAnswers[currentIndex] !== null) return;
+
+        userAnswers[currentIndex] = selectedIdx;
+        const q = activeQuestions[currentIndex];
+
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach((btn, idx) => {
+            btn.disabled = true;
+            if (idx === q.correct) btn.classList.add('correct');
+            if (idx === selectedIdx && idx !== q.correct) btn.classList.add('wrong');
+        });
+
+        const explanationBox = document.getElementById('explanation-box');
+        explanationBox.innerHTML = q.explanation;
+        explanationBox.style.display = 'block';
+
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.style.display = 'block';
+        nextBtn.innerText = currentIndex === activeQuestions.length - 1 ? 'Ver Resultado Final' : 'Próxima Pergunta';
+    }
+
+    function nextQuestion() {
+        if (currentIndex < activeQuestions.length - 1) {
+            currentIndex++;
+            renderQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-card').style.display = 'none';
+        document.getElementById('results-card').style.display = 'block';
+
+        let totalCorrect = 0;
+        const topicStats = {
+            "CREATE TABLE": { correct: 0, total: 0 },
+            "DESC / ESTRUTURA": { correct: 0, total: 0 },
+            "INSERT": { correct: 0, total: 0 },
+            "SELECT": { correct: 0, total: 0 }
+        };
+
+        activeQuestions.forEach((q, idx) => {
+            const userAns = userAnswers[idx];
+            if (topicStats[q.topic]) {
+                topicStats[q.topic].total++;
+                if (userAns === q.correct) {
+                    topicStats[q.topic].correct++;
+                    totalCorrect++;
+                }
+            }
+        });
+
+        document.getElementById('final-score').innerText = `${totalCorrect} / ${activeQuestions.length}`;
+
+        const breakdownContainer = document.getElementById('topic-breakdown');
+        breakdownContainer.innerHTML = '';
+
+        Object.keys(topicStats).forEach(topic => {
+            if (topicStats[topic].total > 0) {
+                const card = document.createElement('div');
+                card.className = 'topic-card';
+                card.innerHTML = `
+                    <h4>${topic}</h4>
+                    <p>${topicStats[topic].correct} de ${topicStats[topic].total} acertos</p>
+                `;
+                breakdownContainer.appendChild(card);
+            }
+        });
+    }
+
+    function restartQuiz() {
+        initQuiz();
+    }
+
+    // Inicialização
+    initQuiz();
+</script>
+</body>
+</html>
+```
+
+A aplicação de quiz traz as seguintes melhorias e recursos:
+
+- **40 Questões Práticas e Exclusivas:** Divididas igualmente em 10 perguntas por tópico (`CREATE TABLE`, `DESC` / Estrutura, `INSERT` e `SELECT`).
+- **Filtros por Categoria:** Abas para filtrar o simulado por tópico individual (10 perguntas) ou praticar todas as 40 questões de uma vez.
+- **Relatório de Desempenho:** Ao finalizar o quiz, a tela de resultados mostra o placar geral e o número exato de acertos por módulo.
+- **Explicações Técnicas Detalhadas:** Cada pergunta oferece o motivo técnico da resposta correta e termos do T-SQL (como `IDENTITY`, `sp_help`, `SCOPE_IDENTITY()`, `TOP WITH TIES`, etc.).
+apps-fileview.texmex_20260813.00_p1
+quiz.html
+Exibindo quiz.html…

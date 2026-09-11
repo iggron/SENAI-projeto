@@ -1,0 +1,79 @@
+body {
+    background-color: #F4F5F0;
+    margin: 0;
+    padding: 40px;
+
+}
+h1 { 
+    color: #172A45;
+    text-align: center;
+}
+form{
+
+    width: 350px;
+    margin: auto;
+    padding: 25px;
+    background-color: #D7F3F5;
+    border: 1px solid black;
+    border-radius: 10px;
+
+}
+
+label{
+
+    display: block;
+    margin-bottom: 5px;
+    color: #4D7891;
+    font-weight: bold;
+}
+
+input {
+
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #000000;
+    border-radius: 5px;
+
+}
+
+input:focus {
+
+    border-color: #45CFE5;
+    outline: none;
+
+}
+
+button{
+
+    width: 100%;
+    padding: 10px;
+    background-color: #6bd8e9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #172A45;
+}
+
+.imagem-esquerda {
+    position: fixed;
+    left: 40px;          /* Distância da borda esquerda */
+    bottom: 20px;        /* Distância do fundo da tela */
+    width: 250px;        /* Aumente este valor para deixar maior (ex: 400px ou 25vw) */
+    height: 120vh;        /* Mantém a proporção original sem esticar */
+    z-index: 10;
+}
+
+.imagem-direita {
+    position: fixed;
+    right: 40px;           /* Posiciona na borda direita */
+    bottom: -280px;
+    width: 250px;
+    height: 100vh;
+    transform: scaleX(-1); /* Espelha a imagem horizontalmente */
+    z-index: 10;
+}

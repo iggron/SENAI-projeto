@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Cadastro de Usuário</title>
+</head>
+<body>
+    
+    <!-- Botão de alternância de tema -->
+    <button class="btn-tema" onclick="alternarTema()">🌙 Alternar Tema</button>
+
+    <h1>Cadastro do usuário</h1>
+    
+    <form action="CRUD.php" method="post" onsubmit="return validarFormulario()">
+        <label for="nome">Nome: <span style="color: red;">*</span></label>
+        <input type="text" id="nome" name="nome" placeholder="Escreva o seu nome" required>
+
+        <label for="matricula">Matrícula: <span style="color: red;">*</span></label>
+        <input type="text" id="matricula" name="matricula" placeholder="Escreva a sua matrícula" required>
+
+        <label for="funcao">Função:</label>
+        <input type="text" id="funcao" name="funcao" placeholder="Escreva a sua função">
+
+        <label for="departamento">Departamento:</label>
+        <input type="text" id="departamento" name="departamento" placeholder="Escreva o seu departamento">
+
+        <label for="idade">Idade: <span style="color: red;">*</span></label>
+        <input type="number" id="idade" name="idade" placeholder="Escreva a sua idade" min="18" max="100" required>
+
+        <label for="cpf">CPF: <span style="color: red;">*</span></label>
+        <input type="text" id="cpf" name="cpf" placeholder="Escreva o seu CPF (xxx.xxx.xxx-xx)" required>
+
+        <label for="rg">RG:</label>
+        <input type="text" id="rg" name="rg" placeholder="Escreva o seu RG">
+
+        <label for="salario">Salário:</label>
+        <input type="number" id="salario" name="salario" placeholder="Escreva o seu salário" step="0.01" min="0">
+
+        <label for="endereco">Endereço:</label>
+        <input type="text" id="endereco" name="endereco" placeholder="Escreva o seu endereço">
+
+        <label for="uf">UF:</label>
+        <input type="text" id="uf" name="uf" placeholder="Escreva o seu UF" maxlength="2">
+
+        <label for="pais">País:</label>
+        <input type="text" id="pais" name="pais" placeholder="Qual o seu país">
+
+        <button type="submit">Gravar</button>
+    </form>
+
+    <!-- Script para trocar o tema e validar formulário -->
+    <script>
+        function alternarTema() {
+            // Alterna a classe 'tema-escuro' no body
+            document.body.classList.toggle('tema-escuro');
+            
+            // Troca o ícone e texto do botão
+            const btn = document.querySelector('.btn-tema');
+            if(document.body.classList.contains('tema-escuro')) {
+                btn.innerHTML = '☀️ Alternar Tema';
+            } else {
+                btn.innerHTML = '🌙 Alternar Tema';
+            }
+        }
+        
+        function validarFormulario() {
+            const nome = document.getElementById('nome').value.trim();
+            const matricula = document.getElementById('matricula').value.trim();
+            const idade = parseInt(document.getElementById('idade').value);
+            const cpf = document.getElementById('cpf').value.trim();
+            
+            if (!nome || nome.length < 3) {
+                alert('Nome deve ter pelo menos 3 caracteres!');
+                return false;
+            }
+            
+            if (!matricula) {
+                alert('Matrícula é obrigatória!');
+                return false;
+            }
+            
+            if (!cpf || cpf.length < 11) {
+                alert('CPF inválido!');
+                return false;
+            }
+            
+            if (isNaN(idade) || idade < 18 || idade > 100) {
+                alert('Idade deve estar entre 18 e 100 anos!');
+                return false;
+            }
+            
+            return true;
+        }
+    </script>
+</body>
+</html>

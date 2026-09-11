@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro de Avaliacao</title>
+</head>
+<body>
+
+  <h2>Cadastro de Avaliacao</h2>
+
+  <form action="cadastro.php" method="POST">
+
+  
+ <p>
+    <label for="idUsuario">idUsuario:</label>
+    <input type="number" id="idUsuario" name="idUsuario" required>
+   </p> 
+
+ <p>
+    <label for="idJogo">idJogo:</label>
+    <input type="number" id="idJogo" name="idJogo" required>
+   </p> 
+
+ <p>
+    <label for="nota">nota:</label>
+    <input type="number" id="nota" name="nota" required>
+   </p> 
+ 
+    <p>
+
+     <label for="titulo_avaliacao">titulo_avaliacao:</label>
+    <input type="text" id="titulo_avaliacao" name="titulo_avaliacao" required>
+   </p> 
+
+ <p>
+    <label for="texto_avaliacao">texto_avaliacao:</label>
+    <input type="text" id="texto_avaliacao" name="texto_avaliacao" required>
+   </p> 
+
+ <p>
+    <label for="recomendado">recomendado:</label>
+    <input type="text" id="recomendado" name="recomendado" required>
+   </p> 
+
+ <p>
+    <label for="data_criacao">data_criacao:</label>
+    <input type="date" id="data_criacao" name="data_criacao" required>
+   </p> 
+
+    <p>
+
+         <label for="data_atualizacao">data_atualizacao:</label>
+    <input type="date" id="data_atualizacao" name="data_atualizacao" required>
+   </p> 
+
+    <p>
+   <label for="votos_uteis">votos_uteis:</label>
+    <input type="number" id="votos_uteis" name="votos_uteis" required>
+
+
+    </p>  
+    <button type="submit">Cadastrar Avaliacao</button>
+
+  </form>
+</body>
+</html>

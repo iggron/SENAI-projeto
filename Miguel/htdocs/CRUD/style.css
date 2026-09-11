@@ -1,0 +1,190 @@
+/* style.css - Tema Claro e Escuro com Variáveis */
+
+:root {
+    /* MODO CLARO (Padrão) */
+    --bg-body: #F8FAFC;
+    --bg-container: #FFFFFF;
+    --text-main: #334155;
+    --text-muted: #64748B;
+    --input-bg: #F1F5F9;
+    --input-border: #E2E8F0;
+    --input-focus: #3b82f6;
+    --btn-grad: linear-gradient(135deg, #8b5cf6, #3b82f6);
+    --btn-hover: linear-gradient(135deg, #7c3aed, #2563eb);
+    --title-grad: linear-gradient(to right, #7c3aed, #2563eb);
+    --shadow-base: rgba(51, 65, 85, 0.08);
+    --shadow-hover: rgba(51, 65, 85, 0.15);
+    --msg-bg: #eff6ff;
+    --divider: linear-gradient(to right, transparent, #8b5cf6, #3b82f6, transparent);
+    --bg-pattern: radial-gradient(#E2E8F0 1px, transparent 1px);
+}
+
+.tema-escuro {
+    /* MODO ESCURO (Roxo para Azul) */
+    --bg-body: #0f0f13;
+    --bg-container: rgba(26, 26, 36, 0.85);
+    --text-main: #e5e7eb;
+    --text-muted: #c4b5fd;
+    --input-bg: rgba(45, 45, 59, 0.6);
+    --input-border: transparent;
+    --input-focus: #3b82f6;
+    --btn-grad: linear-gradient(135deg, #7c3aed, #2563eb);
+    --btn-hover: linear-gradient(135deg, #8b5cf6, #3b82f6);
+    --title-grad: linear-gradient(to right, #d8b4fe, #93c5fd);
+    --shadow-base: rgba(124, 58, 237, 0.2);
+    --shadow-hover: rgba(124, 58, 237, 0.4);
+    --msg-bg: rgba(59, 130, 246, 0.1);
+    --bg-pattern: radial-gradient(#2d2d3b 1px, transparent 1px);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+::selection {
+    background-color: var(--input-focus);
+    color: #ffffff;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--btn-grad); border-radius: 10px; }
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-body);
+    background-image: var(--bg-pattern);
+    background-size: 20px 20px;
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100vw;
+    padding: 2rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Botão de Trocar Tema */
+.btn-tema {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--bg-container);
+    color: var(--text-main);
+    border: 1px solid var(--input-border);
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 6px var(--shadow-base);
+    transition: all 0.3s ease;
+}
+.btn-tema:hover {
+    transform: scale(1.05);
+}
+
+h1, h2, h3 {
+    background: var(--title-grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.container-principal, form {
+    background-color: var(--bg-container);
+    backdrop-filter: blur(10px); 
+    padding: 2.5rem;
+    border-radius: 20px; 
+    border: 1px solid var(--input-border);
+    box-shadow: 0 10px 30px -5px var(--shadow-base);
+    width: 100%;
+    max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: all 0.3s ease;
+}
+
+.container-principal:hover, form:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px -5px var(--shadow-hover);
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+input[type="text"], input[type="number"], input[type="password"], input[type="email"] {
+    width: 100%;
+    padding: 0.85rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--input-bg);
+    color: var(--text-main);
+    border: 2px solid var(--input-border);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--input-focus);
+    box-shadow: 0 0 10px var(--shadow-base);
+    transform: translateY(-2px); 
+}
+
+button[type="submit"], input[type="submit"], .botao-destaque {
+    width: 100%;
+    background: var(--btn-grad); 
+    color: #ffffff;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+button[type="submit"]:hover, input[type="submit"]:hover {
+    background: var(--btn-hover); 
+    transform: translateY(-3px); 
+    box-shadow: 0 8px 20px var(--shadow-hover);
+}
+
+p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    text-align: center;
+    background: var(--msg-bg); 
+    padding: 10px 15px;
+    border-radius: 12px;
+    border-left: 4px solid var(--input-focus); 
+}
+
+hr {
+    border: 0;
+    height: 2px;
+    background: var(--divider); 
+    margin: 2.5rem 0;
+    width: 100%;
+    opacity: 0.7;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}

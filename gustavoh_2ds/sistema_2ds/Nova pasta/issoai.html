@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azazel com Brimstone - Binding of Isaac</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        canvas {
+            background: #14141e;
+            border: 3px solid #333;
+            box-shadow: 0 0 30px rgba(150, 0, 200, 0.4);
+            cursor: crosshair;
+        }
+        #info {
+            position: absolute;
+            bottom: 15px;
+            color: #aaa;
+            font-size: 14px;
+            text-align: center;
+            width: 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="game" width="800" height="600"></canvas>
+    <div id="info">WASD / Setas para mover • Segure o mouse esquerdo para carregar o Brimstone • Solte para atirar</div>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+
+        // ==================== CONFIG ====================
+        const LARGURA = 800;
+        const ALTURA = 600;
+
+        // ==================== PLAYER ====================
+        class Player {
+            constructor() {
+                this.x = LARGURA / 2;
+                this.y = ALTURA / 2;
+                this.raio = 18;
+                this.vel = 4.5;
+                this.vida = 6;
+                this.vidaMax = 6;
+                this.invulneravel = 0;
+                this.carregando = false;
+                this.carga = 0;
+                this.cargaMax = 50;
+                this.brimstoneAtivo = false;
+                this.brimstoneTimer = 0;
+                this.brimstoneDuracao = 35;
+                this.direcao = { x: 0, y: -1 };
+                this.score = 0;
+            }
+
+            mover(teclas) {
+                let dx = 0, dy = 0;
+                if (teclas['w'] || teclas['ArrowUp']) dy = -1;
+                if (teclas['s'] || teclas['ArrowDown']) dy = 1;
+                if (teclas['a'] || teclas['ArrowLeft']) dx = -1;
+                if (teclas['d'] || teclas['ArrowRight']) dx = 1;
+
+                if (dx !== 0 || dy !== 0) {
+                    const len = Math.hypot(dx, dy);
+                    this.x += (dx / len) * this.vel;
+                    this.y += (dy / len) * this.vel;
+                }
+
+                this.x = Math.max(this.raio, Math.min(LARGURA - this.raio, this.x));
+                this.y = Math.max(this.raio, Math.min(ALTURA - this.raio, this.y));
+            }
+
+            atualizarBrimstone(mouse, mouseDown) {
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                const dist = Math.hypot(dx, dy);
+                if (dist > 0) {
+                    this.direcao = { x: dx / dist, y: dy / dist };
+                }
+
+                if (this.brimstoneAtivo) {
+                    this.brimstoneTimer--;
+                    if (this.brimstoneTimer <= 0) this.brimstoneAtivo = false;
+                    return;
+                }
+
+                if (mouseDown) {
+                    this.carregando = true;
+                    this.carga = Math.min(this.carga + 1, this.cargaMax);
+                } else {
+                    if (this.carregando && this.carga >= this.cargaMax) {
+                        this.brimstoneAtivo = true;
+                        this.brimstoneTimer = this.brimstoneDuracao;
+                    }
+                    this.carregando = false;
+                    this.carga = 0;
+                }
+            }
+
+            tomarDano(qtd = 1) {
+                if (this.invulneravel > 0) return;
+                this.vida -= qtd;
+                this.invulneravel = 50;
+            }
+
+            atualizar() {
+                if (this.invulneravel > 0) this.invulneravel--;
+            }
+
+            desenhar() {
+                // Corpo Azazel
+                const cor = (this.invulneravel % 8 < 4) ? '#c81e1e' : '#8c1414';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.raio, 0, Math.PI * 2);
+                ctx.fillStyle = cor;
+                ctx.fill();
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Chifres
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.moveTo(this.x - 10, this.y - 12);
+                ctx.lineTo(this.x - 16, this.y - 28);
+                ctx.lineTo(this.x - 4, this.y - 18);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(this.x + 10, this.y - 12);
+                ctx.lineTo(this.x + 16, this.y - 28);
+                ctx.lineTo(this.x + 4, this.y - 18);
+                ctx.fill();
+
+                // Olhos
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(this.x - 6, this.y - 2, 4, 0, Math.PI * 2);
+                ctx.arc(this.x + 6, this.y - 2, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(this.x - 6, this.y - 2, 2, 0, Math.PI * 2);
+                ctx.arc(this.x + 6, this.y - 2, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Barra de carga
+                if (this.carregando) {
+                    const w = 40;
+                    const h = 6;
+                    ctx.fillStyle = '#555';
+                    ctx.fillRect(this.x - 20, this.y - 35, w, h);
+                    ctx.fillStyle = '#7828a0';
+                    ctx.fillRect(this.x - 20, this.y - 35, w * (this.carga / this.cargaMax), h);
+                }
+
+                // Brimstone laser
+                if (this.brimstoneAtivo) {
+                    const fimX = this.x + this.direcao.x * 1000;
+                    const fimY = this.y + this.direcao.y * 1000;
+
+                    ctx.lineCap = 'round';
+
+                    // Laser grosso
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(fimX, fimY);
+                    ctx.strokeStyle = '#7828a0';
+                    ctx.lineWidth = 18;
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(fimX, fimY);
+                    ctx.strokeStyle = '#ff8c00';
+                    ctx.lineWidth = 10;
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(fimX, fimY);
+                    ctx.strokeStyle = '#ffdc32';
+                    ctx.lineWidth = 4;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // ==================== INIMIGO (ISAAC) ====================
+        class Inimigo {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.raio = 16;
+                this.vel = 1.3 + Math.random() * 0.9;
+                this.vida = 3;
+            }
+
+            atualizar(player) {
+                const dx = player.x - this.x;
+                const dy = player.y - this.y;
+                const dist = Math.hypot(dx, dy);
+                if (dist > 0) {
+                    this.x += (dx / dist) * this.vel;
+                    this.y += (dy / dist) * this.vel;
+                }
+            }
+
+            desenhar() {
+                // Corpo
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.raio, 0, Math.PI * 2);
+                ctx.fillStyle = '#ff96b4';
+                ctx.fill();
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Olhos
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(this.x - 5, this.y - 3, 4, 0, Math.PI * 2);
+                ctx.arc(this.x + 5, this.y - 3, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(this.x - 5, this.y - 3, 2, 0, Math.PI * 2);
+                ctx.arc(this.x + 5, this.y - 3, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Sorriso
+                ctx.beginPath();
+                ctx.arc(this.x, this.y + 4, 6, 0.2, Math.PI - 0.2);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        // ==================== VARIÁVEIS ====================
+        let player = new Player();
+        let inimigos = [];
+        let teclas = {};
+        let mouse = { x: 400, y: 300 };
+        let mouseDown = false;
+        let tempoSpawn = 0;
+        let intervaloSpawn = 80;
+        let gameOver = false;
+
+        // ==================== INPUT ====================
+        window.addEventListener('keydown', e => {
+            teclas[e.key.toLowerCase()] = true;
+            if (e.key === 'r' || e.key === 'R') {
+                if (gameOver) reiniciar();
+            }
+        });
+        window.addEventListener('keyup', e => {
+            teclas[e.key.toLowerCase()] = false;
+        });
+
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+        });
+        canvas.addEventListener('mousedown', () => mouseDown = true);
+        canvas.addEventListener('mouseup', () => mouseDown = false);
+        // Previne menu de contexto
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        // ==================== FUNÇÕES ====================
+        function spawnInimigos(qtd = 1) {
+            for (let i = 0; i < qtd; i++) {
+                const lado = Math.floor(Math.random() * 4);
+                let x, y;
+                if (lado === 0) { x = Math.random() * LARGURA; y = -30; }
+                else if (lado === 1) { x = Math.random() * LARGURA; y = ALTURA + 30; }
+                else if (lado === 2) { x = -30; y = Math.random() * ALTURA; }
+                else { x = LARGURA + 30; y = Math.random() * ALTURA; }
+                inimigos.push(new Inimigo(x, y));
+            }
+        }
+
+        function verificarLaser() {
+            if (!player.brimstoneAtivo) return;
+
+            const x1 = player.x, y1 = player.y;
+            const x2 = player.x + player.direcao.x * 1000;
+            const y2 = player.y + player.direcao.y * 1000;
+
+            for (let i = inimigos.length - 1; i >= 0; i--) {
+                const inim = inimigos[i];
+                // Distância ponto-reta
+                const num = Math.abs((y2 - y1) * inim.x - (x2 - x1) * inim.y + x2 * y1 - y2 * x1);
+                const den = Math.hypot(y2 - y1, x2 - x1);
+                if (den === 0) continue;
+                const dist = num / den;
+
+                // Está na frente do laser?
+                const dx = inim.x - player.x;
+                const dy = inim.y - player.y;
+                const proj = dx * player.direcao.x + dy * player.direcao.y;
+
+                if (dist < inim.raio + 9 && proj > 0) {
+                    inim.vida--;
+                    if (inim.vida <= 0) {
+                        inimigos.splice(i, 1);
+                        player.score += 10;
+                    }
+                }
+            }
+        }
+
+        function desenharHUD() {
+            // Corações
+            for (let i = 0; i < player.vidaMax; i++) {
+                ctx.beginPath();
+                ctx.arc(30 + i * 28, 30, 10, 0, Math.PI * 2);
+                ctx.fillStyle = i < player.vida ? '#c81e1e' : '#555';
+                ctx.fill();
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Score
+            ctx.fillStyle = '#fff';
+            ctx.font = '22px Arial';
+            ctx.fillText(`Score: ${player.score}`, LARGURA - 140, 35);
+        }
+
+        function desenharGameOver() {
+            ctx.fillStyle = 'rgba(0,0,0,0.75)';
+            ctx.fillRect(0, 0, LARGURA, ALTURA);
+
+            ctx.fillStyle = '#c81e1e';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('VOCÊ MORREU', LARGURA / 2, ALTURA / 2 - 50);
+
+            ctx.fillStyle = '#fff';
+            ctx.font = '24px Arial';
+            ctx.fillText(`Score final: ${player.score}`, LARGURA / 2, ALTURA / 2 + 10);
+
+            ctx.fillStyle = '#ffdc32';
+            ctx.font = '20px Arial';
+            ctx.fillText('Pressione R para reiniciar', LARGURA / 2, ALTURA / 2 + 60);
+            ctx.textAlign = 'left';
+        }
+
+        function reiniciar() {
+            player = new Player();
+            inimigos = [];
+            tempoSpawn = 0;
+            intervaloSpawn = 80;
+            gameOver = false;
+        }
+
+        // ==================== LOOP ====================
+        function loop() {
+            // Fundo
+            ctx.fillStyle = '#14141e';
+            ctx.fillRect(0, 0, LARGURA, ALTURA);
+
+            // Grid de fundo
+            ctx.strokeStyle = '#1e1e28';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < LARGURA; i += 40) {
+                for (let j = 0; j < ALTURA; j += 40) {
+                    ctx.strokeRect(i, j, 38, 38);
+                }
+            }
+
+            if (!gameOver) {
+                // Atualiza
+                player.mover(teclas);
+                player.atualizarBrimstone(mouse, mouseDown);
+                player.atualizar();
+
+                inimigos.forEach(i => i.atualizar(player));
+                verificarLaser();
+
+                // Colisão corpo a corpo
+                inimigos.forEach(inim => {
+                    const dist = Math.hypot(player.x - inim.x, player.y - inim.y);
+                    if (dist < player.raio + inim.raio) {
+                        player.tomarDano(1);
+                    }
+                });
+
+                // Spawn
+                tempoSpawn++;
+                if (tempoSpawn >= intervaloSpawn) {
+                    spawnInimigos(Math.random() < 0.6 ? 1 : 2);
+                    tempoSpawn = 0;
+                    if (intervaloSpawn > 35) intervaloSpawn--;
+                }
+
+                if (player.vida <= 0) gameOver = true;
+
+                // Desenha
+                player.desenhar();
+                inimigos.forEach(i => i.desenhar());
+                desenharHUD();
+            } else {
+                player.desenhar();
+                inimigos.forEach(i => i.desenhar());
+                desenharHUD();
+                desenharGameOver();
+            }
+
+            requestAnimationFrame(loop);
+        }
+
+        // Inicia
+        spawnInimigos(3);
+        loop();
+    </script>
+</body>
+</html>

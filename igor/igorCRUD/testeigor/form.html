@@ -1,0 +1,549 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação de Sintaxe: PHP e MySQL (Com Temporizador)</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --border-color: #cbd5e1;
+            --danger: #dc2626;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 760px;
+            box-sizing: border-box;
+        }
+        h2, h3 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+        p {
+            line-height: 1.6;
+            color: #334155;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+        .btn-success {
+            background-color: #16a34a;
+        }
+        .btn-success:hover {
+            background-color: #15803d;
+        }
+        .header-eval {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .progress-indicator {
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .timer-box {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--danger);
+            background: #fee2e2;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        .code-snippet {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 14px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 15px;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+        }
+        .draggable-zone, .dropzone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            min-height: 70px;
+            padding: 15px;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: #f1f5f9;
+            align-items: center;
+        }
+        .dropzone {
+            border-color: var(--primary);
+            background: #e0f2fe;
+        }
+        .chip {
+            background: var(--primary);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: grab;
+            user-select: none;
+            font-weight: 600;
+            font-family: monospace;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chip:active {
+            cursor: grabbing;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .result-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .result-box p {
+            margin: 8px 0;
+            font-size: 17px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+            background-color: #0284c7;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Tela 1: Identificação do Aluno -->
+    <div id="step-student">
+        <h2>Avaliação de Sintaxe: PHP & MySQL</h2>
+        <p>Informe o nome do aluno para iniciar a prova individual (Tempo limite: 25s por questão):</p>
+        <div class="form-group">
+            <label for="student-name">Nome do Aluno:</label>
+            <input type="text" id="student-name" placeholder="Ex: Camila Ribeiro">
+        </div>
+        <button onclick="startEvaluation()">Iniciar Prova de Sintaxe</button>
+    </div>
+
+    <!-- Tela 2: Área de Teste / Sintaxe (Drag and Drop com Timer) -->
+    <div id="step-eval" class="hidden">
+        <div class="header-eval">
+            <div class="progress-indicator" id="progress-indicator">Questão 1 de 6</div>
+            <div class="timer-box">⏱️ <span id="time-left">50</span>s</div>
+        </div>
+        
+        <h3 id="eval-title"></h3>
+        <p id="eval-desc"></p>
+        <div class="code-snippet" id="eval-code"></div>
+        
+        <label><strong>Opções de Sintaxe Disponíveis:</strong></label>
+        <div id="source-zone" class="draggable-zone" ondragover="allowDrop(event)" ondrop="dropToSource(event)"></div>
+
+        <label><strong>Área de Resposta (Solte o comando ou sintaxe correta aqui):</strong></label>
+        <div id="target-zone" class="dropzone" ondragover="allowDrop(event)" ondrop="dropToTarget(event)"></div>
+
+        <button onclick="nextEvaluation()" id="btn-next">Avançar</button>
+    </div>
+
+    <!-- Tela 3: Resultado, Nota Numérica e Geração de Imagem -->
+    <div id="step-result" class="hidden">
+        <h2>Resultado da Avaliação de Sintaxe</h2>
+        <div class="result-box" id="result-content"></div>
+        <button class="btn-success" onclick="generateStudentImage()">Baixar Relatório em Imagem (PNG)</button>
+        <button onclick="resetSystem()">Avaliar Próximo Aluno</button>
+    </div>
+</div>
+
+<!-- Canvas oculto para desenho e exportação do relatório detalhado -->
+<canvas id="report-canvas" width="800" height="1100" style="display:none;"></canvas>
+
+<script>
+    const testBatteries = [
+        [
+            {
+                title: "Sintaxe 1: Instanciação Orientada a Objetos",
+                code: "$conn = new [COMANDO]('localhost', 'root', '', 'escola');",
+                items: ["mysqli", "connect_error", "query", "select"],
+                correct: "mysqli"
+            },
+            {
+                title: "Sintaxe 2: Verificação de Erro na Conexão",
+                code: "if ($conn->[COMANDO]) { die('Erro'); }",
+                items: ["connect_error", "query", "close", "num_rows"],
+                correct: "connect_error"
+            },
+            {
+                title: "Sintaxe 3: Execução de Instrução SQL",
+                code: "$resultado =$conn->[COMANDO](\"SELECT * FROM alunos\");",
+                items: ["query", "fetch_assoc", "insert", "update"],
+                correct: "query"
+            },
+            {
+                title: "Sintaxe 4: Extração de Linha Associativa",
+                code: "while ($row =$resultado->[COMANDO]()) { }",
+                items: ["fetch_assoc", "num_rows", "select", "where"],
+                correct: "fetch_assoc"
+            },
+            {
+                title: "Sintaxe 5: Fechamento da Conexão",
+                code: "$conn->[COMANDO]();",
+                items: ["close", "mysqli", "delete", "query"],
+                correct: "close"
+            },
+            {
+                title: "Sintaxe 6: Contagem de Registros Retornados",
+                code: "$total =$resultado->[COMANDO];",
+                items: ["num_rows", "fetch_assoc", "connect_error", "like"],
+                correct: "num_rows"
+            }
+        ],
+        [
+            {
+                title: "Sintaxe 7: Inserção de Novo Registro",
+                code: "$sql = \"[COMANDO] INTO usuarios (nome) VALUES ('Ana');\";",
+                items: ["insert", "update", "select", "delete"],
+                correct: "insert"
+            },
+            {
+                title: "Sintaxe 8: Consulta com Seleção de Colunas",
+                code: "$sql = \"[COMANDO] id, nome FROM produtos;\";",
+                items: ["select", "insert", "update", "like"],
+                correct: "select"
+            },
+            {
+                title: "Sintaxe 9: Cláusula de Condição Restritiva",
+                code: "$sql = \"DELETE FROM clientes [COMANDO] id = 10;\";",
+                items: ["where", "like", "query", "close"],
+                correct: "where"
+            },
+            {
+                title: "Sintaxe 10: Modificação de Dados Existentes",
+                code: "$sql = \"[COMANDO] produtos SET preco = 99.90;\";",
+                items: ["update", "insert", "delete", "select"],
+                correct: "update"
+            },
+            {
+                title: "Sintaxe 11: Busca Parcial com Padrão de Texto",
+                code: "$sql = \"SELECT * FROM func WHERE nome [COMANDO] '%Silva%';\";",
+                items: ["like", "where", "fetch_assoc", "num_rows"],
+                correct: "like"
+            },
+            {
+                title: "Sintaxe 12: Remoção Definitiva de Tupla",
+                code: "$sql = \"[COMANDO] FROM pedidos WHERE id = 1;\";",
+                items: ["delete", "drop", "remove", "update"],
+                correct: "delete"
+            }
+        ]
+    ];
+
+    let currentStudent = "";
+    let activeQuestions = [];
+    let studentAnswers = [];
+    let currentStep = 0;
+    let score = 0;
+    let studentCounter = 0;
+    
+    // Variáveis do Temporizador
+    let timerInterval = null;
+    let timeLeft = 25;
+
+    function startEvaluation() {
+        const nameInput = document.getElementById("student-name").value.trim();
+        if (!nameInput) {
+            alert("Por favor, digite o nome do aluno.");
+            return;
+        }
+        currentStudent = nameInput;
+        currentStep = 0;
+        score = 0;
+        studentAnswers = [];
+
+        const batteryIndex = studentCounter % testBatteries.length;
+        activeQuestions = testBatteries[batteryIndex].map(q => ({
+            ...q,
+            items: [...q.items].sort(() => Math.random() - 0.5)
+        }));
+
+        document.getElementById("step-student").classList.add("hidden");
+        document.getElementById("step-eval").classList.remove("hidden");
+        loadQuestion();
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 25;
+        document.getElementById("time-left").innerText = timeLeft;
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById("time-left").innerText = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleTimeOut();
+            }
+        }, 1000);
+    }
+
+    function handleTimeOut() {
+        const q = activeQuestions[currentStep];
+        
+        // Registra como errado por falta de tempo
+        studentAnswers.push({
+            title: q.title,
+            code: q.code,
+            answer: "(Tempo Esgotado)",
+            correct: q.correct,
+            status: false
+        });
+
+        currentStep++;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentStep >= activeQuestions.length) {
+            clearInterval(timerInterval);
+            showResults();
+            return;
+        }
+
+        startTimer(); // Reinicia o cronômetro para a nova questão
+
+        const batteryNum = (studentCounter % testBatteries.length) + 1;
+        document.getElementById("progress-indicator").innerText = `Questão ${currentStep + 1} de ${activeQuestions.length} (Módulo ${batteryNum}/2)`;
+        
+        const q = activeQuestions[currentStep];
+        document.getElementById("eval-title").innerText = q.title;
+        document.getElementById("eval-desc").innerText = "Arraste o comando adequado para a lacuna do código:";
+        document.getElementById("eval-code").innerText = q.code;
+
+        const sourceZone = document.getElementById("source-zone");
+        const targetZone = document.getElementById("target-zone");
+        sourceZone.innerHTML = "";
+        targetZone.innerHTML = "";
+
+        q.items.forEach((itemText) => {
+            const chip = document.createElement("div");
+            chip.className = "chip";
+            chip.draggable = true;
+            chip.innerText = itemText;
+            chip.addEventListener("dragstart", (e) => {
+                e.dataTransfer.setData("text/plain", e.target.innerText);
+            });
+            sourceZone.appendChild(chip);
+        });
+    }
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function dropToTarget(ev) {
+        ev.preventDefault();
+        const data = ev.dataTransfer.getData("text/plain");
+        const targetZone = document.getElementById("target-zone");
+        
+        targetZone.innerHTML = "";
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        chip.draggable = true;
+        chip.innerText = data;
+        chip.addEventListener("dragstart", (e) => {
+            e.dataTransfer.setData("text/plain", e.target.innerText);
+        });
+        targetZone.appendChild(chip);
+    }
+
+    function dropToSource(ev) {
+        ev.preventDefault();
+        const data = ev.dataTransfer.getData("text/plain");
+        const targetZone = document.getElementById("target-zone");
+        if (targetZone.firstChild && targetZone.firstChild.innerText === data) {
+            targetZone.innerHTML = "";
+        }
+    }
+
+    function nextEvaluation() {
+        clearInterval(timerInterval); // Para o timer da questão atual
+
+        const targetZone = document.getElementById("target-zone");
+        const droppedItem = targetZone.firstChild ? targetZone.firstChild.innerText : "(Não respondido)";
+
+        const q = activeQuestions[currentStep];
+        const isCorrect = (droppedItem === q.correct);
+
+        if (isCorrect) {
+            score++;
+        }
+
+        studentAnswers.push({
+            title: q.title,
+            code: q.code,
+            answer: droppedItem,
+            correct: q.correct,
+            status: isCorrect
+        });
+
+        currentStep++;
+        loadQuestion();
+    }
+
+    function showResults() {
+        document.getElementById("step-eval").classList.add("hidden");
+        document.getElementById("step-result").classList.remove("hidden");
+
+        const total = activeQuestions.length;
+        const finalGrade = Math.round((score / total) * 100);
+
+        const resultContent = document.getElementById("result-content");
+        resultContent.innerHTML = `
+            <p><strong>Aluno(a):</strong> ${currentStudent}</p>
+            <p><strong>Acertos:</strong> ${score} de ${total} questões</p>
+            <p><strong>Nota Final:</strong> <span class="badge">${finalGrade} / 100</span></p>
+            <p style="font-size: 14px; color: #64748b;">Clique abaixo para baixar o relatório completo detalhado em imagem com o seu nome.</p>
+        `;
+
+        studentCounter++;
+    }
+
+    function generateStudentImage() {
+        const canvas = document.getElementById("report-canvas");
+        const ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#0284c7";
+        ctx.fillRect(0, 0, canvas.width, 100);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 24px sans-serif";
+        ctx.fillText("Relatório de Avaliação de Sintaxe - PHP & MySQL", 30, 45);
+
+        ctx.font = "16px sans-serif";
+        ctx.fillText("Aluno(a): " + currentStudent, 30, 75);
+
+        let y = 140;
+        ctx.fillStyle = "#0f172a";
+        ctx.font = "bold 18px sans-serif";
+        ctx.fillText("Resumo de Desempenho:", 30, y);
+
+        y += 30;
+        ctx.font = "16px sans-serif";
+        ctx.fillText(`Total de Acertos: ${score} de ${activeQuestions.length}`, 30, y);
+        
+        const finalGrade = Math.round((score / activeQuestions.length) * 100);
+        y += 25;
+        ctx.font = "bold 18px sans-serif";
+        ctx.fillStyle = "#0284c7";
+        ctx.fillText(`Nota Final: ${finalGrade} / 100`, 30, y);
+
+        y += 35;
+        ctx.fillStyle = "#0284c7";
+        ctx.fillRect(30, y, 740, 2);
+
+        y += 25;
+        ctx.fillStyle = "#0f172a";
+        ctx.font = "bold 18px sans-serif";
+        ctx.fillText("Detalhamento das Questões:", 30, y);
+
+        y += 15;
+
+        studentAnswers.forEach((item, index) => {
+            y += 30;
+            ctx.fillStyle = "#334155";
+            ctx.font = "bold 14px sans-serif";
+            ctx.fillText(`${index + 1}. ${item.title}`, 30, y);
+
+            y += 22;
+            ctx.font = "13px monospace";
+            ctx.fillStyle = "#475569";
+            ctx.fillText(`Código: ${item.code}`, 45, y);
+
+            y += 22;
+            ctx.font = "13px sans-serif";
+            ctx.fillStyle = item.status ? "#16a34a" : "#dc2626";
+            let statusStr = item.status ? "Correto!" : `Incorreto. (Esperado: ${item.correct})`;
+            ctx.fillText(`Resposta do Aluno: [ ${item.answer} ] - ${statusStr}`, 45, y);
+
+            y += 10;
+        });
+
+        const link = document.createElement('a');
+        link.download = `${currentStudent.replace(/\s+/g, '_')}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    }
+
+    function resetSystem() {
+        clearInterval(timerInterval);
+        document.getElementById("student-name").value = "";
+        document.getElementById("step-result").classList.add("hidden");
+        document.getElementById("step-student").classList.remove("hidden");
+    }
+</script>
+
+</body>
+</html>

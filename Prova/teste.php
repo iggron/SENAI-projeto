@@ -8,8 +8,9 @@ $email = $_POST['email'];
 $senha = $_POST['senha'];
 
 $sql = "insert into jose (nome, telefone, email, senha)
-        values ('$nome','$telefone', '$email','$senha')";
+        values ('$nome', '$telefone', '$email', '$senha')";
 
     $conexao ->query($sql);
-    echo 'Conectado';
-?>
+
+    echo 'Gravado com sucesso';
+

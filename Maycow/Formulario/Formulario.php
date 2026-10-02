@@ -1,14 +1,14 @@
 <?php
 
-$conexao = new mysqli('localhost', 'root', 'Home@spSENAI2025!', 'teste');
+$conexao = new mysqli ('localhost', 'root', 'Home@spSENAI2025!', 'atividade');
 
 $nome = $_POST['nome'];
 $telefone = $_POST['telefone'];
 $email = $_POST['email'];
 $senha = $_POST['senha'];
 
-$sql = "insert into tabelateste (nome, telefone, email, senha)
+$sql = "insert into tabela (nome, telefone, email, senha)
 values ('$nome', '$telefone', '$email', '$senha')";
 
 $conexao->query($sql);
-echo "Cadastro realizado com sucesso!";
+echo 'conexao concluida';

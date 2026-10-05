@@ -1,0 +1,38 @@
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 40px;
+}
+
+h1{
+    text-align: center;
+
+}
+
+.cards{
+    display: flex;
+    gap: 30px;
+
+}
+
+.card{
+    flex: 1;
+    padding: 25px;
+    border: 1.5px solid black;
+    border-radius: 10px;
+    background-color: white;
+
+    transition: 0.3s;
+}
+
+.card:hover{
+    border-color: blue;
+    transform: scale(1.03);
+}
+
+.card h2{
+    margin-top: 0;
+}
+
+.card p{
+    line-height: 1.6;
+}

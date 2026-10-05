@@ -1,0 +1,39 @@
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 40px;
+    background: linear-gradient(25deg, rgb(154, 255, 255), rgb(245, 225, 116));
+}
+
+h1{
+    text-align: center;
+
+}
+
+.principal{
+    display: flex;
+    gap: 30px;
+
+}
+
+
+
+.Michael{
+    flex: 1;
+    padding: 25px;
+    border: 1.5px solid black;
+    border-radius: 10px;
+    background-color: radial-gradient(gold, blue);
+
+    transition: 0.3s;
+
+}
+
+.Lady{
+    flex: 1;
+    padding: 25px;
+    border: 1.5px solid black;
+    border-radius: 10px;
+    background-color: radial-gradient(gold, blue);
+    transition: 0.3s;
+
+}

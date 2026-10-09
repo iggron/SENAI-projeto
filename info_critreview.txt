@@ -1,0 +1,96 @@
+TEMA 
+Sistema de Agregação e Avaliação de Jogos Eletrônicos.
+NOME DOS INTEGRANTES DA EQUIPE
+Brayan Matheus Moreira — Designer
+Gabriel Alexandre Ponciano Ivo — Analista de Documentação
+Gustavo H. S. Moraes — Líder da Equipe (CEO), Desenvolvedor Principal e Coordenador de Qualidade
+Igor José Tavares de Miranda — Analista de Pesquisa e Qualidade
+Maycow Hirakawa Bittencourt — Gerente de Projeto, Desenvolvedor e Coordenador de Qualidade
+Miguel Martins Rocha — Designer
+
+TÍTULO DO PROJETO 
+CritRview: Plataforma Centralizada de Avaliações, Críticas e Comparação de Preços de Jogos Eletrônicos 
+
+PROBLEMA
+Dificuldade dos jogadores em consolidar opiniões dispersas pela internet e tomar decisões de compra seguras e econômicas.
+
+Incidência de ataques de notas injustificadas (review bombing) que mascaram a real qualidade dos títulos.
+
+Falta de visibilidade, alcance e centralização profissional para críticos especializados e criadores independentes no mercado brasileiro (PT-BR).
+
+
+SOLUÇÃO 
+Desenvolvimento de uma plataforma web que unifica, em um único site, as avaliações de usuários casuais e as análises técnicas de críticos verificados. O sistema oferece filtros de busca, acompanhamento do histórico de valores, garantindo a transparência e a confiabilidade na compra com recomendações para sites seguros, melhores ofertas e mecanismos para coibir o review bombing.
+
+
+
+
+
+TECNOLOGIAS APLICADAS NA SOLUÇÃO
+Linguagens de Programação: HTML5, CSS3, JavaScript / TypeScript (Frontend) e PHP (Backend).
+Frameworks e Bibliotecas: Bootstrap, Jquery
+Banco de Dados: MySQL (Relacional para gestão de usuários, notas e catálogos) e Redis (Para cache de histórico de preços e buscas frequentes).
+Ferramentas de Suporte: Git / GitHub (Controle de versão), Figma (Prototipação e Design UI/UX) e VS Code (Ambiente de desenvolvimento).
+METODOLOGIAS APLICADAS NA SOLUÇÃO
+Scrum e Kanban: Para gestão ágil do projeto, organização do fluxo de trabalho por sprints e distribuição visual das tarefas. (provavelmente o scrum)
+Design Thinking: Para concepção da experiência do usuário (UX), mapeamento de personas (Usuário Padrão x Crítico Profissional) e estruturação do layout focado nas dores dos clientes.
+Garantia de Qualidade e Code Review: Aplicação de rotinas de teste e revisão por pares para validação técnica antes de cada entrega.
+REQUISITOS DO USUÁRIO (FUNCIONAIS)
+Gerenciar Usuário Padrão
+cadastrar conta
+solicitar e-mail, nome de usuário e senha
+aplicar restrições de segurança (senha existente) para a criação da senha
+impedir cadastro duplicado com o mesmo e-mail ou nome de usuário
+autenticar usuário
+efetuar login por e-mail/nome de usuário e senha
+permitir recuperação de acesso via e-mail cadastrado
+alterar informações do perfil
+permitir alteração de senha e e-mail
+permitir personalização do avatar e nome exibido no perfil
+excluir conta
+solicitar confirmação de senha antes da exclusão
+remover os dados pessoais da base ativa mantendo as avaliações anonimizadas
+Clean code
+
+Gerenciar Crítico Profissional (Perfil Verificado)
+solicitar perfil de especialista
+solicitar CPF, nome completo, e-mail institucional e enviar o currículo profissional ou conhecimento pessoal.
+validar a autenticidade dos documentos enviados pela equipe de moderação
+publicar análises técnicas
+permitir inclusão de texto detalhado, notas por quesito e links externos
+associar a análise ao portfólio oficial do crítico dentro da plataforma
+gerenciar portfólio
+alterar ou remover análises publicadas anteriormente
+consultar painel com métricas de alcance e engajamento dos leitores
+
+Gerenciar Catálogo e Pesquisa de Jogos 
+consultar jogos
+pesquisar por nome (parcial ou completo)
+filtrar títulos por gênero, plataforma (PC, Console, Mobile) e faixa de preço
+ordenar catálogo por nota da crítica, nota da comunidade ou preço
+visualizar detalhes do jogo
+exibir sinopse, desenvolvedora, data de lançamento e plataformas     disponíveis
+exibir separadamente a média das notas da comunidade e a média dos críticos
+exibir histórico de variação de preços e link para a oferta atual
+
+Gerenciar Avaliações e Interações da Comunidade
+publicar avaliação casual
+atribuir uma nota numérica e um comentário opcional sobre o jogo
+limitar a apenas uma avaliação por conta para cada jogo cadastrado
+conter ataques de notas (review bombing)
+aplicar trava temporária em casos de pico anômalo de avaliações negativas/positivas
+flagrar e sinalizar contas recém-criadas com comportamento suspeito
+interagir com opiniões
+classificar resenhas e comentários como "Úteis" ou "Não Úteis"
+denunciar resenhas que violem os termos de uso ou contendo spoilers
+
+
+Gerenciar Preços e Redirecionamento de Ofertas
+acompanhar variação de preços
+coletar e atualizar periodicamente os preços praticados pelas lojas oficiais
+exibir gráfico descritivo com o menor preço histórico do jogo
+   redirecionar para a compra
+disponibilizar botão direto para o link da loja com a melhor oferta vigente
+gerenciar lista de desejos (Wishlist)
+salvar jogos do catálogo em uma lista de favoritos do usuário
+notificar o usuário quando um jogo da lista atingir um preço promocional

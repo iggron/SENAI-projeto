@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova Avaliação</title>
+    <link rel="stylesheet" href="estilo_avaliacoes.css">
+</head>
+<body>
+    <h2>Cadastrar Avaliação</h2>
+    <form action="inserir_avaliacao.php" method="POST">
+        <label>ID do Jogo:</label>
+        <input type="number" name="id_jogo" required>
+
+        <label>Seu Nome:</label>
+        <input type="text" name="nome_usuario" required>
+
+        <label>Nota (1 a 10):</label>
+        <input type="number" name="nota" min="1" max="10" required>
+
+        <label>Comentário:</label>
+        <textarea name="comentario" rows="4"></textarea>
+
+        <button type="submit">Publicar Avaliação</button>
+    </form>
+</body>
+</html>

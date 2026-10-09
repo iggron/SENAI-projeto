@@ -1,0 +1,125 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #0f0c1b;
+    color: #e2e8f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    background-color: #18132a;
+    border: 1px solid #3b2d54;
+    border-radius: 12px;
+    padding: 30px;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 8px 24px rgba(110, 43, 222, 0.2);
+}
+
+h1, h2 {
+    color: #a855f7;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+label {
+    font-weight: 600;
+    color: #c084fc;
+    font-size: 0.9rem;
+}
+
+input[type="text"],
+input[type="date"] {
+    background-color: #0f0c1b;
+    border: 1px solid #4c1d95;
+    color: #ffffff;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus {
+    border-color: #a855f7;
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+}
+
+.btn {
+    background-color: #7e22ce;
+    color: #ffffff;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.btn:hover {
+    background-color: #9333ea;
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background-color: #991b1b;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+}
+
+.nav-links {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #3b2d54;
+}
+
+th {
+    background-color: #2e1065;
+    color: #c084fc;
+}
+
+tr:hover {
+    background-color: #241a3e;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}

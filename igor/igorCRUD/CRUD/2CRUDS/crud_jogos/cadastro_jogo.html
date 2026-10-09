@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Jogo - CritRview</title>
+    <link rel="stylesheet" href="estilo_jogos.css">
+</head>
+<body>
+    <h2>Cadastro de Jogo</h2>
+    <form action="inserir_jogo.php" method="POST">
+        <label>Nome do Jogo:</label>
+        <input type="text" name="nome" required>
+
+        <label>Gênero:</label>
+        <input type="text" name="genero" required>
+
+        <label>Plataforma:</label>
+        <input type="text" name="plataforma" required>
+
+        <label>Desenvolvedora:</label>
+        <input type="text" name="desenvolvedora">
+
+        <label>Data de Lançamento:</label>
+        <input type="date" name="data_lancamento">
+
+        <label>Preço (R$):</label>
+        <input type="number" step="0.01" name="preco" value="0.00">
+
+        <label>Sinopse:</label>
+        <textarea name="sinopse" rows="4"></textarea>
+
+        <button type="submit">Gravar Jogo</button>
+    </form>
+</body>
+</html>

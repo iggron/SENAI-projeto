@@ -1,0 +1,137 @@
+/* estilo_jogos.css - CritRview */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background-color: #e8f0fe;
+    color: #1a2a4a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    line-height: 1.6;
+}
+
+h2 {
+    color: #1565c0;
+    margin-bottom: 20px;
+    border-bottom: 3px solid #1565c0;
+    padding-bottom: 8px;
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+}
+
+form {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(21, 101, 192, 0.2);
+    width: 100%;
+    max-width: 520px;
+    border-top: 5px solid #1565c0;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #1565c0;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+textarea {
+    width: 100%;
+    padding: 11px;
+    margin-bottom: 16px;
+    border: 2px solid #bbdefb;
+    border-radius: 6px;
+    font-size: 15px;
+    background-color: #f8fbff;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #1565c0;
+    background-color: #ffffff;
+}
+
+button, input[type="submit"] {
+    background-color: #1565c0;
+    color: white;
+    border: none;
+    padding: 13px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    width: 100%;
+    transition: background 0.2s;
+}
+
+button:hover, input[type="submit"]:hover {
+    background-color: #0d47a1;
+}
+
+/* Caixinha de resultado */
+.resultado-box {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(21, 101, 192, 0.2);
+    width: 100%;
+    max-width: 600px;
+    border-top: 5px solid #1565c0;
+    margin-top: 20px;
+}
+
+.resultado-box p {
+    margin-bottom: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #e3f2fd;
+}
+
+.resultado-box p:last-child {
+    border-bottom: none;
+}
+
+.resultado-box strong {
+    color: #1565c0;
+    min-width: 140px;
+    display: inline-block;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+table th, table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #bbdefb;
+}
+
+table th {
+    background-color: #1565c0;
+    color: white;
+}
+
+table tr:hover {
+    background-color: #f0f7ff;
+}
+
+a {
+    color: #1565c0;
+    font-weight: bold;
+}

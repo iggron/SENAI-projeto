@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Ye Shunguang vs Etérios - ZZZ Arena</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #121318; color: #fff; font-family: sans-serif; overflow: hidden; }
+    canvas { display: block; background: #1a1c23; }
+    #ui {
+      position: absolute; top: 10px; left: 10px;
+      background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px;
+      border: 1px solid #333; pointer-events: none;
+    }
+    h1 { font-size: 16px; color: #00ffff; margin-bottom: 5px; }
+    .bar-container { width: 200px; height: 12px; background: #333; margin: 4px 0 8px 0; border-radius: 6px; overflow: hidden; }
+    .bar-hp { height: 100%; background: #00ff88; width: 100%; transition: width 0.1s; }
+    .bar-ex { height: 100%; background: #e6b800; width: 0%; transition: width 0.1s; }
+    .mode { font-weight: bold; color: #ff0055; margin-top: 5px; }
+  </style>
+</head>
+<body>
+  <div id="ui">
+    <h1>Ye Shunguang (ZZZ)</h1>
+    <div>HP</div>
+    <div class="bar-container"><div id="hp-bar" class="bar-hp"></div></div>
+    <div>Cargas EX (<span id="ex-count">0</span>/5)</div>
+    <div class="bar-container"><div id="ex-bar" class="bar-ex"></div></div>
+    <div id="state-text" class="mode">Modo: Normal</div>
+    <div id="last-skill" style="font-size: 12px; color: #aaa; margin-top: 5px;">Ataque: Nenhum</div>
+  </div>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Estado do Jogo
+    const keys = {};
+    const mouse = { x: canvas.width/2, y: canvas.height/2, down: false };
+    
+    // Jogador: Ye Shunguang
+    const player = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      radius: 20,
+      speed: 4,
+      hp: 100,
+      maxHp: 100,
+      exCharges: 0,
+      maxEx: 5,
+      mode: 'NORMAL', // NORMAL ou SERENIDADE
+      serenityTimer: 0,
+      comboIndex: 0,
+      attackCooldown: 0
+    };
+
+    // Sequência de Ataques Básicos
+    const basicAttacks = [
+      "Lâmina Veloz",
+      "Vontade da Espada da Nuvem",
+      "Mente Iluminada - Correntes Divididas",
+      "Mente Iluminada - Ascensão Celestial",
+      "Mente Iluminada - Luz Solar Máxima",
+      "Mente Iluminada - Luz do Sol",
+      "Mente Iluminada - Aniquilação da Luz Solar"
+    ];
+
+    let ethereals = [];
+    let projectiles = [];
+    let particles = [];
+
+    // Eventos de Entrada
+    window.addEventListener('keydown', e => {
+      keys[e.key.toLowerCase()] = true;
+      
+      // EX Special Attacks (Requer cargas EX)
+      if (e.key === '1') triggerEX('Calmaria do Vendaval');
+      if (e.key === '2') triggerEX('Serenidade — Luz Voadora');
+      if (e.key === '3') triggerEX('Serenidade — Retorno ao Pó');
+      
+      // Ultimates
+      if (e.key.toLowerCase() === 'q') triggerUltimate('Perseguindo Tempestades');
+      if (e.key.toLowerCase() === 'r') triggerUltimate('Fendendo os Céus');
+    });
+
+    window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener('mousedown', () => mouse.down = true);
+    window.addEventListener('mouseup', () => mouse.down = false);
+
+    // Sistema de Spawns de Etérios (Inimigos diep.io)
+    function spawnEthereal() {
+      if (ethereals.length < 15) {
+        const side = Math.floor(Math.random() * 4);
+        let x, y;
+        if (side === 0) { x = Math.random() * canvas.width; y = -30; }
+        else if (side === 1) { x = canvas.width + 30; y = Math.random() * canvas.height; }
+        else if (side === 2) { x = Math.random() * canvas.width; y = canvas.height + 30; }
+        else { x = -30; y = Math.random() * canvas.height; }
+
+        ethereals.push({
+          x, y,
+          radius: 15 + Math.random() * 10,
+          hp: 30,
+          maxHp: 30,
+          speed: 1.5 + Math.random(),
+          color: '#aa00ff'
+        });
+      }
+    }
+    setInterval(spawnEthereal, 1200);
+
+    // Lógica de Ataque Básico
+    function performBasicAttack() {
+      if (player.attackCooldown > 0) return;
+
+      const angle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+      const attackName = basicAttacks[player.comboIndex];
+      document.getElementById('last-skill').innerText = "Ataque: " + attackName;
+
+      // Cria projeção de corte/lâmina
+      projectiles.push({
+        x: player.x,
+        y: player.y,
+        vx: Math.cos(angle) * 12,
+        vy: Math.sin(angle) * 12,
+        radius: 12 + player.comboIndex * 2,
+        damage: 15 + player.comboIndex * 5,
+        color: player.mode === 'SERENIDADE' ? '#fff700' : '#00ffff',
+        life: 30
+      });
+
+      player.comboIndex = (player.comboIndex + 1) % basicAttacks.length;
+      player.attackCooldown = player.mode === 'SERENIDADE' ? 10 : 18;
+    }
+
+    // Ataques Especiais Reforçados (EX)
+    function triggerEX(name) {
+      if (player.exCharges < 1) return;
+      player.exCharges--;
+      updateUI();
+      document.getElementById('last-skill').innerText = "EX: " + name;
+
+      const angle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+
+      if (name === 'Calmaria do Vendaval') {
+        for (let i = -2; i <= 2; i++) {
+          projectiles.push({
+            x: player.x, y: player.y,
+            vx: Math.cos(angle + i * 0.2) * 10,
+            vy: Math.sin(angle + i * 0.2) * 10,
+            radius: 16, damage: 40, color: '#00ffcc', life: 45
+          });
+        }
+      } else if (name === 'Serenidade — Luz Voadora') {
+        player.x += Math.cos(angle) * 150;
+        player.y += Math.sin(angle) * 150;
+        player.mode = 'SERENIDADE';
+        player.serenityTimer = 300;
+      } else if (name === 'Serenidade — Retorno ao Pó') {
+        for (let i = 0; i < 12; i++) {
+          const a = (Math.PI * 2 / 12) * i;
+          projectiles.push({
+            x: player.x, y: player.y,
+            vx: Math.cos(a) * 8, vy: Math.sin(a) * 8,
+            radius: 10, damage: 35, color: '#ffea00', life: 40
+          });
+        }
+        player.mode = 'SERENIDADE';
+        player.serenityTimer = 300;
+      }
+    }
+
+    // Ultimates / Supremos
+    function triggerUltimate(name) {
+      if (player.exCharges < player.maxEx) return;
+      player.exCharges = 0;
+      updateUI();
+      document.getElementById('last-skill').innerText = "ULT: " + name;
+
+      player.mode = 'SERENIDADE';
+      player.serenityTimer = 500;
+
+      if (name === 'Perseguindo Tempestades') {
+        for (let i = 0; i < 24; i++) {
+          const a = (Math.PI * 2 / 24) * i;
+          projectiles.push({
+            x: player.x, y: player.y,
+            vx: Math.cos(a) * 14, vy: Math.sin(a) * 14,
+            radius: 18, damage: 80, color: '#00ffff', life: 60
+          });
+        }
+      } else if (name === 'Fendendo os Céus') {
+        ethereals.forEach(e => e.hp -= 150);
+        for (let i = 0; i < 50; i++) {
+          particles.push({
+            x: player.x, y: player.y,
+            vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 0.5) * 20,
+            radius: Math.random() * 6, color: '#ffffff', life: 40
+          });
+        }
+      }
+    }
+
+    function updateUI() {
+      document.getElementById('hp-bar').style.width = (player.hp / player.maxHp * 100) + '%';
+      document.getElementById('ex-bar').style.width = (player.exCharges / player.maxEx * 100) + '%';
+      document.getElementById('ex-count').innerText = player.exCharges;
+      document.getElementById('state-text').innerText = "Modo: " + player.mode;
+      document.getElementById('state-text').style.color = player.mode === 'SERENIDADE' ? '#fff700' : '#00ffff';
+    }
+
+    // Loop do Jogo
+    function update() {
+      // Movimentação WASD
+      if (keys['w'] || keys['arrowup']) player.y -= player.speed;
+      if (keys['s'] || keys['arrowdown']) player.y += player.speed;
+      if (keys['a'] || keys['arrowleft']) player.x -= player.speed;
+      if (keys['d'] || keys['arrowright']) player.x += player.speed;
+
+      // Cooldown e Disparo
+      if (player.attackCooldown > 0) player.attackCooldown--;
+      if (mouse.down) performBasicAttack();
+
+      // Timer do Modo Serenidade
+      if (player.serenityTimer > 0) {
+        player.serenityTimer--;
+        if (player.serenityTimer <= 0) {
+          player.mode = 'NORMAL';
+          updateUI();
+        }
+      }
+
+      // Atualizar Projéteis
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        let p = projectiles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+
+        // Colisão com Etérios
+        for (let j = ethereals.length - 1; j >= 0; j--) {
+          let e = ethereals[j];
+          let dist = Math.hypot(p.x - e.x, p.y - e.y);
+          if (dist < p.radius + e.radius) {
+            e.hp -= p.damage;
+            p.life = 0;
+            if (e.hp <= 0) {
+              ethereals.splice(j, 1);
+              if (player.exCharges < player.maxEx) {
+                player.exCharges++;
+                updateUI();
+              }
+            }
+            break;
+          }
+        }
+
+        if (p.life <= 0) projectiles.splice(i, 1);
+      }
+
+      // Atualizar Etérios
+      for (let i = ethereals.length - 1; i >= 0; i--) {
+        let e = ethereals[i];
+        let angle = Math.atan2(player.y - e.y, player.x - e.x);
+        e.x += Math.cos(angle) * e.speed;
+        e.y += Math.sin(angle) * e.speed;
+
+        // Dano no jogador
+        let dist = Math.hypot(player.x - e.x, player.y - e.y);
+        if (dist < player.radius + e.radius) {
+          player.hp -= 0.5;
+          updateUI();
+          if (player.hp <= 0) {
+            alert("Ye Shunguang foi derrotada pelos Etérios!");
+            player.hp = 100;
+            player.exCharges = 0;
+            ethereals = [];
+            updateUI();
+          }
+        }
+      }
+
+      // Partículas
+      for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.x += p.vx; p.y += p.vy; p.life--;
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+    }
+
+    // Renderização no estilo Diep.io
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Desenhar Etérios
+      ethereals.forEach(e => {
+        ctx.fillStyle = e.color;
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#550088';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      });
+
+      // Desenhar Projéteis
+      projectiles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Desenhar Partículas
+      particles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Desenhar Jogador (Ye Shunguang)
+      ctx.save();
+      ctx.translate(player.x, player.y);
+      const angle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+      ctx.rotate(angle);
+
+      // Canhão/Espada estilo Diep.io
+      ctx.fillStyle = player.mode === 'SERENIDADE' ? '#fff700' : '#00ffff';
+      ctx.fillRect(0, -6, 35, 12);
+
+      // Corpo do Personagem
+      ctx.beginPath();
+      ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
+      ctx.fillStyle = player.mode === 'SERENIDADE' ? '#ffd700' : '#00bfff';
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+/* ==========================================================================
+   EMPRESA.CSS - Zhao (ZZZ) Style | Single Switch | Centralized Results
+   ========================================================================== */
+
+/* 1. VARIÁVEIS DE COR E TEMAS (Padrão: Dark Theme Zhao)[cite: 14] */
+:root {
+  --zhao-pink: #ff6584;        /* Rosa vibrante da Zhao */
+  --zhao-pink-soft: #ffb3c1;   /* Rosa suave */
+  --zhao-pink-glow: rgba(255, 101, 132, 0.4);
+  --zhao-teal: #00b4d8;        /* Teal/Aqua */
+  --zhao-teal-dark: #0f2b38;   /* Dark Teal */
+  --zhao-orange: #ff7b00;      /* Laranja de destaque */
+  --zhao-ice: #00f0ff;         /* Ciano Ether / Gelo */
+  --zhao-ice-glow: rgba(0, 240, 255, 0.35);
+
+  /* MODO ESCURO (DEFAULT) */
+  --bg-main: #0e1017;
+  --bg-gradient-1: rgba(255, 101, 132, 0.07);
+  --bg-gradient-2: rgba(0, 180, 216, 0.07);
+  --grid-line: rgba(255, 255, 255, 0.02);
+  --card-bg: #161924;
+  --card-border: #2a3045;
+  --input-bg: #0b0d13;
+  --text-main: #f3f4f6;
+  --text-muted: #9aa3b8;
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+}
+
+/* MODO CLARO (Ativado pelo botão Toggle do Nav) */
+:has(#theme-toggle:checked) {
+  --bg-main: #f0f4f8;
+  --bg-gradient-1: rgba(255, 101, 132, 0.12);
+  --bg-gradient-2: rgba(0, 180, 216, 0.12);
+  --grid-line: rgba(0, 0, 0, 0.04);
+  --card-bg: #ffffff;
+  --card-border: #cbd5e1;
+  --input-bg: #f8fafc;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --zhao-pink-soft: #d9234f;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 2. RESET E ZERO SCROLL */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden; /* Zero rolagem na tela */
+  font-family: var(--font-family);
+  background-color: var(--bg-main);
+  background-image: 
+    radial-gradient(circle at 10% 10%, var(--bg-gradient-1) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, var(--bg-gradient-2) 0%, transparent 40%),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+  color: var(--text-main);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center; /* Centraliza todo texto gerado pelo PHP */
+  line-height: 1.8;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Oculta <br> APENAS dentro dos formulários para manter o Grid compacto */
+form br {
+  display: none !important; 
+}
+
+/* 3. OCULTA BOTÕES DUPLICADOS/EXTRAS DE TEMA FORA DO NAV */
+.theme-switch,
+#theme-toggle,
+form .theme-switch,
+hr ~ .theme-switch,
+button[onclick*="theme"],
+input[type="button"][value*="Modo"] {
+  display: none !important;
+}
+
+/* 4. MENU SUPERIOR FIXO (NAVBAR ZHAO) */
+.zhao-nav {
+  width: 100%;
+  height: 52px;
+  background: var(--card-bg);
+  border-bottom: 2px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: 0 4px 20px var(--shadow-color);
+  z-index: 1000;
+  flex-shrink: 0;
+}
+
+.zhao-brand {
+  font-weight: 900;
+  font-size: 0.95rem;
+  letter-spacing: 1.5px;
+  color: var(--zhao-pink);
+  text-shadow: 0 0 8px var(--zhao-pink-glow);
+}
+
+.nav-links {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-links a {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.25s ease;
+}
+
+.nav-links a:hover {
+  color: #ffffff;
+  background: var(--zhao-pink);
+  box-shadow: 0 0 10px var(--zhao-pink-glow);
+  transform: translateY(-1px);
+}
+
+/* Alternador no Nav Superior */
+.zhao-nav .theme-switch {
+  display: inline-block !important;
+  position: relative;
+  width: 46px;
+  height: 24px;
+}
+
+.zhao-nav .theme-switch input#theme-toggle {
+  display: block !important;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--card-border);
+  border-radius: 24px;
+  transition: 0.3s;
+  border: 1px solid var(--zhao-teal);
+}
+
+.slider::before {
+  position: absolute;
+  content: "🌙";
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--bg-main);
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+#theme-toggle:checked + .slider {
+  background-color: var(--zhao-teal);
+}
+
+#theme-toggle:checked + .slider::before {
+  transform: translateX(22px);
+  content: "☀️";
+}
+
+/* 5. CONTAINER E FORMULÁRIOS COMPACTOS (GRID) */
+form, .container-box {
+  width: 95%;
+  max-width: 780px;
+  margin: 15px auto 10px auto;
+  padding: 18px 24px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-top: 4px solid var(--zhao-pink);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px var(--shadow-color);
+  
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px 12px;
+  align-items: center;
+  text-align: left;
+}
+
+h1, h2, h3 {
+  grid-column: 1 / -1;
+  color: var(--zhao-pink-soft);
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  text-shadow: 0 0 10px var(--zhao-pink-glow);
+  width: 100%;
+}
+
+label {
+  grid-column: span 1;
+  color: var(--zhao-pink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: right;
+  padding-right: 4px;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"] {
+  grid-column: span 1;
+  width: 100%;
+  padding: 6px 10px;
+  background-color: var(--input-bg);
+  color: var(--text-main);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--zhao-pink);
+  box-shadow: 0 0 8px var(--zhao-pink-glow);
+}
+
+button, input[type="submit"] {
+  grid-column: 1 / -1;
+  padding: 10px;
+  background: linear-gradient(135deg, var(--zhao-pink) 0%, var(--zhao-orange) 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 6px;
+  box-shadow: 0 4px 14px var(--zhao-pink-glow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover, input[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px var(--zhao-pink-glow);
+}
+
+hr {
+  display: none;
+}
+
+/* 6. TABELAS E TEXTO DE RESULTADO DO CONSULTAR.PHP */
+table {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 780px;
+  margin: 10px auto;
+  border-collapse: collapse;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 0.82rem;
+}
+
+th, td {
+  padding: 8px 12px;
+  border: 1px solid var(--card-border);
+  text-align: center;
+}
+
+th {
+  background-color: var(--zhao-teal-dark);
+  color: var(--zhao-ice);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* 7. RESPONSIVIDADE (MOBILE FIT) */
+@media (max-width: 680px) {
+  form, .container-box {
+    grid-template-columns: 1fr 1fr;
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+  }
+
+  label {
+    text-align: left;
+    grid-column: span 2;
+  }
+
+  input[type="text"], input[type="number"] {
+    grid-column: span 2;
+  }
+
+  .zhao-nav {
+    flex-direction: column;
+    height: auto;
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .zhao-brand {
+    display: none;
+  }
+}

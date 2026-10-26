@@ -1,30 +1,735 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Registo de Cliente</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo Educativo P.O.O. - Pokémon Arena</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 15px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      color: #38bdf8;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 15px;
+      flex: 1;
+    }
+
+    /* Game Column */
+    .game-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .canvas-container {
+      position: relative;
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 380px;
+      background: linear-gradient(to bottom, #1e1b4b, #311b92 70%, #166534 70%, #14532d 100%);
+    }
+
+    /* Controls & HUD */
+    .controls-panel {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .btn-skill {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 10px 5px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-skill:hover {
+      background: #0369a1;
+      transform: translateY(-2px);
+    }
+
+    .btn-skill span.key {
+      background: rgba(0,0,0,0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+    }
+
+    .instructions {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      background: #0f172a;
+      padding: 8px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-around;
+    }
+
+    /* Inspector & UML Side Panel */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: calc(100vh - 80px);
+      overflow-y: auto;
+    }
+
+    .panel {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel h2 {
+      font-size: 1rem;
+      color: #38bdf8;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Live Inspector Console */
+    .inspector-log {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      height: 160px;
+      overflow-y: auto;
+      padding: 8px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-item {
+      line-height: 1.3;
+      word-break: break-all;
+    }
+
+    .log-method {
+      color: #4ade80;
+    }
+
+    .log-attr {
+      color: #fbbf24;
+    }
+
+    /* Dynamic UML Box */
+    .uml-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.72rem;
+    }
+
+    .uml-class {
+      background: #0f172a;
+      border: 1px solid #475569;
+      border-radius: 4px;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .uml-class.active {
+      border-color: #38bdf8;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+    }
+
+    .uml-header {
+      background: #334155;
+      padding: 4px;
+      text-align: center;
+      font-weight: bold;
+      color: #f1f5f9;
+    }
+
+    .uml-section {
+      padding: 4px 6px;
+      border-top: 1px solid #334155;
+    }
+
+    .uml-item {
+      padding: 1px 0;
+      color: #cbd5e1;
+      transition: background-color 0.3s;
+    }
+
+    .uml-item.highlight {
+      background-color: #0369a1;
+      color: #ffffff;
+      font-weight: bold;
+      padding-left: 2px;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: #334155;
+      color: #94a3b8;
+    }
+  </style>
 </head>
 <body>
 
-  <h2>Registo de Cliente</h2>
+  <header>
+    <h1>Jogo Educativo P.O.O. — Pokémon Arena 2D</h1>
+    <p>Acompanhe os métodos executados e alterações de atributos da Herança em tempo real</p>
+  </header>
 
-  <form action="exemplo.php" method="POST">
+  <div class="main-container">
+    <!-- Game Column -->
+    <div class="game-column">
+      <div class="canvas-container">
+        <canvas id="gameCanvas" width="750" height="380"></canvas>
+      </div>
 
-    <label for="nome">Nome:</label><br>
-    <input type="text" id="nome" name="nome" required><br><br>
+      <div class="controls-panel">
+        <div class="skills-grid">
+          <button class="btn-skill" onclick="player.usarChoqueDoTrovao(enemy)">
+            Choque do Trovão
+            <span class="key">Tecla 1</span>
+          </button>
+          <button class="btn-skill" onclick="player.usarInvestidaTrovao(enemy)">
+            Investida Trovão
+            <span class="key">Tecla 2</span>
+          </button>
+          <button class="btn-skill" onclick="player.armazenarEnergiaBochechas()">
+            Energia Bochechas
+            <span class="key">Tecla 3</span>
+          </button>
+          <button class="btn-skill" onclick="player.serMascoteOficial(enemy)">
+            Mascote Oficial
+            <span class="key">Tecla 4</span>
+          </button>
+        </div>
 
-    <label for="idade">Idade:</label><br>
-    <input type="number" id="idade" name="idade" min="0" required><br><br>
+        <div class="instructions">
+          <span><strong>Mover:</strong> A / D ou Setas ← →</span>
+          <span><strong>Pular:</strong> W, Espaço ou Seta ↑</span>
+          <span><strong>Atacar:</strong> Teclas 1, 2, 3, 4</span>
+        </div>
+      </div>
+    </div>
 
-    <label for="cpf">CPF:</label><br>
-    <input type="text" id="cpf" name="cpf" required><br><br>
+    <!-- Inspector & Diagram Sidebar -->
+    <div class="sidebar">
+      <!-- Live Inspector -->
+      <div class="panel">
+        <h2>Inspeção Dinâmica <span class="badge" id="logCount">0 eventos</span></h2>
+        <div class="inspector-log" id="inspectorLog">
+          <div class="log-item" style="color: #94a3b8;">// Logs de invocação de métodos e mutação de atributos...</div>
+        </div>
+      </div>
 
-<label for="endereco">Endereço:</label><br>
-    <input type="text" id="endereco" name="endereco" required><br><br>
+      <!-- Live Class Diagram (UML) -->
+      <div class="panel">
+        <h2>Diagrama de Classes UML</h2>
+        <div class="uml-container">
+          
+          <!-- Superclasse Pokemon -->
+          <div class="uml-class" id="uml-Pokemon">
+            <div class="uml-header">&lt;&lt;Superclasse&gt;&gt;<br>Pokémon</div>
+            <div class="uml-section">
+              <div class="uml-item" id="attr-Pokemon-hp">- hp: int</div>
+              <div class="uml-item" id="attr-Pokemon-nivel">- nivel: int</div>
+              <div class="uml-item" id="attr-Pokemon-capturado">- capturado: boolean</div>
+            </div>
+            <div class="uml-section">
+              <div class="uml-item" id="method-Pokemon-atacar">+ atacar()</div>
+              <div class="uml-item" id="method-Pokemon-receberDano">+ receberDano()</div>
+              <div class="uml-item" id="method-Pokemon-mover">+ mover()</div>
+            </div>
+          </div>
 
-    <button type="submit">Registar Cliente</button>
+          <!-- Subclasse Pikachu -->
+          <div class="uml-class" id="uml-Pikachu">
+            <div class="uml-header">Pikachu (Herda Pokémon)</div>
+            <div class="uml-section">
+              <div class="uml-item" id="attr-Pikachu-cargaEletrica">- cargaEletrica: int</div>
+              <div class="uml-item" id="attr-Pikachu-nivelPopularidade">- nivelPopularidade: int</div>
+            </div>
+            <div class="uml-section">
+              <div class="uml-item" id="method-Pikachu-usarChoqueDoTrovao">+ usarChoqueDoTrovao()</div>
+              <div class="uml-item" id="method-Pikachu-usarInvestidaTrovao">+ usarInvestidaTrovao()</div>
+              <div class="uml-item" id="method-Pikachu-armazenarEnergiaBochechas">+ armazenarEnergiaBochechas()</div>
+              <div class="uml-item" id="method-Pikachu-serMascoteOficial">+ serMascoteOficial()</div>
+            </div>
+          </div>
 
-  </form>
+          <!-- Subclasse Mimikyu -->
+          <div class="uml-class" id="uml-Mimikyu">
+            <div class="uml-header">Mimikyu (Herda Pokémon)</div>
+            <div class="uml-section">
+              <div class="uml-item" id="attr-Mimikyu-nivelCiumes">- nivelCiumes: int</div>
+              <div class="uml-item" id="attr-Mimikyu-disfarceIntacto">- disfarceIntacto: boolean</div>
+            </div>
+            <div class="uml-section">
+              <div class="uml-item" id="method-Mimikyu-ativarDisfarce">+ ativarDisfarce()</div>
+              <div class="uml-item" id="method-Mimikyu-atacarComGarraSombria">+ atacarComGarraSombria()</div>
+              <div class="uml-item" id="method-Mimikyu-expressarInveja">+ expressarInveja()</div>
+              <div class="uml-item" id="method-Mimikyu-assustarTreinador">+ assustarTreinador()</div>
+            </div>
+          </div>
 
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // SISTEMA DE INSPEÇÃO DIDÁTICA EM TEMPO REAL
+    // ==========================================
+    class Inspector {
+      static logCount = 0;
+
+      static logMethod(className, methodName, args = '') {
+        this.logCount++;
+        document.getElementById('logCount').innerText = `${this.logCount} eventos`;
+
+        const logContainer = document.getElementById('inspectorLog');
+        const entry = document.createElement('div');
+        entry.className = 'log-item log-method';
+        entry.innerText = `⚙️ [MÉTODO] ${className}.${methodName}(${args})`;
+        logContainer.prepend(entry);
+
+        this.highlightUML(`method-${className}-${methodName.split('(')[0]}`);
+      }
+
+      static logAttribute(className, attrName, oldValue, newValue) {
+        this.logCount++;
+        document.getElementById('logCount').innerText = `${this.logCount} eventos`;
+
+        const logContainer = document.getElementById('inspectorLog');
+        const entry = document.createElement('div');
+        entry.className = 'log-item log-attr';
+        entry.innerText = `📝 [ATRIBUTO] ${className}.${attrName}: ${oldValue} ➔ ${newValue}`;
+        logContainer.prepend(entry);
+
+        this.highlightUML(`attr-${className}-${attrName}`);
+      }
+
+      static highlightUML(elementId) {
+        const el = document.getElementById(elementId);
+        if (el) {
+          el.classList.add('highlight');
+          setTimeout(() => el.classList.remove('highlight'), 1200);
+        }
+      }
+    }
+
+    // ==========================================
+    // ESTRUTURA ORIENTADA A OBJETOS (P.O.O.)
+    // ==========================================
+
+    // 1. SUPERCLASSE BASE: Pokémon
+    class Pokemon {
+      constructor(nome, numeroPokedex, tipo, nivel, hpMaximo, peso, altura, x, y, cor) {
+        this.nome = nome;
+        this.numeroPokedex = numeroPokedex;
+        this.tipo = tipo;
+        this.nivel = nivel;
+        this.hpMaximo = hpMaximo;
+        this._hp = hpMaximo;
+        this.peso = peso;
+        this.altura = altura;
+        this.capturado = true;
+
+        // Propriedades de física e posição arena
+        this.x = x;
+        this.y = y;
+        this.vx = 0;
+        this.vy = 0;
+        this.largura = 40;
+        this.alturaCorpo = 40;
+        this.noChao = false;
+        this.cor = cor;
+      }
+
+      get hp() { return this._hp; }
+      set hp(val) {
+        const valorAntigo = this._hp;
+        this._hp = Math.max(0, Math.min(this.hpMaximo, Math.round(val)));
+        Inspector.logAttribute(this.constructor.name === 'Pikachu' || this.constructor.name === 'Mimikyu' ? this.constructor.name : 'Pokemon', 'hp', valorAntigo, this._hp);
+      }
+
+      atacar(alvo, dano, nomeAtaque) {
+        Inspector.logMethod(this.constructor.name, 'atacar', `'${nomeAtaque}'`);
+        if (alvo) {
+          alvo.receberDano(dano);
+        }
+      }
+
+      receberDano(dano) {
+        Inspector.logMethod(this.constructor.name, 'receberDano', dano);
+        this.hp -= dano;
+      }
+
+      mover(dx) {
+        this.vx = dx;
+        if (dx !== 0) {
+          Inspector.logMethod(this.constructor.name, 'mover', `dx: ${dx}`);
+        }
+      }
+
+      pular() {
+        if (this.noChao) {
+          this.vy = -12;
+          this.noChao = false;
+          Inspector.logMethod(this.constructor.name, 'mover', 'Pulo');
+        }
+      }
+
+      atualizarFisica(larguraTela, alturaChao) {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Gravidade
+        if (this.y + this.alturaCorpo < alturaChao) {
+          this.vy += 0.6;
+          this.noChao = false;
+        } else {
+          this.y = alturaChao - this.alturaCorpo;
+          this.vy = 0;
+          this.noChao = true;
+        }
+
+        // Limites de tela
+        if (this.x < 0) this.x = 0;
+        if (this.x + this.largura > larguraTela) this.x = larguraTela - this.largura;
+
+        // Desaceleração horizontal
+        this.vx *= 0.8;
+      }
+    }
+
+    // 2. SUBCLASSE: Pikachu
+    class Pikachu extends Pokemon {
+      constructor(x, y) {
+        super('Pikachu', 25, 'Eletrico', 10, 100, 6.0, 0.4, x, y, '#f1c40f');
+        this._cargaEletrica = 100;
+        this._nivelPopularidade = 99;
+        this.eIconeEmpresa = true;
+        this.estagiosEvolutivos = 3;
+      }
+
+      get cargaEletrica() { return this._cargaEletrica; }
+      set cargaEletrica(v) {
+        const old = this._cargaEletrica;
+        this._cargaEletrica = Math.max(0, Math.min(100, Math.round(v)));
+        Inspector.logAttribute('Pikachu', 'cargaEletrica', old, this._cargaEletrica);
+      }
+
+      // Habilidade 1
+      usarChoqueDoTrovao(alvo) {
+        Inspector.logMethod('Pikachu', 'usarChoqueDoTrovao');
+        if (this.cargaEletrica >= 15) {
+          this.cargaEletrica -= 15;
+          this.atacar(alvo, 20, 'Choque do Trovão');
+          criarEfeitoAtaque(alvo.x, alvo.y, '#f39c12', '⚡');
+        } else {
+          Inspector.logMethod('Pikachu', 'semEnergia');
+        }
+      }
+
+      // Habilidade 2
+      usarInvestidaTrovao(alvo) {
+        Inspector.logMethod('Pikachu', 'usarInvestidaTrovao');
+        if (this.cargaEletrica >= 25) {
+          this.cargaEletrica -= 25;
+          this.vx = (alvo.x > this.x) ? 15 : -15;
+          this.atacar(alvo, 30, 'Investida Trovão');
+          criarEfeitoAtaque(alvo.x, alvo.y, '#e67e22', '💥');
+        }
+      }
+
+      // Habilidade 3
+      armazenarEnergiaBochechas() {
+        Inspector.logMethod('Pikachu', 'armazenarEnergiaBochechas');
+        this.cargaEletrica += 35;
+        this.hp += 15;
+        criarEfeitoAtaque(this.x, this.y, '#2ecc71', '✨');
+      }
+
+      // Habilidade 4
+      serMascoteOficial(alvo) {
+        Inspector.logMethod('Pikachu', 'serMascoteOficial');
+        this.atacar(alvo, 18, 'Poder do Mascote');
+        this.cargaEletrica += 15;
+        criarEfeitoAtaque(alvo.x, alvo.y, '#f1c40f', '⭐');
+      }
+    }
+
+    // 3. SUBCLASSE: Mimikyu
+    class Mimikyu extends Pokemon {
+      constructor(x, y) {
+        super('Mimikyu', 778, 'Fantasma/Fada', 10, 110, 0.7, 0.2, x, y, '#a8a29e');
+        this._nivelCiumes = 50;
+        this._disfarceIntacto = true;
+        this.tipoFantasia = 'Pikachu de Pano';
+        this.estaAssustador = false;
+      }
+
+      get nivelCiumes() { return this._nivelCiumes; }
+      set nivelCiumes(v) {
+        const old = this._nivelCiumes;
+        this._nivelCiumes = Math.max(0, Math.min(100, Math.round(v)));
+        Inspector.logAttribute('Mimikyu', 'nivelCiumes', old, this._nivelCiumes);
+      }
+
+      get disfarceIntacto() { return this._disfarceIntacto; }
+      set disfarceIntacto(v) {
+        const old = this._disfarceIntacto;
+        this._disfarceIntacto = v;
+        Inspector.logAttribute('Mimikyu', 'disfarceIntacto', old, this._disfarceIntacto);
+      }
+
+      // Sobrescreve receberDano com regra do Disfarce (Polimorfismo)
+      receberDano(dano) {
+        if (this.disfarceIntacto) {
+          Inspector.logMethod('Mimikyu', 'receberDano', 'Disfarce Absorveu!');
+          this.disfarceIntacto = false;
+          criarEfeitoAtaque(this.x, this.y, '#94a3b8', '🛡️');
+          return;
+        }
+        super.receberDano(dano);
+      }
+
+      // Habilidade 1
+      ativarDisfarce() {
+        Inspector.logMethod('Mimikyu', 'ativarDisfarce');
+        this.disfarceIntacto = true;
+        this.hp += 10;
+        criarEfeitoAtaque(this.x, this.y, '#8b5cf6', '🎭');
+      }
+
+      // Habilidade 2
+      atacarComGarraSombria(alvo) {
+        Inspector.logMethod('Mimikyu', 'atacarComGarraSombria');
+        this.atacar(alvo, 22, 'Garra Sombria');
+        this.nivelCiumes += 10;
+        criarEfeitoAtaque(alvo.x, alvo.y, '#7c3aed', '👻');
+      }
+
+      // Habilidade 3
+      expressarInveja(alvo) {
+        Inspector.logMethod('Mimikyu', 'expressarInveja');
+        this.nivelCiumes += 15;
+        this.atacar(alvo, 15, 'Olhar Invejoso');
+        criarEfeitoAtaque(alvo.x, alvo.y, '#ef4444', '👁️');
+      }
+
+      // Habilidade 4
+      assustarTreinador(alvo) {
+        Inspector.logMethod('Mimikyu', 'assustarTreinador');
+        this.atacar(alvo, 25, 'Susto Sombrio');
+        criarEfeitoAtaque(alvo.x, alvo.y, '#1e293b', '💀');
+      }
+    }
+
+    // ==========================================
+    // INSTANCIAÇÃO E LOOP DO JOGO
+    // ==========================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Instanciação dos objetos
+    const player = new Pikachu(100, 200);
+    const enemy = new Mimikyu(550, 200);
+
+    const teclas = {};
+    const efeitosvisuais = [];
+
+    function criarEfeitoAtaque(x, y, cor, icone) {
+      efeitosvisuais.push({ x, y, cor, icone, tempo: 30 });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      teclas[e.code] = true;
+
+      // Teclas numéricas para habilidades
+      if (e.key === '1') player.usarChoqueDoTrovao(enemy);
+      if (e.key === '2') player.usarInvestidaTrovao(enemy);
+      if (e.key === '3') player.armazenarEnergiaBochechas();
+      if (e.key === '4') player.serMascoteOficial(enemy);
+    });
+
+    window.addEventListener('keyup', (e) => {
+      teclas[e.code] = false;
+    });
+
+    // Inteligência Artificial (IA) do Mimikyu
+    let iaTimer = 0;
+    function processarIAMimikyu() {
+      iaTimer++;
+      if (iaTimer % 90 === 0) { // Tomada de decisão a cada 1.5s
+        const distancia = Math.abs(enemy.x - player.x);
+
+        if (!enemy.disfarceIntacto && Math.random() < 0.4) {
+          enemy.ativarDisfarce();
+        } else if (distancia < 70) {
+          if (Math.random() > 0.5) enemy.atacarComGarraSombria(player);
+          else enemy.assustarTreinador(player);
+        } else {
+          // Aproxima-se do Pikachu
+          enemy.mover(enemy.x > player.x ? -4 : 4);
+          if (Math.random() < 0.6) enemy.expressarInveja(player);
+        }
+      }
+    }
+
+    function processarEntradasJogador() {
+      if (teclas['KeyA'] || teclas['ArrowLeft']) player.mover(-5);
+      if (teclas['KeyD'] || teclas['ArrowRight']) player.mover(5);
+      if (teclas['KeyW'] || teclas['ArrowUp'] || teclas['Space']) player.pular();
+    }
+
+    function desenharInterfaceHUD() {
+      // HUD Pikachu (Player)
+      ctx.fillStyle = '#f1c40f';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText(`Pikachu (Nível ${player.nivel})`, 20, 25);
+
+      // Barra de Vida
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(20, 32, 200, 14);
+      ctx.fillStyle = '#22c55e';
+      ctx.fillRect(20, 32, (player.hp / player.hpMaximo) * 200, 14);
+
+      // Barra de Carga Elétrica
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '11px sans-serif';
+      ctx.fillText(`Carga Elétrica: ${player.cargaEletrica}%`, 20, 60);
+
+      // HUD Mimikyu (IA)
+      ctx.fillStyle = '#a8a29e';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText(`Mimikyu (IA)`, 530, 25);
+
+      // Barra de Vida
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(530, 32, 200, 14);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(530, 32, (enemy.hp / enemy.hpMaximo) * 200, 14);
+
+      // Indicadores do Mimikyu
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '11px sans-serif';
+      ctx.fillText(`Disfarce: ${enemy.disfarceIntacto ? 'Ativo 🛡️' : 'Quebrado 💔'}`, 530, 60);
+      ctx.fillText(`Nível Ciúmes: ${enemy.nivelCiumes}`, 530, 75);
+    }
+
+    function desenharPersonagens() {
+      // Pikachu
+      ctx.fillStyle = player.cor;
+      ctx.beginPath();
+      ctx.arc(player.x + 20, player.y + 20, 20, 0, Math.PI * 2);
+      ctx.fill();
+      // Orelhas Pikachu
+      ctx.fillStyle = '#f1c40f';
+      ctx.fillRect(player.x + 5, player.y - 10, 8, 12);
+      ctx.fillRect(player.x + 27, player.y - 10, 8, 12);
+
+      // Mimikyu
+      ctx.fillStyle = enemy.disfarceIntacto ? enemy.cor : '#64748b';
+      ctx.fillRect(enemy.x, enemy.y, enemy.largura, enemy.alturaCorpo);
+      // Olhos desenhados do pano
+      ctx.fillStyle = '#000000';
+      ctx.fillText('👀', enemy.x + 10, enemy.y + 25);
+    }
+
+    function renderizarEfeitos() {
+      efeitosvisuais.forEach((ef, index) => {
+        ctx.font = '20px sans-serif';
+        ctx.fillText(ef.icone, ef.x + 10, ef.y - 10);
+        ef.tempo--;
+        if (ef.tempo <= 0) efeitosvisuais.splice(index, 1);
+      });
+    }
+
+    function loopJogo() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      processarEntradasJogador();
+      processarIAMimikyu();
+
+      player.atualizarFisica(canvas.width, 320);
+      enemy.atualizarFisica(canvas.width, 320);
+
+      desenharPersonagens();
+      renderizarEfeitos();
+      desenharInterfaceHUD();
+
+      requestAnimationFrame(loopJogo);
+    }
+
+    // Iniciar
+    loopJogo();
+  </script>
 </body>
 </html>

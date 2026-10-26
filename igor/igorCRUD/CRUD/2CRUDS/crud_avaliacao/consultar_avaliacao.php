@@ -20,7 +20,7 @@ $conexao = new mysqli("localhost", "root", "Home@spSENAI2025!", "critrview");
 if (isset($_GET['nome_usuario']) && !empty($_GET['nome_usuario'])) {
     $busca = trim($_GET['nome_usuario']);
     
-    // Busca EXATA pelo nome do usuário
+    // Busca exata pelo nome do usuário
     $sql = "SELECT a.*, j.nome AS nome_jogo 
             FROM avaliacoes a
             INNER JOIN jogos j ON a.id_jogo = j.id_jogo

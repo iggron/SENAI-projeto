@@ -1,9 +1,11 @@
+/* Padroniza o tamanho dos elementos e remove os recuos padrão do navegador. */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+/* Define o visual geral e centraliza o conteúdo principal da página. */
 body {
     min-height: 100vh;
     padding: 20px 10px;
@@ -23,6 +25,7 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
+/* Estilo do título principal e da apresentação sobre a Bossa Nova. */
 .titulo {
     margin-bottom: 30px;
     text-align: center;
@@ -48,24 +51,28 @@ body {
     margin-bottom: 30px;
 }
 
-.bossa > img {
+/* Mantém a imagem da seção centralizada e ajustada ao espaço disponível. */
+.bossa  img {
     display: block;
-    width: 100%;
-    max-height: 320px;
+    width: 70%;
+    max-height: 420px;
+    margin: 0 auto;
     border-radius: 8px;
     object-fit: cover;
 }
 
 .bossa-texto h2,
-.artista > h2 {
+.artista  h2 {
     margin-bottom: 15px;
     padding-bottom: 8px;
     border-bottom: 2px solid #d9eff7;
 }
 
+/* Organiza os cartões de conteúdo em uma linha com espaçamento. */
 .cards {
-    display: grid;
-    gap: 20px;
+    display: flex;
+    flex-direction:row; 
+    gap: 15px;
 }
 
 .card {
@@ -78,6 +85,7 @@ body {
     transform: scale(1.01);
 }
 
+/* Ajusta a hierarquia visual dos textos dentro dos cartões. */
 .card h3,
 .album-info h3 {
     color: #087eaa;
@@ -97,6 +105,7 @@ body {
     font-weight: 600;
 }
 
+/* Divide a área de mídia entre o vídeo e a barra lateral. */
 .layout-media {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
@@ -123,6 +132,7 @@ body {
     aspect-ratio: 16 / 9;
 }
 
+/* Faz o vídeo preencher o contêiner sem perder a proporção definida. */
 .video-container iframe {
     position: absolute;
     inset: 0;
@@ -139,6 +149,7 @@ body {
     margin-bottom: 0;
 }
 
+/* Formata listas e cartões de álbuns da barra lateral. */
 .list-track {
     padding-left: 22px;
 }
@@ -182,6 +193,7 @@ body {
     font-size: 1rem;
 }
 
+/* Organiza e centraliza as informações do rodapé. */
 .rodape {
     display: grid;
     gap: 8px;

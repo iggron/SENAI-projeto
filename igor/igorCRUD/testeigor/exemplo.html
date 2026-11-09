@@ -1,735 +1,1661 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jogo Educativo P.O.O. - Pokémon Arena</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background-color: #0f172a;
-      color: #f8fafc;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      padding: 15px;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-
-    header h1 {
-      font-size: 1.6rem;
-      color: #38bdf8;
-    }
-
-    header p {
-      font-size: 0.9rem;
-      color: #94a3b8;
-    }
-
-    .main-container {
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 15px;
-      flex: 1;
-    }
-
-    /* Game Column */
-    .game-column {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .canvas-container {
-      position: relative;
-      background: #1e293b;
-      border: 2px solid #334155;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-    }
-
-    canvas {
-      display: block;
-      width: 100%;
-      height: 380px;
-      background: linear-gradient(to bottom, #1e1b4b, #311b92 70%, #166534 70%, #14532d 100%);
-    }
-
-    /* Controls & HUD */
-    .controls-panel {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-
-    .btn-skill {
-      background: #0284c7;
-      color: white;
-      border: none;
-      padding: 10px 5px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 0.8rem;
-      transition: all 0.2s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .btn-skill:hover {
-      background: #0369a1;
-      transform: translateY(-2px);
-    }
-
-    .btn-skill span.key {
-      background: rgba(0,0,0,0.3);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.7rem;
-    }
-
-    .instructions {
-      font-size: 0.8rem;
-      color: #cbd5e1;
-      background: #0f172a;
-      padding: 8px;
-      border-radius: 6px;
-      display: flex;
-      justify-content: space-around;
-    }
-
-    /* Inspector & UML Side Panel */
-    .sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: calc(100vh - 80px);
-      overflow-y: auto;
-    }
-
-    .panel {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .panel h2 {
-      font-size: 1rem;
-      color: #38bdf8;
-      margin-bottom: 8px;
-      border-bottom: 1px solid #334155;
-      padding-bottom: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    /* Live Inspector Console */
-    .inspector-log {
-      background: #090d16;
-      border: 1px solid #1e293b;
-      border-radius: 6px;
-      height: 160px;
-      overflow-y: auto;
-      padding: 8px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .log-item {
-      line-height: 1.3;
-      word-break: break-all;
-    }
-
-    .log-method {
-      color: #4ade80;
-    }
-
-    .log-attr {
-      color: #fbbf24;
-    }
-
-    /* Dynamic UML Box */
-    .uml-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      font-size: 0.72rem;
-    }
-
-    .uml-class {
-      background: #0f172a;
-      border: 1px solid #475569;
-      border-radius: 4px;
-      overflow: hidden;
-      transition: border-color 0.3s;
-    }
-
-    .uml-class.active {
-      border-color: #38bdf8;
-      box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
-    }
-
-    .uml-header {
-      background: #334155;
-      padding: 4px;
-      text-align: center;
-      font-weight: bold;
-      color: #f1f5f9;
-    }
-
-    .uml-section {
-      padding: 4px 6px;
-      border-top: 1px solid #334155;
-    }
-
-    .uml-item {
-      padding: 1px 0;
-      color: #cbd5e1;
-      transition: background-color 0.3s;
-    }
-
-    .uml-item.highlight {
-      background-color: #0369a1;
-      color: #ffffff;
-      font-weight: bold;
-      padding-left: 2px;
-    }
-
-    .badge {
-      font-size: 0.65rem;
-      padding: 2px 6px;
-      border-radius: 10px;
-      background: #334155;
-      color: #94a3b8;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lança Contra — P.O.O. em ação</title>
+<style>
+:root{--bg:#0a0e1a;--pan:#111830;--bd:#2a3a62;--tx:#dbe6ff;--mut:#7f93c0;
+  --jog:#3ee6ff;--ini:#ff9a3c;--boss:#ff4fd8;--proj:#ffd84a;--onda:#7cf59a;
+  --mono:ui-monospace,'Cascadia Code','Fira Code',Consolas,monospace}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:radial-gradient(1200px 700px at 30% 0%,#14204a 0%,var(--bg) 60%);color:var(--tx);
+  font-family:system-ui,'Segoe UI',Roboto,sans-serif}
+.app{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:12px;height:100vh;padding:12px}
+.col{display:flex;flex-direction:column;min-height:0;gap:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+h1{margin:0;font-size:22px;letter-spacing:.16em;font-weight:900;color:#fff;text-shadow:0 0 14px rgba(62,230,255,.6)}
+h1 span{color:var(--jog);margin-left:.4em}
+h1 small{display:block;font-size:11px;letter-spacing:.12em;color:var(--mut);font-weight:600;text-shadow:none}
+.btns{display:flex;gap:6px}
+.btn{background:#16224a;color:var(--tx);border:1px solid var(--bd);border-radius:7px;padding:6px 10px;font:600 12px system-ui;cursor:pointer}
+.btn:hover{background:#1d2d63}.btn.on{background:#0e4a58;border-color:var(--jog);color:#fff}
+.stage{border:2px solid var(--bd);border-radius:10px;overflow:hidden;background:#000;box-shadow:0 0 36px rgba(62,230,255,.12)}
+canvas{display:block;width:100%;height:auto}
+.console{flex:1;min-height:150px;display:flex;flex-direction:column;border:1px solid var(--bd);border-radius:10px;background:var(--pan);overflow:hidden}
+.ch2{display:flex;align-items:center;gap:10px;padding:6px 10px;border-bottom:1px solid var(--bd);font-size:12px;flex-wrap:wrap}
+.ch2 b{letter-spacing:.06em}.ch2 .leg{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.ch2 button{background:none;border:1px solid var(--bd);color:var(--mut);border-radius:5px;font-size:11px;padding:2px 8px;cursor:pointer}
+#log{flex:1;overflow:auto;padding:2px 0}
+.ln{display:flex;gap:6px;align-items:baseline;padding:2px 10px;font:12px/1.4 var(--mono);border-bottom:1px solid rgba(255,255,255,.04);animation:entra .6s}
+.ln code{color:#eaf1ff;white-space:nowrap}.ex{color:var(--mut);font-size:11px;margin-left:2px}
+@keyframes entra{from{background:rgba(62,230,255,.28)}to{background:transparent}}
+.tag{font:700 9px var(--mono);letter-spacing:.05em;padding:1px 5px;border-radius:3px;color:#06101f;white-space:nowrap;flex:0 0 auto}
+.t-o{background:#7cf59a}.t-m{background:#6ab4ff}.t-a{background:#ffd166}.t-h{background:#c79bff}
+.t-p{background:#ff8fc8}.t-s{background:#5be7c4}.t-c{background:#ffa64d}
+.uml{border:1px solid var(--bd);border-radius:10px;background:var(--pan);overflow:hidden}
+.uh{padding:8px 12px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13px}
+.cores{display:flex;gap:10px;font-size:11px;color:var(--mut);flex-wrap:wrap}
+.cores i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:4px;box-shadow:0 0 6px var(--c)}
+.scroll{flex:1;overflow:auto;padding:14px 12px 20px}
+.tree{position:relative;min-width:940px}
+#setas{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;z-index:0}
+.lin{display:flex;gap:14px;justify-content:center;flex-wrap:nowrap;margin-bottom:40px;position:relative;z-index:1}
+.lin:last-of-type{margin-bottom:6px}
+.cls{flex:1 1 150px;max-width:230px;min-width:140px;background:#131c34;border:1.5px solid #30406a;border-radius:7px;overflow:hidden;
+  font:11px/1.35 var(--mono);transition:border-color .5s,box-shadow .5s}
+.cls.on{border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 0 18px color-mix(in srgb,var(--c) 50%,transparent)}
+.ch{padding:4px 6px 5px;text-align:center;background:#1b2850;border-bottom:1px solid #30406a}
+.ch .est{display:block;font-size:8.5px;color:#8da2d4;letter-spacing:.08em;text-transform:uppercase}
+.ch b{font-size:13px;color:#fff}
+.sec{padding:3px 0;border-bottom:1px solid #26365e}
+.row{display:flex;gap:4px;padding:1px 6px;white-space:nowrap;transition:background .5s,box-shadow .5s}
+.row .nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.row .vis{font-style:normal;color:#6b7fb0;margin-right:3px}.row .tp{font-style:normal;color:#6b7fb0}
+.row .vl{flex:0 1 auto;max-width:58%;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.row .who{font-style:normal;color:#6b7fb0;font-size:9px;margin-right:4px}.row .v{color:#ffd166}
+.row.hot{background:color-mix(in srgb,var(--c) 38%,transparent);box-shadow:inset 3px 0 0 var(--c);color:#fff;transition:none}
+.ob{padding:3px 6px;font-size:9.5px;color:#7cf59a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#0f1730}
+.seta path{fill:none;stroke:#6b7fb0;stroke-width:1.6;transition:stroke .5s}
+.seta polygon{fill:#0f1730;stroke:#6b7fb0;stroke-width:1.6;transition:stroke .5s}
+.seta.comp polygon{fill:#6b7fb0}.seta.dep path{stroke-dasharray:5 4}.seta.dep polyline{fill:none;stroke:#6b7fb0;stroke-width:1.6}
+.seta.on path,.seta.on polygon,.seta.on polyline{stroke:var(--c);stroke-width:3;filter:drop-shadow(0 0 4px var(--c));transition:none}
+.lbl{fill:#7f93c0;font:10px var(--mono)}
+.conc{margin-top:22px;border:1px solid var(--bd);border-radius:8px;background:#0f1730;padding:8px 12px;font-size:12.5px}
+.conc summary{cursor:pointer;font-weight:700}
+.conc dt{margin-top:8px;color:var(--jog);font-weight:700}.conc dd{margin:2px 0 0;color:#c4d2f5;line-height:1.45}
+.conc code{background:#1a2650;padding:0 4px;border-radius:3px;font-size:11.5px}
+@media(max-width:980px){.app{grid-template-columns:1fr;height:auto}.uml{height:85vh}.console{height:240px;flex:none}}
+</style>
 </head>
 <body>
-
-  <header>
-    <h1>Jogo Educativo P.O.O. — Pokémon Arena 2D</h1>
-    <p>Acompanhe os métodos executados e alterações de atributos da Herança em tempo real</p>
-  </header>
-
-  <div class="main-container">
-    <!-- Game Column -->
-    <div class="game-column">
-      <div class="canvas-container">
-        <canvas id="gameCanvas" width="750" height="380"></canvas>
-      </div>
-
-      <div class="controls-panel">
-        <div class="skills-grid">
-          <button class="btn-skill" onclick="player.usarChoqueDoTrovao(enemy)">
-            Choque do Trovão
-            <span class="key">Tecla 1</span>
-          </button>
-          <button class="btn-skill" onclick="player.usarInvestidaTrovao(enemy)">
-            Investida Trovão
-            <span class="key">Tecla 2</span>
-          </button>
-          <button class="btn-skill" onclick="player.armazenarEnergiaBochechas()">
-            Energia Bochechas
-            <span class="key">Tecla 3</span>
-          </button>
-          <button class="btn-skill" onclick="player.serMascoteOficial(enemy)">
-            Mascote Oficial
-            <span class="key">Tecla 4</span>
-          </button>
-        </div>
-
-        <div class="instructions">
-          <span><strong>Mover:</strong> A / D ou Setas ← →</span>
-          <span><strong>Pular:</strong> W, Espaço ou Seta ↑</span>
-          <span><strong>Atacar:</strong> Teclas 1, 2, 3, 4</span>
-        </div>
+<div class="app">
+  <main class="col">
+    <div class="top">
+      <h1>LANÇA<span>CONTRA</span><small>APRENDA P.O.O. JOGANDO</small></h1>
+      <div class="btns">
+        <button class="btn" id="bPausa" tabindex="-1">⏸ Pausar</button>
+        <button class="btn" id="bLento" tabindex="-1">🐢 Câmera lenta</button>
+        <button class="btn" id="bSom" tabindex="-1">🔊 Som</button>
       </div>
     </div>
+    <div class="stage"><canvas id="jogo" width="960" height="540"></canvas></div>
+    <section class="console">
+      <div class="ch2"><b>Console P.O.O.</b>
+        <span class="leg"><span class="tag t-o">OBJETO</span><span class="tag t-m">MÉTODO</span><span class="tag t-a">ATRIBUTO</span><span class="tag t-h">HERDADO</span><span class="tag t-p">SOBRESCRITA</span><span class="tag t-s">SUPER</span><span class="tag t-c">COMPOSIÇÃO</span></span>
+        <button id="bLimpar" tabindex="-1">limpar</button></div>
+      <div id="log"></div>
+    </section>
+  </main>
 
-    <!-- Inspector & Diagram Sidebar -->
-    <div class="sidebar">
-      <!-- Live Inspector -->
-      <div class="panel">
-        <h2>Inspeção Dinâmica <span class="badge" id="logCount">0 eventos</span></h2>
-        <div class="inspector-log" id="inspectorLog">
-          <div class="log-item" style="color: #94a3b8;">// Logs de invocação de métodos e mutação de atributos...</div>
-        </div>
-      </div>
-
-      <!-- Live Class Diagram (UML) -->
-      <div class="panel">
-        <h2>Diagrama de Classes UML</h2>
-        <div class="uml-container">
-          
-          <!-- Superclasse Pokemon -->
-          <div class="uml-class" id="uml-Pokemon">
-            <div class="uml-header">&lt;&lt;Superclasse&gt;&gt;<br>Pokémon</div>
-            <div class="uml-section">
-              <div class="uml-item" id="attr-Pokemon-hp">- hp: int</div>
-              <div class="uml-item" id="attr-Pokemon-nivel">- nivel: int</div>
-              <div class="uml-item" id="attr-Pokemon-capturado">- capturado: boolean</div>
-            </div>
-            <div class="uml-section">
-              <div class="uml-item" id="method-Pokemon-atacar">+ atacar()</div>
-              <div class="uml-item" id="method-Pokemon-receberDano">+ receberDano()</div>
-              <div class="uml-item" id="method-Pokemon-mover">+ mover()</div>
-            </div>
-          </div>
-
-          <!-- Subclasse Pikachu -->
-          <div class="uml-class" id="uml-Pikachu">
-            <div class="uml-header">Pikachu (Herda Pokémon)</div>
-            <div class="uml-section">
-              <div class="uml-item" id="attr-Pikachu-cargaEletrica">- cargaEletrica: int</div>
-              <div class="uml-item" id="attr-Pikachu-nivelPopularidade">- nivelPopularidade: int</div>
-            </div>
-            <div class="uml-section">
-              <div class="uml-item" id="method-Pikachu-usarChoqueDoTrovao">+ usarChoqueDoTrovao()</div>
-              <div class="uml-item" id="method-Pikachu-usarInvestidaTrovao">+ usarInvestidaTrovao()</div>
-              <div class="uml-item" id="method-Pikachu-armazenarEnergiaBochechas">+ armazenarEnergiaBochechas()</div>
-              <div class="uml-item" id="method-Pikachu-serMascoteOficial">+ serMascoteOficial()</div>
-            </div>
-          </div>
-
-          <!-- Subclasse Mimikyu -->
-          <div class="uml-class" id="uml-Mimikyu">
-            <div class="uml-header">Mimikyu (Herda Pokémon)</div>
-            <div class="uml-section">
-              <div class="uml-item" id="attr-Mimikyu-nivelCiumes">- nivelCiumes: int</div>
-              <div class="uml-item" id="attr-Mimikyu-disfarceIntacto">- disfarceIntacto: boolean</div>
-            </div>
-            <div class="uml-section">
-              <div class="uml-item" id="method-Mimikyu-ativarDisfarce">+ ativarDisfarce()</div>
-              <div class="uml-item" id="method-Mimikyu-atacarComGarraSombria">+ atacarComGarraSombria()</div>
-              <div class="uml-item" id="method-Mimikyu-expressarInveja">+ expressarInveja()</div>
-              <div class="uml-item" id="method-Mimikyu-assustarTreinador">+ assustarTreinador()</div>
-            </div>
-          </div>
-
-        </div>
+  <aside class="col uml">
+    <div class="uh"><b>Diagrama de Classes (UML) — ao vivo</b>
+      <div class="cores">
+        <span><i style="--c:var(--jog)"></i>Jogador</span><span><i style="--c:var(--ini)"></i>Inimigos</span>
+        <span><i style="--c:var(--boss)"></i>Chefe</span><span><i style="--c:var(--proj)"></i>Projétil</span><span><i style="--c:var(--onda)"></i>Onda</span>
       </div>
     </div>
-  </div>
+    <div class="scroll">
+      <div class="tree" id="tree"></div>
+      <details class="conc" open>
+        <summary>📘 Conceitos de P.O.O. neste jogo</summary>
+        <dl>
+          <dt>Classe</dt><dd>Molde que define atributos e métodos. Cada caixa do diagrama é uma classe (<code>Entidade</code>, <code>Soldado</code>…).</dd>
+          <dt>Objeto</dt><dd>Instância criada com <code>new</code>. Cada inimigo na tela é um objeto (<code>soldado1</code>, <code>soldado2</code>…). Veja "objetos:" em cada caixa e as linhas <b>OBJETO</b> no console.</dd>
+          <dt>Atributo</dt><dd>Dado guardado no objeto (<code>vida</code>, <code>x</code>, <code>estado</code>…). A linha acende e mostra o novo valor quando ele muda.</dd>
+          <dt>Método</dt><dd>Ação que o objeto sabe fazer (<code>pular()</code>, <code>atacar()</code>…). A linha acende quando o método executa.</dd>
+          <dt>Construtor</dt><dd><code>constructor()</code> monta o objeto e chama <code>super()</code> para a superclasse montar a parte dela.</dd>
+          <dt>Herança (superclasse e subclasse)</dt><dd>Seta com triângulo vazado: a subclasse herda atributos e métodos da superclasse. <code>Soldado → Inimigo → Entidade</code>. Inimigo é subclasse de Entidade e, ao mesmo tempo, superclasse de Soldado, Atirador, Drone e Chefe. Quando um método herdado roda, a seta acende e o console mostra <b>HERDADO</b>.</dd>
+          <dt>Sobrescrita e polimorfismo</dt><dd>Subclasses reescrevem métodos da superclasse (<code>desenhar()</code>, <code>mover()</code>, <code>receberDano()</code>). Mesma chamada, comportamentos diferentes.</dd>
+          <dt>super</dt><dd>Dentro de um método sobrescrito, <code>super.metodo()</code> executa a versão da superclasse. Aparece como <b>SUPER</b>.</dd>
+          <dt>Composição</dt><dd>O <code>Jogador</code> "tem uma" <code>Lanca</code> e "tem várias" <code>Habilidade</code> (losango preenchido). Elas são partes do jogador e são usadas por ele. Cada habilidade escolhida vira um novo objeto <code>Habilidade</code>.</dd>
+          <dt>Encapsulamento</dt><dd>Os atributos mudam por meio dos métodos do próprio objeto. O console mostra "via receberDano()" quando a <code>vida</code> muda.</dd>
+          <dt>Dependência</dt><dd>Seta tracejada: a <code>Onda</code> cria objetos <code>Inimigo</code>, mas não é dona deles.</dd>
+        </dl>
+      </details>
+    </div>
+  </aside>
+</div>
 
-  <script>
-    // ==========================================
-    // SISTEMA DE INSPEÇÃO DIDÁTICA EM TEMPO REAL
-    // ==========================================
-    class Inspector {
-      static logCount = 0;
+<script>
+'use strict';
+/* =====================================================================
+   LANÇA CONTRA — jogo didático de P.O.O.
+   Tudo em um único arquivo. Estrutura:
+   1) Metadados UML (o que o diagrama mostra)
+   2) Diagrama ao vivo (observa atributos e métodos das classes reais)
+   3) Classes do jogo: Entidade > Jogador / Inimigo > (Soldado, Atirador, Drone, Chefe) / Projetil, Lanca, Habilidade, Onda
+   4) Motor do jogo (loop, colisão, desenho, HUD)
+   ===================================================================== */
+const LARG=960, ALT=540, CHAO=480, GRAV=1700;
+const $=s=>document.querySelector(s);
+const cv=$('#jogo'), ctx=cv.getContext('2d');
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rnd=(a,b)=>a+Math.random()*(b-a);
+function mulberry(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const inter=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+const ret=(e,i=0)=>({x:e.x+i,y:e.y+i,w:e.larg-2*i,h:e.alt-2*i});
 
-      static logMethod(className, methodName, args = '') {
-        this.logCount++;
-        document.getElementById('logCount').innerText = `${this.logCount} eventos`;
+/* ---------- estado global do jogo ---------- */
+const jogo={
+  estado:'titulo',t:0,aneis:[],slowT:0,opcoes:null,cursor:0,slot:0,volta:'jogando',
+  jogador:null,onda:null,inimigos:[],projeteis:[],particulas:[],textos:[],plataformas:[],
+  tremor:0,congela:0,banner:null,intervalo:0,pausado:false,lento:false,som:true,fundo:null,fundoTema:null,tema:null,fimT:0,
+  faisca(x,y,cor,n=6,v=160){for(let i=0;i<n;i++){const a=Math.random()*6.283,s=rnd(.3,1)*v,t=rnd(.25,.6);
+    this.particulas.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-40,t,T:t,cor,g:500,s:rnd(2,4)});}
+    if(this.particulas.length>420)this.particulas.splice(0,this.particulas.length-420);},
+  explosao(x,y,cor,n=12){this.faisca(x,y,cor,n,260);this.faisca(x,y,'#fff',Math.ceil(n/3),180);},
+  texto(x,y,s,cor='#fff'){this.textos.push({x,y,s,cor,t:.9});},
+  mostrar(tit,sub,cor='#fff',dur=2.6){this.banner={tit,sub,cor,t:0,dur};},
+  terminar(){this.estado='fim';this.fimT=0;}
+};
 
-        const logContainer = document.getElementById('inspectorLog');
-        const entry = document.createElement('div');
-        entry.className = 'log-item log-method';
-        entry.innerText = `⚙️ [MÉTODO] ${className}.${methodName}(${args})`;
-        logContainer.prepend(entry);
+/* ---------- sons simples (WebAudio) ---------- */
+let ac=null;
+function som(f,d=.1,tipo='square',v=.05,f2){
+  if(!jogo.som)return;
+  try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();
+    o.type=tipo;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);
+    g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d);}catch(e){}
+}
 
-        this.highlightUML(`method-${className}-${methodName.split('(')[0]}`);
+/* =====================================================================
+   1) METADADOS UML — descrevem o que aparece no diagrama
+   ===================================================================== */
+const GATES_UMA=[];
+const umaVez=()=>{const s=new Set();GATES_UMA.push(s);return o=>{const n=o.constructor.name;if(s.has(n))return false;s.add(n);return true;};};
+const soJogador=o=>o instanceof Jogador;
+const A=(n,t,d,o={})=>({n,t,d,...o});
+const M=(n,sig,d,o={})=>({n,sig,d,...o});
+const UML={
+  Entidade:{est:'superclasse',pai:null,
+    attrs:[A('x','float','posição horizontal',{gate:soJogador,log:false}),A('y','float','posição vertical',{gate:soJogador,log:false}),
+      A('vida','int','pontos de vida atuais'),A('vidaMax','int','vida máxima'),A('velocidade','float','velocidade de movimento (px/s)'),A('direcao','int','+1 = direita, -1 = esquerda')],
+    metodos:[M('mover','mover(dt)','aplica velocidade e gravidade; muda x e y',{gate:o=>o instanceof Jogador&&(Math.abs(o.vx)>1||Math.abs(o.vy)>1),log:false}),
+      M('receberDano','receberDano(d)','reduz a vida; chama morrer() se chegar a 0'),
+      M('morrer','morrer()','marca a entidade para ser removida'),
+      M('desenhar','desenhar(ctx)','desenho padrão (as subclasses sobrescrevem)',{gate:umaVez()})]},
+  Onda:{est:'classe',pai:null,
+    attrs:[A('numero','int','número da onda atual'),A('restantes','int','inimigos que faltam derrotar (inclui o chefe)'),A('chefeGerado','boolean','o chefe já apareceu?')],
+    metodos:[M('iniciar','iniciar(n)','prepara a onda n: plataformas, fila de inimigos'),M('gerarInimigo','gerarInimigo(tipo,x,y)','cria um objeto Inimigo (new)'),
+      M('gerarChefe','gerarChefe()','cria o Chefe da onda'),M('registrarBaixa','registrarBaixa()','um inimigo a menos'),M('concluir','concluir()','encerra a onda e cura o jogador')]},
+  Jogador:{est:'subclasse',pai:'Entidade',
+    attrs:[A('pulosRestantes','int','pulos disponíveis (pulo duplo)'),A('pontos','int','pontuação'),A('invencivel','boolean','true logo após levar dano'),A('lanca','Lanca','objeto-parte do Jogador (composição)'),A('dashPronto','boolean','true quando o dash pode ser usado'),
+      A('habilidades','Habilidade[]','habilidades aprendidas (composição)')],
+    metodos:[M('andar','andar(dir)','define a velocidade horizontal',{gate:(o,a)=>a[0]!==0,thr:1200}),M('pular','pular()','pula; no ar usa o pulo duplo'),
+      M('atacar','atacar(dir)','pede à Lanca para golpear'),M('dash','dash()','lançada para frente: impulso rápido na direção'),M('curar','curar(n)','recupera vida'),M('ganharPontos','ganharPontos(n)','soma pontos'),
+      M('aprender','aprender(h)','guarda uma nova Habilidade'),M('usarHabilidade','usarHabilidade(h)','pede à Habilidade para ser ativada'),
+      M('receberDano','receberDano(d)','sobrescreve: ignora dano se invencível'),M('morrer','morrer()','sobrescreve: termina o jogo'),M('desenhar','desenhar(ctx)','sobrescreve: desenha o herói',{gate:umaVez()})]},
+  Inimigo:{est:'subclasse e superclasse',pai:'Entidade',
+    attrs:[A('dano','int','dano de contato'),A('pontos','int','pontos ao ser derrotado'),A('estado','string','estado da IA')],
+    metodos:[M('atualizarIA','atualizarIA(alvo,dt)','decide o comportamento (cada tipo faz do seu jeito)',{gate:umaVez()}),M('atacar','atacar(alvo)','causa dano de contato ao alvo'),
+      M('receberDano','receberDano(d)','sobrescreve: super + empurrão + brilho'),M('morrer','morrer()','sobrescreve: dá pontos ao jogador')]},
+  Projetil:{est:'subclasse',pai:'Entidade',
+    attrs:[A('dano','int','dano ao acertar')],
+    metodos:[M('mover','mover(dt)','sobrescreve: voa em linha reta, sem gravidade',{gate:umaVez(),log:true}),M('explodir','explodir(alvo)','acerta o alvo e se destrói'),M('desenhar','desenhar(ctx)','sobrescreve: desenha a bala/onda',{gate:umaVez()})]},
+  Lanca:{est:'classe (parte do Jogador)',pai:null,
+    attrs:[A('alcance','int','distância do golpe (px)'),A('dano','int','dano por golpe'),A('pronta','boolean','false durante a recarga'),A('direcao','string','"frente", "cima" ou "baixo"')],
+    metodos:[M('golpear','golpear(dir)','inicia o golpe da lança'),M('acertar','acertar(alvo)','aplica dano ao alvo atingido'),M('desenhar','desenhar(ctx)','desenha a lança',{gate:umaVez()})]},
+  Habilidade:{est:'classe (parte do Jogador)',pai:null,
+    attrs:[A('nome','string','nome da habilidade'),A('recarga','float','segundos de recarga'),A('tecla','string','tecla que ativa')],
+    metodos:[M('usar','usar(dono)','confere a recarga e ativa'),M('ativar','ativar(dono)','executa o efeito')]},
+  Soldado:{est:'subclasse',pai:'Inimigo',
+    attrs:[A('alcanceVisao','int','distância em que enxerga o jogador')],
+    metodos:[M('atualizarIA','atualizarIA(alvo,dt)','sobrescreve: patrulha ou persegue',{gate:umaVez()}),M('patrulhar','patrulhar()','anda devagar de um lado a outro'),
+      M('perseguir','perseguir(alvo)','corre atrás do jogador'),M('desenhar','desenhar(ctx)','sobrescreve: desenha o soldado',{gate:umaVez()})]},
+  Atirador:{est:'subclasse',pai:'Inimigo',
+    attrs:[A('cadencia','float','segundos entre tiros'),A('alcanceTiro','int','distância máxima do tiro')],
+    metodos:[M('atualizarIA','atualizarIA(alvo,dt)','sobrescreve: mantém distância e mira',{gate:umaVez()}),M('atirar','atirar(alvo)','cria um objeto Projetil'),M('desenhar','desenhar(ctx)','sobrescreve: desenha o atirador',{gate:umaVez()})]},
+  Drone:{est:'subclasse',pai:'Inimigo',
+    attrs:[A('altitude','float','altura de voo')],
+    metodos:[M('mover','mover(dt)','sobrescreve: voa, ignora a gravidade',{gate:umaVez()}),M('atualizarIA','atualizarIA(alvo,dt)','sobrescreve: sobrevoa e mergulha',{gate:umaVez()}),
+      M('mergulhar','mergulhar(alvo)','ataque em mergulho'),M('desenhar','desenhar(ctx)','sobrescreve: desenha o drone',{gate:umaVez()})]},
+  Chefe:{est:'subclasse',pai:'Inimigo',
+    attrs:[A('nome','string','nome do chefe'),A('fase','int','1 a 3; sobe quando a vida cai')],
+    metodos:[M('atualizarIA','atualizarIA(alvo,dt)','sobrescreve: escolhe habilidades',{gate:umaVez()}),M('investir','investir(alvo)','corrida em linha reta'),
+      M('disparar','disparar(alvo)','leque de projéteis'),M('saltar','saltar(alvo)','salto com onda de choque'),M('invocar','invocar()','chama drones'),
+      M('mudarFase','mudarFase(f)','fica mais rápido e agressivo'),M('receberDano','receberDano(d)','sobrescreve: checa mudança de fase'),
+      M('morrer','morrer()','sobrescreve: grande explosão'),M('desenhar','desenhar(ctx)','sobrescreve: desenha o chefe',{gate:umaVez()})]}
+};
+const LINHAS_UML=[['Entidade','Onda'],['Jogador','Inimigo','Projetil'],['Lanca','Habilidade','Soldado','Atirador','Drone','Chefe']];
+const ARESTAS=[['Jogador','Entidade','heranca'],['Inimigo','Entidade','heranca'],['Projetil','Entidade','heranca'],
+  ['Soldado','Inimigo','heranca'],['Atirador','Inimigo','heranca'],['Drone','Inimigo','heranca'],['Chefe','Inimigo','heranca'],
+  ['Jogador','Lanca','composicao'],['Onda','Inimigo','dependencia'],['Jogador','Habilidade','composicao']];
+
+/* =====================================================================
+   2) DIAGRAMA AO VIVO
+   Observa as classes reais: cada atributo vira um getter/setter e cada
+   método é "embrulhado". Quando algo muda/executa, a linha acende.
+   ===================================================================== */
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function fmt(v){if(v===undefined||v===null)return'—';if(typeof v==='number')return Number.isInteger(v)?String(v):v.toFixed(1);
+  if(typeof v==='string')return'"'+v+'"';if(typeof v==='boolean')return String(v);if(v.__id)return v.__id;if(Array.isArray(v))return'['+v.length+']';if(v.canvas)return'ctx';return typeof v;}
+const nomeObj=o=>o instanceof Lanca&&o._dono?(o._dono.__id||'jogador')+'.lanca':(o.__id||o.constructor.name.toLowerCase());
+const corDe=o=>o instanceof Chefe?'#ff4fd8':o instanceof Inimigo?'#ff9a3c':(o instanceof Jogador||o instanceof Lanca||o instanceof Habilidade)?'#3ee6ff':o instanceof Projetil?'#ffd84a':'#7cf59a';
+const cadeia=cn=>{const r=[];for(let c=cn;c;c=UML[c].pai)r.push(c);return r;};
+
+const Diagrama={
+  mudo:0,pilha:[],cont:{},objs:{},linhas:{},caixas:{},setaEl:{},ativos:new Map(),pend:new Map(),ultLog:{},
+  montar(){
+    this.tree=$('#tree');this.logEl=$('#log');
+    this.tree.innerHTML='<svg id="setas"></svg>';this.svg=$('#setas');
+    for(const linha of LINHAS_UML){const r=document.createElement('div');r.className='lin';for(const n of linha)r.appendChild(this.criarCaixa(n));this.tree.appendChild(r);}
+    requestAnimationFrame(()=>this.desenharSetas());
+    if(window.ResizeObserver)new ResizeObserver(()=>this.desenharSetas()).observe(this.tree);
+    window.addEventListener('resize',()=>this.desenharSetas());
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>this.desenharSetas());
+  },
+  criarCaixa(n){
+    const m=UML[n],el=document.createElement('div');el.className='cls';
+    el.innerHTML=`<div class="ch"><span class="est">«${m.est}»</span><b>${n}</b></div><div class="sec at"></div><div class="sec me"></div><div class="ob">objetos: —</div>`;
+    const at=el.querySelector('.at'),me=el.querySelector('.me');
+    for(const a of m.attrs){const r=document.createElement('div');r.className='row';r.title=`${a.n}: ${a.t} — ${a.d}`;
+      r.innerHTML=`<span class="nm"><i class="vis">−</i>${a.n}<i class="tp">: ${a.t}</i></span><span class="vl"><i class="who"></i><span class="v">—</span></span>`;
+      r._v=r.querySelector('.v');r._w=r.querySelector('.who');at.appendChild(r);this.linhas[n+'.'+a.n]=r;}
+    for(const f of m.metodos){const r=document.createElement('div');r.className='row';r.title=f.d;
+      r.innerHTML=`<span class="nm"><i class="vis">+</i>${f.sig}</span>`;me.appendChild(r);this.linhas[n+'.'+f.n]=r;}
+    el._ob=el.querySelector('.ob');this.caixas[n]=el;return el;
+  },
+  desenharSetas(){
+    if(!this.tree)return;const tr=this.tree.getBoundingClientRect();if(!tr.width)return;
+    this.svg.setAttribute('width',this.tree.scrollWidth);this.svg.setAttribute('height',this.tree.scrollHeight);
+    const R=n=>{const r=this.caixas[n].getBoundingClientRect();return{l:r.left-tr.left,t:r.top-tr.top,r:r.right-tr.left,b:r.bottom-tr.top,cx:(r.left+r.right)/2-tr.left};};
+    let h='';
+    for(const [a,b,tipo] of ARESTAS){const A_=R(a),B=R(b),k=a+'>'+b;
+      if(tipo==='heranca'){const ym=(A_.t+B.b)/2;
+        h+=`<g class="seta" data-k="${k}"><path d="M${A_.cx} ${A_.t} V${ym} H${B.cx} V${B.b+11}"/><polygon points="${B.cx},${B.b} ${B.cx-6},${B.b+11} ${B.cx+6},${B.b+11}"/></g>`;
+      }else if(tipo==='composicao'){const x=clamp(B.cx,A_.l+16,A_.r-16),ym=(A_.b+B.t)/2+6;
+        h+=`<g class="seta comp" data-k="${k}"><path d="M${x} ${A_.b+16} V${ym} H${B.cx} V${B.t}"/><polygon points="${x},${A_.b} ${x-6},${A_.b+8} ${x},${A_.b+16} ${x+6},${A_.b+8}"/></g><text class="lbl" x="${(x+B.cx)/2+8}" y="${ym-4}">tem um</text>`;
+      }else{const xb=B.l+(B.r-B.l)*.86,ym=(A_.b+B.t)/2+12;
+        h+=`<g class="seta dep" data-k="${k}"><path d="M${A_.cx} ${A_.b} V${ym} H${xb} V${B.t-1}"/><polyline points="${xb-5},${B.t-9} ${xb},${B.t-1} ${xb+5},${B.t-9}"/></g><text class="lbl" x="${A_.cx+8}" y="${A_.b+16}">cria</text>`;}
+    }
+    this.svg.innerHTML=h;this.svg.querySelectorAll('.seta').forEach(g=>this.setaEl[g.dataset.k]=g);
+  },
+  acender(el,cor,ms,cls='hot'){if(!el)return;el.style.setProperty('--c',cor);el.classList.add(cls);this.ativos.set(el,{ate:performance.now()+ms,cls});},
+  acenderCaixa(cn,cor,ms=450){this.acender(this.caixas[cn],cor,ms,'on');},
+  setas(de,ate,cor){let c=de;while(c&&c!==ate){const p=UML[c].pai;if(!p)break;this.acender(this.setaEl[c+'>'+p],cor,650,'on');c=p;}},
+  tick(now){
+    for(const [el,o] of this.ativos){if(now>o.ate){el.classList.remove(o.cls);this.ativos.delete(el);}}
+    for(const [el,o] of this.pend){if(el.textContent!==o.t)el.textContent=o.t;if(o.w!==undefined&&o.we.textContent!==o.w)o.we.textContent=o.w;}
+    this.pend.clear();
+  },
+  log(tags,codigo,extra){
+    if(!this.logEl)return;const d=document.createElement('div');d.className='ln';
+    d.innerHTML=tags.map(t=>`<span class="tag t-${t[1]}">${t[0]}</span>`).join('')+`<code>${esc(codigo)}</code>`+(extra?`<span class="ex">${esc(extra)}</span>`:'');
+    this.logEl.prepend(d);while(this.logEl.children.length>80)this.logEl.lastChild.remove();
+  },
+  mostrarEstado(o){
+    for(const c of cadeia(o.constructor.name))for(const a of UML[c].attrs){const r=this.linhas[c+'.'+a.n];
+      this.pend.set(r._v,{t:fmt(o[a.n]),w:this.quem(o),we:r._w});}
+  },
+  quem(o){return(o instanceof Jogador||o instanceof Onda||o instanceof Lanca)?'':(o.__id||'');},
+  atualizarObjs(cn){const s=this.objs[cn],el=this.caixas[cn];if(!el)return;
+    const nomes=s?[...s].map(o=>o.__id):[];el._ob.textContent='objetos: '+(nomes.length?nomes.slice(-4).join(', ')+(nomes.length>4?` (+${nomes.length-4})`:''):'—');},
+  novoObjeto(o){
+    const cn=o.constructor.name;this.cont[cn]=(this.cont[cn]||0)+1;
+    o.__id=cn.toLowerCase()+((cn==='Jogador'||cn==='Onda'||cn==='Lanca')?'':this.cont[cn]);
+    (this.objs[cn]||(this.objs[cn]=new Set())).add(o);this.atualizarObjs(cn);this.mostrarEstado(o);
+    const ch=cadeia(cn);
+    this.log([['OBJETO','o']],`${o.__id} = new ${cn}()`,ch.length>1?'construtor: '+ch.join(' → super() → '):'construtor de '+cn+' (sem superclasse)');
+    this.acenderCaixa(cn,corDe(o),900);
+  },
+  removerObjeto(o){
+    const cn=o.constructor.name,s=this.objs[cn];if(s)s.delete(o);this.atualizarObjs(cn);
+    if(o instanceof Inimigo)this.log([['OBJETO','o']],`${o.__id} destruído`,'o objeto sai do jogo (a memória é liberada)');
+  },
+  entrar(Cls,m,obj,args){
+    const decl=Cls.name,topo=this.pilha[this.pilha.length-1];
+    const sup=!!(topo&&topo.obj===obj&&topo.m.n===m.n&&topo.decl!==decl);
+    this.pilha.push({decl,m,obj});
+    if(this.mudo)return;
+    if(m.gate&&!m.gate(obj,args))return;
+    const real=obj.constructor.name,cor=corDe(obj),herd=!sup&&real!==decl;
+    const anc=(()=>{let p=UML[decl].pai;while(p){if(UML[p].metodos.some(x=>x.n===m.n))return p;p=UML[p].pai;}return null;})();
+    const sobre=!sup&&!herd&&!!anc;
+    this.acender(this.linhas[decl+'.'+m.n],cor,m.log===false?230:560);
+    this.acenderCaixa(real,cor,m.log===false?230:480);
+    if(herd)this.setas(real,decl,cor);
+    if(sup)this.setas(topo.decl,decl,cor);
+    if(m.log===false)return;
+    if(m.thr){const k=obj.__id+'.'+m.n,agora=performance.now();if(agora-(this.ultLog[k]||0)<m.thr)return;this.ultLog[k]=agora;}
+    const tags=[['MÉTODO','m']];let extra=m.d;
+    if(sup){tags.push(['SUPER','s']);extra='executa a versão de '+decl;}
+    else if(herd){tags.push(['HERDADO','h']);extra='definido em '+decl+' · '+m.d;}
+    else if(sobre){tags.push(['SOBRESCRITA','p']);extra='sobrescreve '+anc+'.'+m.n+' · '+m.d;}
+    if(obj instanceof Lanca||obj instanceof Habilidade)tags.push(['COMPOSIÇÃO','c']);
+    const a=args.map(fmt).join(', ');
+    this.log(tags,(sup?'super.':nomeObj(obj)+'.')+m.n+'('+a+')',extra);
+  },
+  sair(){this.pilha.pop();},
+  atributo(decl,a,obj,antes,depois){
+    if(a.gate&&!a.gate(obj))return;
+    const real=obj.constructor.name,cor=corDe(obj),herd=real!==decl,r=this.linhas[decl+'.'+a.n];
+    this.pend.set(r._v,{t:fmt(depois),w:this.quem(obj),we:r._w});
+    this.acender(r,cor,a.log===false?200:560);this.acenderCaixa(real,cor,a.log===false?200:450);
+    if(herd)this.setas(real,decl,cor);
+    if(a.log===false)return;
+    const topo=this.pilha[this.pilha.length-1],via=topo&&topo.obj===obj?'via '+topo.m.n+'()':'';
+    const tags=[['ATRIBUTO','a']];if(herd)tags.push(['HERDADO','h']);
+    this.log(tags,`${nomeObj(obj)}.${a.n}: ${fmt(antes)} → ${fmt(depois)}`,[via,herd?'definido em '+decl:'',a.d].filter(Boolean).join(' · '));
+  },
+  reset(){
+    this.cont={};this.objs={};this.pilha=[];this.mudo=0;this.ultLog={};GATES_UMA.forEach(s=>s.clear());
+    if(this.logEl)this.logEl.innerHTML='';
+    for(const k in this.caixas)this.atualizarObjs(k);
+    this.tree.querySelectorAll('.v').forEach(e=>e.textContent='—');this.tree.querySelectorAll('.who').forEach(e=>e.textContent='');
+  }
+};
+
+/* instrumentação: transforma as classes reais em objetos "observáveis" */
+function instrumentar(Cls){
+  const meta=UML[Cls.name];
+  for(const a of meta.attrs){
+    Object.defineProperty(Cls.prototype,a.n,{configurable:true,enumerable:true,
+      get(){const s=this.__v;return s?s[a.n]:undefined;},
+      set(v){const s=this.__v||(this.__v={});const antes=s[a.n];s[a.n]=v;if(antes!==v&&!Diagrama.mudo)Diagrama.atributo(Cls.name,a,this,antes,v);}});
+  }
+  for(const m of meta.metodos){
+    const orig=Object.getOwnPropertyDescriptor(Cls.prototype,m.n).value;
+    Cls.prototype[m.n]=function(...args){Diagrama.entrar(Cls,m,this,args);try{return orig.apply(this,args);}finally{Diagrama.sair();}};
+  }
+}
+/* criar(): equivale ao "new" mas registra o objeto no diagrama */
+function criar(Cls,...args){
+  Diagrama.mudo++;let o;
+  try{o=new Cls(...args);}finally{Diagrama.mudo--;}
+  Diagrama.novoObjeto(o);return o;
+}
+
+/* =====================================================================
+   3) CLASSES DO JOGO
+   ===================================================================== */
+
+/* ---------- SUPERCLASSE: tudo que existe no mundo do jogo ---------- */
+class Entidade{
+  constructor(x,y,larg,alt,vida,velocidade){
+    this.larg=larg;this.alt=alt;
+    this.x=x;this.y=y;this.vida=vida;this.vidaMax=vida;this.velocidade=velocidade;this.direcao=1;
+    this.vx=0;this.vy=0;this.gravidade=true;
+    this._noChao=false;this._remover=false;this._flash=0;this._descer=0;this._plat=null;
+  }
+  get cx(){return this.x+this.larg/2;}
+  get cy(){return this.y+this.alt/2;}
+  mover(dt){
+    if(this.gravidade)this.vy=Math.min(this.vy+GRAV*dt,950);
+    const antesB=this.y+this.alt;
+    let nx=this.x+this.vx*dt,ny=this.y+this.vy*dt;
+    this._noChao=false;
+    if(this.gravidade&&this.vy>=0){
+      const b=ny+this.alt;
+      for(const p of jogo.plataformas){
+        if(this._descer>0&&!p.chao)continue;
+        if(antesB<=p.y+3&&b>=p.y&&nx+this.larg>p.x+2&&nx<p.x+p.w-2){ny=p.y-this.alt;this.vy=0;this._noChao=true;this._plat=p;break;}
       }
+    }
+    this.x=nx;this.y=ny;
+  }
+  receberDano(d){this.vida=Math.max(0,this.vida-d);if(this.vida<=0)this.morrer();}
+  morrer(){this._remover=true;jogo.explosao(this.cx,this.cy,this._cor||'#fff',this._nPart||10);}
+  desenhar(c){c.fillStyle='#f0f';c.fillRect(this.x,this.y,this.larg,this.alt);}
+}
 
-      static logAttribute(className, attrName, oldValue, newValue) {
-        this.logCount++;
-        document.getElementById('logCount').innerText = `${this.logCount} eventos`;
-
-        const logContainer = document.getElementById('inspectorLog');
-        const entry = document.createElement('div');
-        entry.className = 'log-item log-attr';
-        entry.innerText = `📝 [ATRIBUTO] ${className}.${attrName}: ${oldValue} ➔ ${newValue}`;
-        logContainer.prepend(entry);
-
-        this.highlightUML(`attr-${className}-${attrName}`);
-      }
-
-      static highlightUML(elementId) {
-        const el = document.getElementById(elementId);
-        if (el) {
-          el.classList.add('highlight');
-          setTimeout(() => el.classList.remove('highlight'), 1200);
+/* ---------- COMPOSIÇÃO: a Lança é uma parte do Jogador ---------- */
+class Lanca{
+  constructor(dono){
+    this.alcance=78;this.dano=1;this.pronta=true;this.direcao='frente';
+    this._dono=dono;this._anim=-1;this._cd=0;this._acertados=new Set();
+  }
+  golpear(dir){this.direcao=dir;this.pronta=false;this._anim=0;this._cd=this._dono._furia>0?.2:.38;this._acertados.clear();som(520,.1,'sawtooth',.04,200);}
+  acertar(alvo){if(this._acertados.has(alvo))return false;this._acertados.add(alvo);alvo.receberDano(this.dano);return true;}
+  _vec(){return this.direcao==='cima'?[0,-1]:this.direcao==='baixo'?[0,1]:[this._dono.direcao,0];}
+  _ext(){const p=this._anim/.32;return p<.35?p/.35:Math.max(0,1-(p-.35)/.65);}
+  area(){
+    if(this._anim<0)return null;const p=this._anim/.32;if(p<.15||p>.62)return null;
+    const d=this._dono,v=this._vec(),L=this.alcance*this._ext()+12,ox=d.cx,oy=d.y+22,tx=ox+v[0]*L,ty=oy+v[1]*L,e=10;
+    const x1=Math.min(ox,tx),x2=Math.max(ox,tx),y1=Math.min(oy,ty),y2=Math.max(oy,ty);
+    return{x:x1-(v[0]===0?e:0),y:y1-(v[1]===0?e:0),w:x2-x1+(v[0]===0?2*e:0),h:y2-y1+(v[1]===0?2*e:0)};
+  }
+  atualizar(dt){
+    if(this._anim>=0){this._anim+=dt;if(this._anim>=.32)this._anim=-1;}
+    if(!this.pronta){this._cd-=dt;if(this._cd<=0)this.pronta=true;}
+  }
+  desenhar(c){
+    const d=this._dono;if(d.vida<=0)return;
+    let vx,vy,tx,ty,L;
+    if(this._anim>=0){const v=this._vec();vx=v[0];vy=v[1];const r=this.alcance*this._ext();tx=d.cx+vx*r;ty=d.y+22+vy*r;L=78;}
+    else{vx=d.direcao*.55;vy=-.835;const ox=d.cx+d.direcao*4,oy=d.y+24;tx=ox+vx*40;ty=oy+vy*40;L=64;}
+    // brilho do golpe (mais intenso e com rastro)
+    if(this._anim>=0){
+      c.strokeStyle='rgba(62,230,255,.55)';c.lineWidth=16;c.lineCap='round';
+      c.beginPath();c.moveTo(tx-vx*42,ty-vy*42);c.lineTo(tx,ty);c.stroke();
+      c.strokeStyle='rgba(180,250,255,.3)';c.lineWidth=26;
+      c.beginPath();c.moveTo(tx-vx*34,ty-vy*34);c.lineTo(tx,ty);c.stroke();
+      const ext=this._ext();
+      if(ext>0.6){
+        c.fillStyle='rgba(255,255,255,.7)';
+        for(let i=0;i<4;i++){
+          const a=Math.random()*6.28,rr=8+Math.random()*12;
+          c.beginPath();c.arc(tx+Math.cos(a)*rr,ty+Math.sin(a)*rr,1.5+Math.random(),0,6.28);c.fill();
         }
       }
     }
+    // haste de madeira com textura
+    c.lineCap='round';c.strokeStyle='#8b5e3c';c.lineWidth=5.5;
+    c.beginPath();c.moveTo(tx-vx*L,ty-vy*L);c.lineTo(tx-vx*12,ty-vy*12);c.stroke();
+    c.strokeStyle='#6b4423';c.lineWidth=1.5;
+    c.beginPath();c.moveTo(tx-vx*(L*.85),ty-vy*(L*.85));c.lineTo(tx-vx*(L*.55),ty-vy*(L*.55));c.stroke();
+    c.beginPath();c.moveTo(tx-vx*(L*.45),ty-vy*(L*.45));c.lineTo(tx-vx*(L*.25),ty-vy*(L*.25));c.stroke();
+    // anéis de metal na haste
+    c.strokeStyle='#a0a8b8';c.lineWidth=3;
+    c.beginPath();c.moveTo(tx-vx*18,ty-vy*18);c.lineTo(tx-vx*14,ty-vy*14);c.stroke();
+    c.beginPath();c.moveTo(tx-vx*(L*.4),ty-vy*(L*.4));c.lineTo(tx-vx*(L*.36),ty-vy*(L*.36));c.stroke();
+    // ponta de metal
+    c.strokeStyle='#d0d8e8';c.lineWidth=6;
+    c.beginPath();c.moveTo(tx-vx*14,ty-vy*14);c.lineTo(tx,ty);c.stroke();
+    // fio vermelho / fita com nó
+    c.strokeStyle='#e53935';c.lineWidth=3.5;
+    c.beginPath();c.moveTo(tx-vx*17,ty-vy*17);c.lineTo(tx-vx*8,ty-vy*8);c.stroke();
+    c.fillStyle='#c62828';
+    c.beginPath();c.arc(tx-vx*12,ty-vy*12,3,0,6.28);c.fill();
+    // lâmina triangular brilhante
+    const px=-vy,py=vx;
+    c.fillStyle='#b8c4d4';
+    c.beginPath();
+    c.moveTo(tx+vx*18,ty+vy*18);
+    c.lineTo(tx+px*7,ty+py*7);
+    c.lineTo(tx-px*7,ty-py*7);
+    c.closePath();c.fill();
+    c.fillStyle='#eaf7ff';
+    c.beginPath();
+    c.moveTo(tx+vx*16,ty+vy*16);
+    c.lineTo(tx+px*5,ty+py*5);
+    c.lineTo(tx-px*5,ty-py*5);
+    c.closePath();c.fill();
+    c.fillStyle='rgba(255,255,255,.7)';
+    c.beginPath();
+    c.moveTo(tx+vx*11,ty+vy*11);
+    c.lineTo(tx+px*2.2,ty+py*2.2);
+    c.lineTo(tx-px*.8,ty-py*.8);
+    c.closePath();c.fill();
+  }
+}
 
-    // ==========================================
-    // ESTRUTURA ORIENTADA A OBJETOS (P.O.O.)
-    // ==========================================
+/* ---------- SUBCLASSE: o herói ---------- */
+class Jogador extends Entidade{
+  constructor(x,y){
+    super(x,y,26,46,5,235);                       // super(): a Entidade monta x, y, vida, velocidade...
+    this.pulosRestantes=2;this.pontos=0;this.invencivel=false;this.dashPronto=true;
+    this.lanca=criar(Lanca,this);                  // composição: o Jogador TEM uma Lanca
+    this.habilidades=[];this._parry=0;this._escudo=0;this._furia=0;this._giro=0;this._giroT=0;
+    this._tInv=0;this._kb=0;this._bufAtk=0;this._tDash=0;this._cdDash=0;this._cor='#3ee6ff';this._nPart=26;
+  }
+  andar(dir){this.vx=dir*this.velocidade;if(dir!==0)this.direcao=dir;}
+  pular(){
+    if(this.pulosRestantes<=0)return;
+    const primeiro=this.pulosRestantes===2;this.vy=primeiro?-690:-620;this._noChao=false;this.pulosRestantes--;
+    jogo.faisca(this.cx,this.y+this.alt,'#fff',6,90);som(primeiro?300:420,.12,'square',.04,primeiro?620:800);
+  }
+  atacar(dir){this.lanca.golpear(dir);}
+  dash(){
+    if(!this.dashPronto||this._tDash>0)return;
+    this.dashPronto=false;this._tDash=.28;this._cdDash=1.15;
+    this.vx=this.direcao*780;this.vy=Math.min(this.vy,0); // lançada horizontal com maior alcance
+    this.invencivel=true;this._tInv=Math.max(this._tInv,.32); // i-frames um pouco maiores
+    this.lanca.golpear('frente'); // a lança acompanha a lançada
+    jogo.faisca(this.cx-this.direcao*10,this.cy,'#3ee6ff',10,240);
+    jogo.faisca(this.cx,this.cy,'#fff',5,140);
+    som(380,.14,'sawtooth',.05,160);
+  }
+  curar(n){this.vida=Math.min(this.vidaMax,this.vida+n);}
+  ganharPontos(n){this.pontos+=n;}
+  aprender(h){this.habilidades=this.habilidades.concat([h]);}
+  usarHabilidade(h){h.usar(this);}
+  atualizarHabilidades(dt){
+    for(const h of this.habilidades){h.atualizar(dt);if(apertou['Key'+h.tecla])this.usarHabilidade(h);}
+    if(this._parry>0)this._parry-=dt;
+    if(this._escudo>0)this._escudo-=dt;
+    if(this._furia>0)this._furia-=dt;
+    this.lanca.dano=this._furia>0?2:1;
+    if(this._giro>0){this._giro-=dt;this._giroT-=dt;
+      if(this._giroT<=0){this._giroT=.2;
+        for(const e of vivos())if(Math.hypot(e.cx-this.cx,e.cy-this.cy)<120+e.larg/2)e.receberDano(1);
+        som(260,.08,'sawtooth',.04,120);}}
+  }
+  desenharEfeitos(c){
+    const t=jogo.t,x=this.cx,y=this.cy;
+    if(this._escudo>0){c.strokeStyle=`rgba(124,245,154,${.5+.3*Math.sin(t*14)})`;c.lineWidth=3;c.fillStyle='rgba(124,245,154,.12)';c.beginPath();c.arc(x,y,40,0,6.283);c.fill();c.stroke();}
+    if(this._parry>0){c.fillStyle='rgba(108,240,255,.12)';c.strokeStyle='#6cf0ff';c.lineWidth=4;c.beginPath();c.arc(x,y,80,0,6.283);c.fill();c.stroke();}
+    if(this._furia>0){c.fillStyle=`rgba(255,60,60,${.15+.1*Math.sin(t*20)})`;c.beginPath();c.arc(x,y,34,0,6.283);c.fill();}
+    if(this._giro>0){c.strokeStyle='#d0d8e8';c.lineWidth=5;c.lineCap='round';
+      for(let i=0;i<3;i++){const a=t*22+i*2.094;c.beginPath();c.moveTo(x+Math.cos(a)*26,y+Math.sin(a)*26);c.lineTo(x+Math.cos(a)*112,y+Math.sin(a)*112);c.stroke();}}
+  }
+  receberDano(d){                                  // sobrescrita: o Jogador tem invencibilidade
+    if(this.invencivel)return;
+    super.receberDano(d);
+    if(this.vida>0){this.invencivel=true;this._tInv=1.3;this._kb=.22;this.vx=-this.direcao*260;this.vy=-320;this._noChao=false;}
+    jogo.tremor=Math.max(jogo.tremor,10);som(150,.25,'sawtooth',.08,60);
+  }
+  morrer(){super.morrer();jogo.explosao(this.cx,this.cy,'#ff6b8a',30);som(100,.8,'sawtooth',.1,30);jogo.terminar();}
+  atualizar(dt){
+    if(this.vida<=0)return;
+    const L=teclas.ArrowLeft||teclas.KeyA,R=teclas.ArrowRight||teclas.KeyD,U=teclas.ArrowUp||teclas.KeyW,D=teclas.ArrowDown||teclas.KeyS;
+    const pulaSeg=teclas.Space||teclas.KeyK||teclas.KeyZ,pulouAgora=apertou.Space||apertou.KeyK||apertou.KeyZ,atkAgora=apertou.KeyJ||apertou.KeyX||apertou.KeyL;
+    const dashAgora=apertou.ShiftLeft||apertou.ShiftRight||apertou.KeyC;
+    if(this._tDash>0){
+      this._tDash-=dt;
+      this.vx=this.direcao*780; // mantém a lançada com maior alcance
+      if(this._tDash<=0)this._tDash=0;
+    }else if(this._kb>0)this._kb-=dt;else this.andar((R?1:0)-(L?1:0));
+    if(this._cdDash>0){this._cdDash-=dt;if(this._cdDash<=0){this._cdDash=0;this.dashPronto=true;}}
+    if(dashAgora&&this.dashPronto)this.dash();
+    if(this._descer>0)this._descer-=dt;
+    if(pulouAgora){if(D&&this._noChao&&this._plat&&!this._plat.chao){this._descer=.25;this.y+=4;this._noChao=false;}else this.pular();}
+    if(this.vy<-120&&!pulaSeg)this.vy+=2200*dt;
+    if(atkAgora)this._bufAtk=.14;else this._bufAtk=Math.max(0,this._bufAtk-dt);
+    if(this._bufAtk>0&&this.lanca.pronta&&this._tDash<=0){this.atacar(U?'cima':(D&&!this._noChao)?'baixo':'frente');this._bufAtk=0;}
+    this.mover(dt);
+    this.x=clamp(this.x,0,LARG-this.larg);
+    if(this._noChao&&this.pulosRestantes<2)this.pulosRestantes=2;
+    if(this._tInv>0){this._tInv-=dt;if(this._tInv<=0)this.invencivel=false;}
+    this.lanca.atualizar(dt);this.atualizarHabilidades(dt);
+  }
+  desenhar(c){
+    if(this.vida<=0)return;
+    if(this.invencivel&&!(this._escudo>0)&&Math.floor(jogo.t*16)%2===0)return;
+    const d=this.direcao,t=jogo.t,andando=Math.abs(this.vx)>10&&this._noChao,ciclo=andando?Math.sin(t*16):0;
+    const noAr=!this._noChao;
+    c.save();c.translate(this.x+this.larg/2,this.y);c.scale(d,1);
 
-    // 1. SUPERCLASSE BASE: Pokémon
-    class Pokemon {
-      constructor(nome, numeroPokedex, tipo, nivel, hpMaximo, peso, altura, x, y, cor) {
-        this.nome = nome;
-        this.numeroPokedex = numeroPokedex;
-        this.tipo = tipo;
-        this.nivel = nivel;
-        this.hpMaximo = hpMaximo;
-        this._hp = hpMaximo;
-        this.peso = peso;
-        this.altura = altura;
-        this.capturado = true;
+    // sombra no chão
+    if(!noAr){
+      c.fillStyle='rgba(0,0,0,.3)';
+      c.beginPath();c.ellipse(0,48,13,4,0,0,6.283);c.fill();
+    }
 
-        // Propriedades de física e posição arena
-        this.x = x;
-        this.y = y;
-        this.vx = 0;
-        this.vy = 0;
-        this.largura = 40;
-        this.alturaCorpo = 40;
-        this.noChao = false;
-        this.cor = cor;
+    // capa sutil atrás
+    c.fillStyle='rgba(30,63,138,.55)';
+    c.beginPath();
+    c.moveTo(-8,16);c.lineTo(-18,42+ciclo*2);c.lineTo(-6,40);c.lineTo(2,16);
+    c.closePath();c.fill();
+
+    // pernas com armadura
+    c.fillStyle='#1a2d55';
+    if(noAr){
+      c.fillRect(-11,30,10,13);c.fillRect(1,28,10,13);
+      c.fillStyle='#0d1528';c.fillRect(-12,41,12,5);c.fillRect(0,39,12,5);
+      // joelheiras
+      c.fillStyle='#3ee6ff';c.fillRect(-10,34,8,3);c.fillRect(2,32,8,3);
+    }else{
+      c.fillRect(-11+ciclo*5,30,10,16);c.fillRect(1-ciclo*5,30,10,16);
+      c.fillStyle='#0d1528';c.fillRect(-12+ciclo*5,43,13,5);c.fillRect(0-ciclo*5,43,13,5);
+      c.fillStyle='#3ee6ff';c.fillRect(-10+ciclo*5,36,8,3);c.fillRect(2-ciclo*5,36,8,3);
+    }
+
+    // torso (armadura azul com placas)
+    c.fillStyle='#1e4a9e';
+    c.beginPath();c.roundRect(-12,13,24,22,4);c.fill();
+    // placa peitoral superior
+    c.fillStyle='#2a5bbf';
+    c.beginPath();c.roundRect(-10,14,20,12,3);c.fill();
+    // faixa dourada
+    c.fillStyle='#ffd166';c.fillRect(-12,28,24,3.5);
+    c.fillStyle='#e6b84a';c.fillRect(-12,30.5,24,1);
+    // detalhe peito (cristal/energia)
+    c.fillStyle='#0d2a6a';c.fillRect(-6,17,12,8);
+    c.fillStyle='#3ee6ff';
+    c.beginPath();c.roundRect(-3,18.5,6,5,1.5);c.fill();
+    c.fillStyle='rgba(255,255,255,.5)';c.fillRect(-1.5,19.5,3,2);
+
+    // braço traseiro
+    c.fillStyle='#f2c9a0';c.fillRect(-15,15,7,13);
+    c.fillStyle='#1e4a9e';c.fillRect(-16,14,8,6); // ombreira
+    c.fillStyle='#3ee6ff';c.fillRect(-15,15,6,2);
+
+    // cabeça
+    c.fillStyle='#f2c9a0';
+    c.beginPath();c.roundRect(-8.5,1,17,15,4);c.fill();
+    // capacete
+    c.fillStyle='#152a50';
+    c.beginPath();c.moveTo(-10,0);c.lineTo(-10,8);c.lineTo(10,8);c.lineTo(10,0);c.lineTo(6,-3);c.lineTo(-6,-3);c.closePath();c.fill();
+    // crista do capacete
+    c.fillStyle='#1a3a70';
+    c.beginPath();c.moveTo(-4,-3);c.lineTo(0,-8);c.lineTo(4,-3);c.closePath();c.fill();
+    // viseira / faixa vermelha
+    c.fillStyle='#e53935';c.fillRect(-9,5,18,3.5);
+    c.fillStyle='#ff6b6b';c.fillRect(-9,5,18,1.5);
+    // olho
+    c.fillStyle='#111';c.fillRect(2.5,9.5,4.5,3.5);
+    c.fillStyle='#3ee6ff';c.fillRect(3.5,10.5,2.5,1.5);
+    // penacho / cabelo
+    const f=Math.sin(t*11)*2.5;
+    c.fillStyle='#c62828';
+    c.beginPath();c.moveTo(-9,2);c.lineTo(-17,1+f);c.lineTo(-19,8-f);c.lineTo(-10,8);c.closePath();c.fill();
+    c.fillStyle='#e53935';
+    c.beginPath();c.moveTo(-10,4);c.lineTo(-18,7-f);c.lineTo(-16,12+f);c.lineTo(-9,9);c.closePath();c.fill();
+
+    // braço da frente (segurando lança)
+    c.fillStyle='#f2c9a0';c.fillRect(6,16,8,12);
+    c.fillStyle='#1e4a9e';c.fillRect(6,14,9,6); // ombreira
+    c.fillStyle='#3ee6ff';c.fillRect(7,15,7,2);
+
+    c.restore();
+    this.lanca.desenhar(c);this.desenharEfeitos(c);
+  }
+}
+
+/* ---------- SUBCLASSE e SUPERCLASSE: todo inimigo ---------- */
+class Inimigo extends Entidade{
+  constructor(x,y,larg,alt,vida,vel,dano,pontos){
+    super(x,y,larg,alt,vida,vel);
+    this.dano=dano;this.pontos=pontos;this.estado='patrulhando';
+    this._cdAtq=0;this._kb=0;this._resist=0;this._extra=false;
+  }
+  atualizarIA(alvo,dt){}                           // cada subclasse implementa a sua (polimorfismo)
+  atacar(alvo){alvo.receberDano(this.dano);}
+  receberDano(d){
+    super.receberDano(d);                          // reaproveita a lógica da Entidade
+    if(this.vida>0){
+      this._flash=.12;this._kb=.16*(1-this._resist);
+      const s=Math.sign(this.cx-jogo.jogador.cx)||1;this.vx=s*240*(1-this._resist);
+      if(this.gravidade&&this._noChao&&this._resist<1)this.vy=-150;
+    }
+  }
+  morrer(){
+    super.morrer();jogo.jogador.ganharPontos(this.pontos);
+    if(!this._extra)jogo.onda.registrarBaixa();
+    jogo.texto(this.cx,this.y,'+'+this.pontos,'#ffd166');som(240,.15,'triangle',.07,60);jogo.tremor=Math.max(jogo.tremor,3);
+  }
+}
+
+class Soldado extends Inimigo{
+  constructor(x,y){
+    super(x,y,28,44,2,60,1,100);
+    this.alcanceVisao=380;this.direcao=x<LARG/2?1:-1;this._cor='#e0553d';
+  }
+  patrulhar(){this.estado='patrulhando';this.velocidade=60;}
+  perseguir(alvo){this.estado='perseguindo';this.velocidade=125;}
+  atualizarIA(alvo,dt){
+    const dx=alvo.cx-this.cx,dy=alvo.cy-this.cy;
+    const ve=alvo.vida>0&&Math.abs(dx)<this.alcanceVisao&&Math.abs(dy)<170;
+    if(ve&&this.estado!=='perseguindo')this.perseguir(alvo);
+    else if(!ve&&this.estado!=='patrulhando')this.patrulhar();
+    if(this.estado==='perseguindo'){
+      if(Math.abs(dx)>14)this.direcao=dx>0?1:-1;
+      if(this._noChao&&alvo.y+alvo.alt<this.y+this.alt-60&&Math.abs(dx)<220)this.vy=-720;
+      this.vx=Math.abs(dx)<10?0:this.direcao*this.velocidade;
+    }else{
+      if(this.x<8&&this.direcao<0)this.direcao=1;
+      if(this.x>LARG-this.larg-8&&this.direcao>0)this.direcao=-1;
+      this.vx=this.direcao*this.velocidade;
+    }
+  }
+  desenhar(c){
+    const f=this._flash>0,t=jogo.t,ciclo=Math.abs(this.vx)>5?Math.sin(t*14+this.x*.1):0;
+    const corCorpo=f?'#fff':'#c0392b',corEscuro=f?'#fff':'#7b241c',corPele=f?'#fff':'#e0b48a',corMetal=f?'#fff':'#c9ccd1';
+    c.save();c.translate(this.x+14,this.y);c.scale(this.direcao,1);
+
+    // sombra
+    c.fillStyle='rgba(0,0,0,.28)';
+    c.beginPath();c.ellipse(0,48,12,3.5,0,0,6.283);c.fill();
+
+    // pernas com armadura
+    c.fillStyle=f?'#fff':'#2a2a2a';
+    c.fillRect(-11+ciclo*4,29,10,16);c.fillRect(1-ciclo*4,29,10,16);
+    c.fillStyle=f?'#fff':'#151515';
+    c.fillRect(-12+ciclo*4,42,12,5);c.fillRect(0-ciclo*4,42,12,5);
+    // joelheiras
+    c.fillStyle=f?'#fff':'#5a1a12';
+    c.fillRect(-10+ciclo*4,35,8,4);c.fillRect(2-ciclo*4,35,8,4);
+
+    // torso
+    c.fillStyle=corCorpo;
+    c.beginPath();c.roundRect(-12,12,24,20,3);c.fill();
+    // faixa inferior
+    c.fillStyle=corEscuro;c.fillRect(-12,26,24,5);
+    // cinto
+    c.fillStyle=f?'#fff':'#3a1e08';c.fillRect(-12,24,24,3.5);
+    c.fillStyle='#ffd166';c.fillRect(-4,24,8,3.5);
+    // placa peitoral
+    c.fillStyle=f?'#fff':'#a02e22';
+    c.beginPath();c.roundRect(-8,14,16,9,2);c.fill();
+    c.fillStyle=f?'#fff':'#5a1810';c.fillRect(-6,16,12,5);
+
+    // braço traseiro
+    c.fillStyle=corPele;c.fillRect(-16,15,7,12);
+    c.fillStyle=corEscuro;c.fillRect(-17,13,8,6);
+    c.fillStyle=f?'#fff':'#5a1a12';c.fillRect(-16,14,6,2);
+
+    // cabeça
+    c.fillStyle=corPele;
+    c.beginPath();c.roundRect(-8,1,16,14,3.5);c.fill();
+    // capacete militar reforçado
+    c.fillStyle=f?'#fff':'#2a2a2a';
+    c.beginPath();c.moveTo(-10,0);c.lineTo(-10,9);c.lineTo(10,9);c.lineTo(10,0);c.lineTo(6,-4);c.lineTo(-6,-4);c.closePath();c.fill();
+    // abas do capacete
+    c.fillStyle=f?'#fff':'#1a1a1a';
+    c.fillRect(-11,6,4,5);c.fillRect(7,6,4,5);
+    // viseira
+    c.fillStyle=f?'#fff':'#111';c.fillRect(-7,5,14,3.5);
+    // olho
+    c.fillStyle='#111';c.fillRect(2.5,9.5,4,3);
+    c.fillStyle=f?'#fff':'#ff4a3a';c.fillRect(3.5,10.5,2,1.5);
+
+    // braço da frente + facão
+    c.fillStyle=corPele;c.fillRect(7,15,7,11);
+    c.fillStyle=corEscuro;c.fillRect(7,13,8,6);
+    // lâmina mais detalhada
+    c.fillStyle=corMetal;
+    c.beginPath();c.moveTo(13,17);c.lineTo(28,14);c.lineTo(28,22);c.lineTo(13,23);c.closePath();c.fill();
+    c.fillStyle=f?'#fff':'#e8ecf0';
+    c.beginPath();c.moveTo(14,18);c.lineTo(26,16);c.lineTo(26,19);c.lineTo(14,20);c.closePath();c.fill();
+    // guarda da lâmina
+    c.fillStyle=f?'#fff':'#8a6a3a';c.fillRect(12,16,3,8);
+
+    // indicador de perseguição
+    if(this.estado==='perseguindo'){
+      c.fillStyle='#ffe14d';
+      c.beginPath();c.moveTo(-3,-16);c.lineTo(3,-16);c.lineTo(0,-7);c.closePath();c.fill();
+      c.fillStyle='#111';c.fillRect(-1.5,-6,3,3.5);
+    }
+    c.restore();
+  }
+}
+
+class Atirador extends Inimigo{
+  constructor(x,y){
+    super(x,y,28,44,2,80,1,150);
+    this.cadencia=2.1;this.alcanceTiro=560;this.estado='mirando';this.direcao=x<LARG/2?1:-1;
+    this._cdTiro=rnd(1,2);this._dentro=false;this._tEst=0;this._cor='#3ec6e0';
+  }
+  atirar(alvo){
+    const mx=this.cx+this.direcao*18,my=this.y+20,dx=alvo.cx-mx,dy=alvo.cy-my,m=Math.hypot(dx,dy)||1,v=290;
+    jogo.projeteis.push(criar(Projetil,mx-6,my-6,dx/m*v,dy/m*v,1));
+    this._cdTiro=this.cadencia;som(700,.09,'square',.03,300);
+  }
+  atualizarIA(alvo,dt){
+    const dx=alvo.cx-this.cx,dist=Math.abs(dx);
+    if(dist>12)this.direcao=dx>0?1:-1;
+    let mov=0;if(dist<230)mov=-1;else if(dist>400)mov=1;
+    this._tEst-=dt;
+    if(this._tEst<=0){const novo=mov===0?'mirando':'reposicionando';if(this.estado!==novo){this.estado=novo;this._tEst=.6;}}
+    this.vx=mov*this.direcao*this.velocidade;
+    if(this.x>6&&this.x<LARG-this.larg-6)this._dentro=true;
+    if(this._dentro)this.x=clamp(this.x,6,LARG-this.larg-6);
+    this._cdTiro-=dt;
+    if(this._cdTiro<=0&&alvo.vida>0&&dist<this.alcanceTiro&&this._dentro)this.atirar(alvo);
+  }
+  desenhar(c){
+    const f=this._flash>0,t=jogo.t,ciclo=Math.abs(this.vx)>5?Math.sin(t*14+this.x*.1):0;
+    const corCorpo=f?'#fff':'#1a7a92',corEscuro=f?'#fff':'#0e4a5a',corPele=f?'#fff':'#d9a47a';
+    c.save();c.translate(this.x+14,this.y);c.scale(this.direcao,1);
+
+    // sombra
+    c.fillStyle='rgba(0,0,0,.28)';
+    c.beginPath();c.ellipse(0,48,12,3.5,0,0,6.283);c.fill();
+
+    // pernas
+    c.fillStyle=f?'#fff':'#15202e';
+    c.fillRect(-11+ciclo*4,29,10,16);c.fillRect(1-ciclo*4,29,10,16);
+    c.fillStyle=f?'#fff':'#0a1018';
+    c.fillRect(-12+ciclo*4,42,12,5);c.fillRect(0-ciclo*4,42,12,5);
+
+    // torso
+    c.fillStyle=corCorpo;
+    c.beginPath();c.roundRect(-12,12,24,20,3);c.fill();
+    c.fillStyle=corEscuro;c.fillRect(-12,26,24,5);
+    // colete tático
+    c.fillStyle=f?'#fff':'#0a3040';c.fillRect(-9,15,18,10);
+    c.fillStyle=f?'#fff':'#1a6a7a';
+    c.fillRect(-7,17,5,6);c.fillRect(2,17,5,6);
+    // cinto
+    c.fillStyle=f?'#fff':'#0a2030';c.fillRect(-12,24,24,3);
+
+    // braço traseiro
+    c.fillStyle=corPele;c.fillRect(-16,15,7,11);
+    c.fillStyle=corEscuro;c.fillRect(-17,13,8,6);
+
+    // cabeça
+    c.fillStyle=corPele;
+    c.beginPath();c.roundRect(-8,1,16,14,3.5);c.fill();
+    // capacete/boina cyber
+    c.fillStyle=corEscuro;
+    c.beginPath();c.moveTo(-10,0);c.lineTo(-10,8);c.lineTo(10,8);c.lineTo(10,0);c.lineTo(5,-3);c.lineTo(-5,-3);c.closePath();c.fill();
+    // óculos / visor cyber brilhante
+    c.fillStyle=f?'#fff':'#6ee8ff';
+    c.beginPath();c.roundRect(-2,6.5,12,5,1.5);c.fill();
+    c.fillStyle=f?'#fff':'#0a4a5a';
+    c.fillRect(0,7.5,3.5,3);c.fillRect(5.5,7.5,3.5,3);
+    c.fillStyle='rgba(255,255,255,.4)';c.fillRect(1,8,2,1.5);
+    // olho
+    c.fillStyle='#111';c.fillRect(2.5,10,2,1.5);
+
+    // rifle detalhado
+    c.fillStyle=f?'#fff':'#1a1a1a';
+    c.fillRect(5,17,24,6);
+    // coronha
+    c.fillStyle=f?'#fff':'#333';c.fillRect(24,15,7,10);
+    c.fillStyle=f?'#fff':'#222';c.fillRect(26,16,4,8);
+    // corpo do rifle
+    c.fillStyle=f?'#fff':'#0a0a0a';c.fillRect(7,18,16,4);
+    // mira
+    c.fillStyle=f?'#fff':'#444';c.fillRect(14,15,4,3);
+    // cano
+    c.fillStyle=f?'#fff':'#555';c.fillRect(28,18.5,8,3);
+    c.fillStyle=f?'#fff':'#777';c.fillRect(35,19,3,2);
+    // brilho de tiro
+    if(this._cdTiro<.35){
+      c.fillStyle='rgba(255,216,74,.6)';
+      c.beginPath();c.arc(38,20,7,0,6.283);c.fill();
+      c.fillStyle='#ffd84a';
+      c.beginPath();c.arc(38,20,4,0,6.283);c.fill();
+      c.fillStyle='#fff';c.beginPath();c.arc(38,20,2,0,6.283);c.fill();
+    }
+
+    // braço da frente
+    c.fillStyle=corPele;c.fillRect(4,16,8,10);
+    c.fillStyle=corEscuro;c.fillRect(4,14,9,5);
+
+    c.restore();
+    // laser de mira
+    if(this._cdTiro<.4&&jogo.jogador&&jogo.jogador.vida>0){
+      c.strokeStyle='rgba(255,40,40,.55)';c.lineWidth=1.8;c.setLineDash([5,4]);
+      c.beginPath();
+      c.moveTo(this.cx+this.direcao*24,this.y+20.5);
+      c.lineTo(jogo.jogador.cx,jogo.jogador.cy);
+      c.stroke();c.setLineDash([]);
+    }
+  }
+}
+
+class Drone extends Inimigo{
+  constructor(x,y){
+    super(x,y,34,22,1,95,1,120);
+    this.altitude=y;this.estado='sobrevoando';this.gravidade=false;this._t=rnd(0,6);this._cdMerg=rnd(1,2.2);this._tMerg=0;this._cor='#ff5a5a';
+  }
+  mover(dt){this.x+=this.vx*dt;this.y=clamp(this.y+this.vy*dt,0,CHAO-this.alt);}   // sobrescrita: voa, sem gravidade
+  mergulhar(alvo){
+    this.estado='mergulhando';this._tMerg=.9;
+    const dx=alvo.cx-this.cx,dy=alvo.cy-this.cy,m=Math.hypot(dx,dy)||1;this.vx=dx/m*310;this.vy=dy/m*310;
+  }
+  atualizarIA(alvo,dt){
+    this._t+=dt;this._cdMerg-=dt;
+    if(this.estado==='mergulhando'){this._tMerg-=dt;if(this._tMerg<=0||this.y>=CHAO-this.alt-2){this.estado='sobrevoando';this._cdMerg=2.4;}return;}
+    const dx=alvo.cx-this.cx;if(Math.abs(dx)>10)this.direcao=dx>0?1:-1;
+    this.vx=clamp(dx*1.4,-this.velocidade,this.velocidade);
+    this.vy=(this.altitude+Math.sin(this._t*2.2)*26-this.y)*2.2;
+    if(this._cdMerg<=0&&alvo.vida>0&&Math.abs(dx)<120&&this.y<alvo.y-60)this.mergulhar(alvo);
+  }
+  desenhar(c){
+    const f=this._flash>0,t=jogo.t,x=this.x+17,y=this.y+11;
+    const merg=this.estado==='mergulhando';
+    c.save();c.translate(x,y);
+    if(merg)c.rotate(this.direcao*0.35);
+
+    // sombra (só quando baixo)
+    if(this.y>300){
+      c.fillStyle='rgba(0,0,0,.18)';
+      c.beginPath();c.ellipse(0,42+(this.y-300)*.12,16,3.5,0,0,6.283);c.fill();
+    }
+
+    // corpo principal mais robusto
+    c.fillStyle=f?'#fff':'#2e3644';
+    c.beginPath();c.ellipse(0,1,19,11,0,0,6.283);c.fill();
+    // placa inferior
+    c.fillStyle=f?'#fff':'#1e2530';
+    c.beginPath();c.ellipse(0,5,15,7,0,0,6.283);c.fill();
+    // painel central
+    c.fillStyle=f?'#fff':'#3a4555';
+    c.beginPath();c.ellipse(0,2,10,6,0,0,6.283);c.fill();
+
+    // olho / sensor central (mais ameaçador)
+    const corOlho=f?'#fff':(merg?'#ff1a1a':'#ff5555');
+    c.fillStyle=corOlho;
+    c.beginPath();c.arc(this.direcao*5,0,7,0,6.283);c.fill();
+    c.fillStyle=f?'#fff':'#1a0505';
+    c.beginPath();c.arc(this.direcao*6.5,0,3.5,0,6.283);c.fill();
+    c.fillStyle='#fff';
+    c.beginPath();c.arc(this.direcao*7.5,-1.2,1.4,0,6.283);c.fill();
+    // anel externo do sensor
+    c.strokeStyle=f?'#fff':(merg?'#ff6666':'#ff8888');
+    c.lineWidth=1.5;
+    c.beginPath();c.arc(this.direcao*5,0,8.5,0,6.283);c.stroke();
+
+    // hélices superiores (girando, mais nítidas)
+    const w=Math.sin(t*52)*18;
+    c.fillStyle=f?'#fff':'rgba(160,200,255,.9)';
+    c.fillRect(-w,-15,2*w||1,3);
+    c.fillStyle=f?'#fff':'rgba(120,170,230,.45)';
+    c.fillRect(-w*0.65,-16.5,w*1.3||1,1.8);
+    // segunda hélice (cruzada)
+    const w2=Math.cos(t*52)*14;
+    c.fillStyle=f?'#fff':'rgba(140,180,240,.5)';
+    c.fillRect(-1.2,-15-w2,2.4,2*w2||1);
+
+    // suporte da hélice
+    c.fillStyle=f?'#fff':'#1a1a1a';
+    c.fillRect(-3,-13,6,7);
+    c.fillStyle=f?'#fff':'#333';c.fillRect(-2,-12,4,4);
+
+    // asas / aletas laterais mais angulares
+    c.fillStyle=f?'#fff':'#3a4558';
+    c.beginPath();c.moveTo(-17,0);c.lineTo(-24,-5);c.lineTo(-25,2);c.lineTo(-22,7);c.closePath();c.fill();
+    c.beginPath();c.moveTo(17,0);c.lineTo(24,-5);c.lineTo(25,2);c.lineTo(22,7);c.closePath();c.fill();
+    // detalhe nas aletas
+    c.fillStyle=f?'#fff':'#5a6a80';
+    c.fillRect(-23,-2,4,3);c.fillRect(19,-2,4,3);
+
+    // luzes de status pulsantes
+    const pulso=.6+.4*Math.sin(t*8);
+    c.fillStyle=merg?`rgba(255,40,40,${pulso})`:`rgba(62,230,255,${pulso})`;
+    c.beginPath();c.arc(-9,7,2.5,0,6.283);c.fill();
+    c.beginPath();c.arc(9,7,2.5,0,6.283);c.fill();
+
+    // jato inferior
+    c.fillStyle='#ffd166';
+    c.fillRect(-6,11,12,3);
+    if(merg){
+      c.fillStyle='rgba(255,80,30,.7)';
+      c.beginPath();c.moveTo(-5,13);c.lineTo(0,26);c.lineTo(5,13);c.closePath();c.fill();
+      c.fillStyle='rgba(255,200,80,.5)';
+      c.beginPath();c.moveTo(-3,13);c.lineTo(0,20);c.lineTo(3,13);c.closePath();c.fill();
+    }
+
+    c.restore();
+  }
+}
+
+/* ---------- SUBCLASSE de Entidade: balas, ondas de choque e lanças aliadas ---------- */
+class Projetil extends Entidade{
+  constructor(x,y,vx,vy,dano=1,tipo='bala'){
+    super(x,y,tipo==='onda'?38:tipo==='lanca'?14:12,tipo==='onda'?20:tipo==='lanca'?46:12,1,Math.round(Math.hypot(vx,vy)));
+    this.dano=dano;this.vx=vx;this.vy=vy;this.gravidade=false;this._tipo=tipo;this._cor=tipo==='onda'?'#ff7a2b':'#ffd84a';this._nPart=5;this.direcao=vx>=0?1:-1;
+  }
+  mover(dt){this.x+=this.vx*dt;this.y+=this.vy*dt;}
+  explodir(alvo){alvo.receberDano(this.dano);this.morrer();}
+  desenharLanca(c){
+    const ang=Math.atan2(this.vy,this.vx);c.save();c.translate(this.cx,this.cy);c.rotate(ang);
+    c.fillStyle='rgba(124,245,255,.25)';c.fillRect(-60,-3,40,6);
+    c.strokeStyle='#8b5e3c';c.lineWidth=4;c.lineCap='round';c.beginPath();c.moveTo(-24,0);c.lineTo(14,0);c.stroke();
+    c.fillStyle='#eaf7ff';c.beginPath();c.moveTo(26,0);c.lineTo(12,-6);c.lineTo(12,6);c.closePath();c.fill();
+    c.restore();
+  }
+  desenhar(c){
+    if(this._tipo==='lanca'){this.desenharLanca(c);}else if(this._tipo==='onda'){
+      const g=c.createLinearGradient(this.x,0,this.x+this.larg,0);
+      const a=this.direcao>0?['rgba(255,122,43,0)','#ff7a2b']:['#ff7a2b','rgba(255,122,43,0)'];
+      g.addColorStop(0,a[0]);g.addColorStop(.5,'#ff9a4a');g.addColorStop(1,a[1]);
+      c.fillStyle=g;c.fillRect(this.x,this.y,this.larg,this.alt);
+      // núcleo brilhante
+      c.fillStyle='#ffe2b0';
+      c.fillRect(this.direcao>0?this.x+this.larg-10:this.x,this.y+2,10,this.alt-4);
+      // partículas da onda
+      c.fillStyle='rgba(255,220,150,.8)';
+      for(let i=0;i<4;i++){
+        const ox=this.direcao>0?(this.x+this.larg-10-i*7):(this.x+3+i*7);
+        c.beginPath();c.arc(ox,this.y+this.alt/2+(i%2?4:-4),2.8,0,6.283);c.fill();
       }
+    }else{
+      // rastro
+      const ang=Math.atan2(this.vy,this.vx);
+      c.save();
+      c.translate(this.cx,this.cy);c.rotate(ang);
+      c.fillStyle='rgba(255,216,74,.25)';
+      c.beginPath();c.moveTo(-16,-4);c.lineTo(3,0);c.lineTo(-16,4);c.closePath();c.fill();
+      c.fillStyle='rgba(255,180,50,.15)';
+      c.beginPath();c.moveTo(-22,-6);c.lineTo(-2,0);c.lineTo(-22,6);c.closePath();c.fill();
+      c.restore();
+      // glow externo
+      c.fillStyle='rgba(255,216,74,.35)';
+      c.beginPath();c.arc(this.cx,this.cy,10,0,6.283);c.fill();
+      // núcleo
+      c.fillStyle='#ffd84a';
+      c.beginPath();c.arc(this.cx,this.cy,5.5,0,6.283);c.fill();
+      // highlight
+      c.fillStyle='#fff';
+      c.beginPath();c.arc(this.cx-1.5,this.cy-1.8,2.2,0,6.283);c.fill();
+    }
+  }
+}
 
-      get hp() { return this._hp; }
-      set hp(val) {
-        const valorAntigo = this._hp;
-        this._hp = Math.max(0, Math.min(this.hpMaximo, Math.round(val)));
-        Inspector.logAttribute(this.constructor.name === 'Pikachu' || this.constructor.name === 'Mimikyu' ? this.constructor.name : 'Pokemon', 'hp', valorAntigo, this._hp);
+const CHEFES=[
+  {nome:'Cabo Brutus',cor:'#d94a3d',cor2:'#7a1f1a',larg:64,alt:84,vida:14,vel:70,hab:['investida']},
+  {nome:'Mecha-Escorpião',cor:'#e0a526',cor2:'#7a5410',larg:90,alt:70,vida:20,vel:80,hab:['investida','leque']},
+  {nome:'General Víbora',cor:'#47c26b',cor2:'#14532d',larg:68,alt:92,vida:26,vel:90,hab:['leque','salto']},
+  {nome:'Colosso de Aço',cor:'#8da0c6',cor2:'#2a3550',larg:100,alt:110,vida:34,vel:75,hab:['investida','salto','leque']},
+  {nome:'Imperador Ômega',cor:'#b04bff',cor2:'#3a1470',larg:84,alt:104,vida:44,vel:95,hab:['investida','salto','leque','invocar']}
+];
+
+class Chefe extends Inimigo{
+  constructor(x,y,cfg,n){
+    super(x,y,cfg.larg,cfg.alt,cfg.vida,cfg.vel,1,1000*n);
+    this.nome=cfg.nome;this.fase=1;this.estado='chegando';
+    this.habilidades=cfg.hab;this._cfg=cfg;this._n=n;this._resist=1;this._espera=1.8;this._cd=1.4;this._acao=null;this._tEst=0;this._pousou=false;
+    this._cor=cfg.cor;this._nPart=45;
+  }
+  _intervalo(){return Math.max(.7,2.1-.4*this.fase);}
+  investir(alvo){this.estado='investida';this.dano=2;this._tEst=.75;this.vx=this.direcao*this.velocidade*4.2;som(120,.4,'sawtooth',.08,60);}
+  disparar(alvo){
+    this.estado='disparando';this._tEst=.55;
+    const n=[3,4,5][this.fase-1],mx=this.cx,my=this.y+this.alt*.3,base=Math.atan2(alvo.cy-my,alvo.cx-mx);
+    for(let i=0;i<n;i++){const a=base+(i-(n-1)/2)*.24;jogo.projeteis.push(criar(Projetil,mx-6,my-6,Math.cos(a)*270,Math.sin(a)*270,1));}
+    som(300,.2,'square',.05,120);
+  }
+  saltar(alvo){this.estado='salto';this._tEst=.3;this.vy=-820;this.vx=clamp((alvo.cx-this.cx)/.95,-320,320);this._noChao=false;som(200,.3,'sawtooth',.06,400);}
+  invocar(){
+    this.estado='invocando';this._tEst=.7;
+    jogo.onda.gerarInimigo('drone',this.cx-70,this.y-20,true);jogo.onda.gerarInimigo('drone',this.cx+36,this.y-20,true);
+  }
+  mudarFase(f){this.fase=f;this.velocidade=Math.round(this.velocidade*1.2);jogo.mostrar(this.nome,'FASE '+f+'!','#ff4fd8',1.6);jogo.tremor=14;som(90,.5,'sawtooth',.1,200);}
+  receberDano(d){
+    if(this._espera>0)return;
+    super.receberDano(d);
+    if(this.vida>0){const f=this.vida<=this.vidaMax/3?3:(this.vida<=this.vidaMax*2/3?2:1);if(f>this.fase)this.mudarFase(f);}
+  }
+  morrer(){
+    super.morrer();jogo.tremor=22;jogo.congela=.25;
+    for(let i=0;i<4;i++)jogo.explosao(this.cx+rnd(-30,30),this.cy+rnd(-30,30),this._cor,30);
+    som(70,.9,'sawtooth',.12,30);
+  }
+  atualizarIA(alvo,dt){
+    if(this._espera>0){
+      this._espera-=dt;this.vx=0;
+      if(this._noChao&&!this._pousou){this._pousou=true;jogo.tremor=16;som(60,.5,'sawtooth',.12,30);}
+      if(this._espera<=0)this.estado='andando';
+      return;
+    }
+    const dx=alvo.cx-this.cx,d=dx>=0?1:-1;
+    const fim=()=>{this.vx=0;this.dano=1;this.estado='andando';this._cd=this._intervalo();};
+    switch(this.estado){
+      case'andando':
+        if(Math.abs(dx)>10)this.direcao=d;
+        this.vx=Math.abs(dx)>50?this.direcao*this.velocidade:0;this._cd-=dt;
+        if(this._cd<=0&&alvo.vida>0){this._acao=this.habilidades[(Math.random()*this.habilidades.length)|0];this.estado='preparando';this._tEst=.6-.1*(this.fase-1);this.vx=0;}
+        break;
+      case'preparando':
+        this.vx=0;this.direcao=d;this._tEst-=dt;
+        if(this._tEst<=0){const a=this._acao;if(a==='investida')this.investir(alvo);else if(a==='leque')this.disparar(alvo);else if(a==='salto')this.saltar(alvo);else this.invocar();}
+        break;
+      case'investida':
+        this._tEst-=dt;if(this._tEst<=0||this.x<4||this.x>LARG-this.larg-4)fim();break;
+      case'disparando':case'invocando':
+        this._tEst-=dt;if(this._tEst<=0)fim();break;
+      case'salto':
+        this._tEst-=dt;
+        if(this._tEst<=0&&this._noChao){
+          jogo.tremor=20;som(60,.5,'sawtooth',.12,30);
+          const yOnda=(this._plat?this._plat.y:CHAO)-20;
+          for(const s of[-1,1])jogo.projeteis.push(criar(Projetil,this.cx-19,yOnda,s*340,0,1,'onda'));
+          fim();
+        }
+        break;
+    }
+  }
+  desenhar(c){
+    const W=this.larg,H=this.alt,cfg=this._cfg,f=this._flash>0,prep=this.estado==='preparando'&&Math.floor(jogo.t*12)%2===0;
+    const C=(f||prep)?'#fff':cfg.cor,C2=f?'#fff':cfg.cor2,ciclo=Math.abs(this.vx)>5?Math.sin(jogo.t*10):0;
+    const olhoRage=(this.fase>=3||this.estado==='investida');
+    c.save();c.translate(this.cx,this.y);c.scale(this.direcao,1);
+
+    // sombra
+    c.fillStyle='rgba(0,0,0,.35)';
+    c.beginPath();c.ellipse(0,H+5,W*.45,7,0,0,6.283);c.fill();
+
+    // --- detalhes específicos por chefe ---
+    // Mecha-Escorpião (n=2): cauda articulada melhorada
+    if(this._n===2){
+      c.fillStyle=C2;
+      for(let i=0;i<7;i++){
+        const a=i/6;
+        const sx=-W*.5-Math.sin(a*2.4+jogo.t*1.2)*W*.42;
+        const sy=H*.48-a*H*.75;
+        const sz=14-a*5;
+        c.beginPath();c.roundRect(sx,sy,sz,sz,3);c.fill();
+        c.fillStyle=f?'#fff':'#9a6a20';
+        c.fillRect(sx+2,sy+2,sz-4,3);
+        c.fillStyle=C2;
       }
+      // ferrão
+      c.fillStyle=f?'#fff':'#ff2a2a';
+      const tipX=-W*.5-Math.sin(2.4+jogo.t*1.2)*W*.42-12;
+      const tipY=H*.48-H*.75-6;
+      c.beginPath();c.moveTo(tipX,tipY);c.lineTo(tipX-14,tipY+5);c.lineTo(tipX,tipY+12);c.closePath();c.fill();
+      c.fillStyle=f?'#fff':'#ffaaaa';
+      c.beginPath();c.moveTo(tipX-2,tipY+2);c.lineTo(tipX-8,tipY+5);c.lineTo(tipX-2,tipY+8);c.closePath();c.fill();
+    }
 
-      atacar(alvo, dano, nomeAtaque) {
-        Inspector.logMethod(this.constructor.name, 'atacar', `'${nomeAtaque}'`);
-        if (alvo) {
-          alvo.receberDano(dano);
+    // General Víbora / Imperador: capa mais fluida
+    if(this._n===3||this._n===5){
+      const onda=Math.sin(jogo.t*3)*4;
+      c.fillStyle=C2;
+      c.beginPath();
+      c.moveTo(-W*.48,H*.18);
+      c.lineTo(-W*.7+onda,H*.92);
+      c.lineTo(-W*.3,H*.88);
+      c.lineTo(-W*.22,H*.22);
+      c.closePath();c.fill();
+      c.fillStyle=f?'#fff':(this._n===5?'#4a1a80':'#0a3a1a');
+      c.globalAlpha=.4;
+      c.beginPath();
+      c.moveTo(-W*.45,H*.25);
+      c.lineTo(-W*.62+onda*.5,H*.85);
+      c.lineTo(-W*.35,H*.82);
+      c.closePath();c.fill();
+      c.globalAlpha=1;
+    }
+
+    // pernas com armadura
+    c.fillStyle=C2;
+    c.fillRect(-W*.4+ciclo*5,H*.66,W*.3,H*.34);
+    c.fillRect(W*.1-ciclo*5,H*.66,W*.3,H*.34);
+    // joelheiras
+    c.fillStyle=f?'#fff':cfg.cor;
+    c.fillRect(-W*.38+ciclo*5,H*.78,W*.26,H*.06);
+    c.fillRect(W*.12-ciclo*5,H*.78,W*.26,H*.06);
+    // botas
+    c.fillStyle=f?'#fff':'#111';
+    c.fillRect(-W*.42+ciclo*5,H*.92,W*.34,H*.09);
+    c.fillRect(W*.08-ciclo*5,H*.92,W*.34,H*.09);
+
+    // torso principal
+    c.fillStyle=C;
+    c.beginPath();c.roundRect(-W*.48,H*.2,W*.96,H*.52,5);c.fill();
+    // sombra interna
+    c.fillStyle=f?'#fff':cfg.cor2;
+    c.globalAlpha=.25;
+    c.beginPath();c.roundRect(-W*.4,H*.35,W*.8,H*.3,3);c.fill();
+    c.globalAlpha=1;
+    // faixa / cinto
+    c.fillStyle=C2;c.fillRect(-W*.48,H*.58,W*.96,H*.1);
+    c.fillStyle=f?'#fff':'#ffd166';c.fillRect(-W*.12,H*.59,W*.24,H*.08);
+    // placa peitoral
+    c.fillStyle=f?'#fff':cfg.cor2;
+    c.globalAlpha=.4;
+    c.beginPath();c.roundRect(-W*.32,H*.26,W*.64,H*.28,4);c.fill();
+    c.globalAlpha=1;
+
+    // braços
+    c.fillStyle=C;
+    c.fillRect(-W*.62,H*.2,W*.24,H*.22);  // ombro esq
+    c.fillRect(W*.38,H*.2,W*.24,H*.22);   // ombro dir
+    c.fillRect(W*.44,H*.36,W*.18,H*.34);  // braço dir
+    c.fillRect(-W*.6,H*.36,W*.18,H*.34);  // braço esq
+    // ombreiras detalhe
+    c.fillStyle=C2;
+    c.fillRect(-W*.64,H*.18,W*.26,H*.08);
+    c.fillRect(W*.38,H*.18,W*.26,H*.08);
+    // mãos
+    c.fillStyle=C2;
+    c.beginPath();c.arc(W*.52,H*.74,W*.09,0,6.283);c.fill();
+    c.beginPath();c.arc(-W*.52,H*.74,W*.09,0,6.283);c.fill();
+
+    // cabeça
+    c.fillStyle=C;
+    c.beginPath();c.roundRect(-W*.26,H*-.02,W*.52,H*.3,6);c.fill();
+
+    // olhos
+    const corOlho=olhoRage?'#ff1515':'#ffec6e';
+    c.fillStyle=corOlho;
+    c.fillRect(W*.02,H*.1,W*.18,H*.08);
+    if(olhoRage){
+      c.fillStyle='#fff';
+      c.fillRect(W*.06,H*.12,W*.05,H*.04);
+      // brilho de fúria
+      c.fillStyle='rgba(255,50,50,.4)';
+      c.beginPath();c.arc(W*.1,H*.14,W*.12,0,6.283);c.fill();
+    }
+
+    // detalhes por chefe
+    // Cabo Brutus (n=1): chifres + faixa
+    if(this._n===1){
+      c.fillStyle='#f5f5f5';
+      for(const s of[-1,1]){
+        c.beginPath();
+        c.moveTo(s*W*.16,H*.02);
+        c.lineTo(s*W*.36,-H*.16);
+        c.lineTo(s*W*.06,H*.0);
+        c.closePath();c.fill();
+        c.fillStyle='#ddd';
+        c.beginPath();
+        c.moveTo(s*W*.14,H*.01);
+        c.lineTo(s*W*.28,-H*.1);
+        c.lineTo(s*W*.1,H*.0);
+        c.closePath();c.fill();
+        c.fillStyle='#f5f5f5';
+      }
+      c.fillStyle=C2;c.fillRect(-W*.48,H*.36,W*.96,H*.08);
+      c.fillStyle='#ffd166';c.fillRect(-W*.15,H*.37,W*.3,H*.06);
+    }
+    // Colosso de Aço (n=4): rebites + antena + canhão
+    if(this._n===4){
+      c.fillStyle='#e8eefc';
+      for(let i=0;i<5;i++){
+        c.beginPath();c.arc(-W*.36+i*W*.18,H*.34,4,0,6.283);c.fill();
+      }
+      c.fillStyle='#ff9a3c';c.fillRect(-W*.12,H*.42,W*.24,H*.14);
+      c.fillStyle='#ffb060';c.fillRect(-W*.08,H*.45,W*.16,H*.08);
+      // antena
+      c.fillStyle=C2;c.fillRect(-3.5,-H*.14,7,H*.16);
+      c.beginPath();c.arc(0,-H*.16,8,0,6.283);c.fill();
+      c.fillStyle='#3ee6ff';c.beginPath();c.arc(0,-H*.16,4,0,6.283);c.fill();
+      c.fillStyle='rgba(62,230,255,.4)';c.beginPath();c.arc(0,-H*.16,7,0,6.283);c.fill();
+    }
+    // Imperador Ômega (n=5): auréola + núcleo
+    if(this._n===5){
+      const p=.5+.5*Math.sin(jogo.t*5);
+      c.strokeStyle=`rgba(108,240,255,${.75+.25*p})`;c.lineWidth=3.5;
+      c.beginPath();c.ellipse(0,-H*.1,W*.36,H*.07,0,0,6.283);c.stroke();
+      c.strokeStyle=`rgba(176,75,255,${.4+.3*p})`;c.lineWidth=2;
+      c.beginPath();c.ellipse(0,-H*.1,W*.28,H*.05,0,0,6.283);c.stroke();
+      c.fillStyle=`rgba(108,240,255,${.45+.4*p})`;
+      c.beginPath();c.arc(0,H*.48,W*.1,0,6.283);c.fill();
+      c.fillStyle='#fff';c.beginPath();c.arc(0,H*.48,W*.045,0,6.283);c.fill();
+    }
+    // General Víbora (n=3): coroa/serpente
+    if(this._n===3){
+      c.fillStyle='#0a3a1a';
+      c.beginPath();c.roundRect(-W*.3,-H*.06,W*.6,H*.1,3);c.fill();
+      c.fillStyle='#2ecc71';
+      c.fillRect(-W*.12,-H*.1,W*.24,H*.06);
+      // olhos de cobra na coroa
+      c.fillStyle='#a0ff80';
+      c.beginPath();c.arc(-W*.08,-H*.04,3,0,6.283);c.fill();
+      c.beginPath();c.arc(W*.08,-H*.04,3,0,6.283);c.fill();
+    }
+
+    c.restore();
+
+    // aviso de ataque
+    if(this.estado==='preparando'){
+      c.fillStyle='#ffe14d';
+      c.font='bold 34px monospace';c.textAlign='center';
+      c.strokeStyle='#000';c.lineWidth=5;
+      c.strokeText('!',this.cx,this.y-14);
+      c.fillText('!',this.cx,this.y-14);
+    }
+  }
+}
+
+/* ---------- classe que gerencia as ondas e cria os inimigos ---------- */
+const PLANOS=[[['soldado',6]],[['soldado',5],['atirador',3]],[['soldado',4],['atirador',4],['drone',3]],[['soldado',5],['atirador',4],['drone',5]],[['soldado',6],['atirador',5],['drone',6]]];
+class Onda{
+  constructor(){this.numero=0;this.restantes=0;this.chefeGerado=false;this.chefe=null;this.concluida=false;this._fila=[];this._t=0;this._tb=0;}
+  iniciar(n){
+    this.numero=n;this.concluida=false;this.chefe=null;this._tb=0;this._t=1.2;
+    this._fila=[];for(const[tipo,q]of PLANOS[n-1])for(let i=0;i<q;i++)this._fila.push(tipo);
+    for(let i=this._fila.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[this._fila[i],this._fila[j]]=[this._fila[j],this._fila[i]];}
+    this.restantes=this._fila.length+1;this.chefeGerado=false;
+    const tema=FASES[n-1];jogo.tema=tema;
+    jogo.plataformas=[{x:-300,y:CHAO,w:LARG+600,h:60,chao:true},...tema.plats.map(([x,y,w])=>({x,y,w,h:14}))];
+    const jg=jogo.jogador;jg.x=LARG/2-jg.larg/2;jg.y=CHAO-jg.alt;jg.vy=0;jg.vx=0;
+    jogo.mostrar('ONDA '+n,tema.nome,tema.topo);som(330,.15,'square',.05,660);
+  }
+  gerarInimigo(tipo,x,y,extra=false){
+    const Cls={soldado:Soldado,atirador:Atirador,drone:Drone}[tipo];
+    if(x===undefined)x=Math.random()<.5?-40:LARG+12;
+    if(y===undefined)y=tipo==='drone'?rnd(60,200):CHAO-44;
+    const e=criar(Cls,x,y);e._extra=extra;jogo.inimigos.push(e);return e;
+  }
+  gerarChefe(){
+    const cfg=CHEFES[this.numero-1];
+    const b=criar(Chefe,LARG/2-cfg.larg/2,-cfg.alt-80,cfg,this.numero);
+    jogo.inimigos.push(b);this.chefe=b;this.chefeGerado=true;
+    jogo.mostrar('CHEFE',cfg.nome,'#ff4fd8',2.6);som(80,.7,'sawtooth',.1,40);
+  }
+  registrarBaixa(){this.restantes=Math.max(0,this.restantes-1);}
+  concluir(){
+    this.concluida=true;jogo.estado='intervalo';jogo.intervalo=3.8;
+    jogo.inimigos.forEach(e=>{e._remover=true;});jogo.projeteis.forEach(p=>{p._remover=true;});
+    jogo.jogador.curar(jogo.jogador.vidaMax);
+    jogo.mostrar('ONDA '+this.numero+' CONCLUÍDA','Vida restaurada','#7cf59a',3);
+    [523,659,784,1047].forEach((f,i)=>setTimeout(()=>som(f,.18,'square',.05),i*110));
+    if(this.numero<5)abrirEscolha(this.numero,'intervalo');
+  }
+  atualizar(dt){
+    const vivos=jogo.inimigos.filter(e=>!e._extra&&!(e instanceof Chefe)&&e.vida>0).length;
+    if(this._fila.length){
+      this._t-=dt;
+      if(this._t<=0&&vivos<3+this.numero){this.gerarInimigo(this._fila.pop());this._t=Math.max(.7,1.9-.15*this.numero);}
+    }else if(!this.chefeGerado){
+      if(vivos===0){this._tb+=dt;if(this._tb>1)this.gerarChefe();}
+    }else if(this.restantes<=0&&!this.concluida)this.concluir();
+  }
+}
+
+/* ---------- COMPOSIÇÃO: o Jogador TEM várias Habilidades ---------- */
+class Habilidade{
+  constructor(cfg,tecla){
+    this.nome=cfg.nome;this.recarga=cfg.recarga;this.tecla=tecla;
+    this.icone=cfg.icone;this.descricao=cfg.desc;this._fn=cfg.fn;this._rest=0;
+  }
+  usar(dono){if(this._rest>0||dono.vida<=0)return false;this._rest=this.recarga;this.ativar(dono);return true;}
+  ativar(dono){this._fn(dono);}
+  atualizar(dt){if(this._rest>0)this._rest=Math.max(0,this._rest-dt);}
+}
+const SLOTS=['O','V','B','N','M'], CARDS=[110,510];
+const vivos=()=>jogo.inimigos.filter(e=>!e._remover&&e.vida>0);
+const anel=(x,y,R,cor,dur=.45)=>jogo.aneis.push({x,y,R,cor,t:dur,T:dur});
+function projAmigo(x,y,vx,vy,dano,tipo,perf){
+  const p=criar(Projetil,x,y,vx,vy,dano,tipo);p._amigo=true;p._perf=!!perf;p._acertou=new Set();jogo.projeteis.push(p);return p;
+}
+function refletir(p){
+  const alvo=vivos().sort((a,b)=>Math.hypot(a.cx-p.cx,a.cy-p.cy)-Math.hypot(b.cx-p.cx,b.cy-p.cy))[0];
+  const v=Math.max(420,Math.hypot(p.vx,p.vy)*1.5);
+  const dx=alvo?alvo.cx-p.cx:-p.vx,dy=alvo?alvo.cy-p.cy:-p.vy,m=Math.hypot(dx,dy)||1;
+  p.vx=dx/m*v;p.vy=dy/m*v;p._amigo=true;p._perf=false;p._acertou=new Set();p.dano=2;p.direcao=p.vx>=0?1:-1;
+  jogo.texto(p.cx,p.y-10,'PARRY!','#6cf0ff');jogo.faisca(p.cx,p.cy,'#6cf0ff',10,220);jogo.congela=.05;som(880,.12,'square',.06,1400);
+}
+const OPCOES=[
+ [{nome:'Estocada Sísmica',icone:'💥',recarga:7,desc:'Crava a lança no chão e libera uma onda de choque que causa dano em área ao redor.',
+   fn:d=>{const x=d.cx,y=d.y+d.alt;anel(x,y,190,'#ffd166');anel(x,y,120,'#fff',.3);jogo.tremor=18;jogo.faisca(x,y,'#ffd166',24,300);som(80,.4,'sawtooth',.1,40);
+     for(const e of vivos())if(Math.hypot(e.cx-x,e.cy-y)<190+e.larg/2)e.receberDano(2);}},
+  {nome:'Parry de Tiro',icone:'🛡️',recarga:6,desc:'Por meio segundo, qualquer projétil que chegar perto é rebatido contra o inimigo mais próximo, com o dobro de dano.',
+   fn:d=>{d._parry=.55;anel(d.cx,d.cy,90,'#6cf0ff',.3);som(600,.1,'triangle',.06,900);}}],
+ [{nome:'Chuva de Lanças',icone:'🌧️',recarga:14,desc:'Oito lanças caem do céu por toda a tela, causando dano alto aos inimigos que atingirem.',
+   fn:d=>{for(let i=0;i<8;i++)projAmigo(50+i*(LARG-100)/7,-30-(i%3)*30,0,640,3,'lanca');som(500,.3,'sawtooth',.05,900);}},
+  {nome:'Lança Arremessada',icone:'🎯',recarga:5,desc:'Arremessa uma lança veloz que atravessa todos os inimigos da linha.',
+   fn:d=>{const p=projAmigo(d.cx+d.direcao*10-23,d.y+12,d.direcao*760,0,3,'lanca',true);p.larg=46;p.alt=14;som(420,.15,'sawtooth',.05,150);}}],
+ [{nome:'Escudo de Energia',icone:'🔰',recarga:16,desc:'Uma barreira de energia deixa você invulnerável por 3,5 segundos.',
+   fn:d=>{d.invencivel=true;d._tInv=Math.max(d._tInv,3.5);d._escudo=3.5;anel(d.cx,d.cy,70,'#7cf59a',.4);som(500,.3,'triangle',.06,800);}},
+  {nome:'Cura Vital',icone:'💚',recarga:25,desc:'Recupera 2 corações instantaneamente.',
+   fn:d=>{d.curar(2);jogo.faisca(d.cx,d.cy,'#7cf59a',18,180);jogo.texto(d.cx,d.y-6,'+2 VIDA','#7cf59a');som(660,.25,'triangle',.06,990);}}],
+ [{nome:'Redemoinho',icone:'🌀',recarga:9,desc:'Gira a lança em 360° por 0,6s, ferindo todos que estiverem ao redor.',
+   fn:d=>{d._giro=.6;d._giroT=0;som(300,.4,'sawtooth',.05,600);}},
+  {nome:'Dilatação do Tempo',icone:'⏳',recarga:20,desc:'Inimigos e projéteis inimigos ficam muito mais lentos por 4,5 segundos.',
+   fn:d=>{jogo.slowT=4.5;anel(d.cx,d.cy,420,'#6ab4ff',.6);som(200,.5,'sine',.07,80);}}],
+ [{nome:'Fúria Guerreira',icone:'🔥',recarga:22,desc:'Por 6 segundos, a lança causa o dobro de dano e golpeia quase duas vezes mais rápido.',
+   fn:d=>{d._furia=6;anel(d.cx,d.cy,80,'#ff4a4a',.4);som(140,.5,'sawtooth',.08,300);}},
+  {nome:'Pulso Ômega',icone:'⚡',recarga:30,desc:'Libera uma explosão que fere todos os inimigos da tela e apaga os projéteis inimigos.',
+   fn:d=>{anel(d.cx,d.cy,900,'#b04bff',.7);anel(d.cx,d.cy,600,'#fff',.5);jogo.tremor=24;jogo.congela=.08;som(70,.8,'sawtooth',.12,20);
+     for(const e of vivos())e.receberDano(3);for(const p of jogo.projeteis)if(!p._amigo)p._remover=true;}}]
+];
+function abrirEscolha(i,volta){const j=jogo;j.slot=i;j.opcoes=OPCOES[i];j.cursor=0;j.volta=volta;j.estado='escolha';som(520,.2,'triangle',.05,780);}
+function escolher(k){
+  const j=jogo,cfg=j.opcoes[k];
+  j.jogador.aprender(criar(Habilidade,cfg,SLOTS[j.slot]));
+  j.estado=j.volta;j.opcoes=null;som(660,.15,'square',.05,990);
+  j.mostrar('NOVA HABILIDADE',cfg.nome+'  ['+SLOTS[j.slot]+']','#ffd166',2.2);
+}
+function quebrar(c,txt,x,y,w,lh){let l='';for(const p of txt.split(' ')){const t=l?l+' '+p:p;if(c.measureText(t).width>w&&l){c.fillText(l,x,y);y+=lh;l=p;}else l=t;}if(l)c.fillText(l,x,y);}
+function hudHabilidades(){
+  const j=jogo,c=ctx;if(!j.jogador||j.estado==='titulo')return;
+  c.save();
+  for(const a of j.aneis){const p=1-a.t/a.T;c.globalAlpha=Math.max(0,1-p);c.strokeStyle=a.cor;c.lineWidth=6;c.beginPath();c.arc(a.x,a.y,Math.max(1,a.R*p),0,6.283);c.stroke();}
+  c.globalAlpha=1;
+  if(j.slowT>0){c.fillStyle='rgba(80,140,255,.14)';c.fillRect(0,0,LARG,ALT);}
+  c.textBaseline='middle';c.textAlign='center';
+  for(let i=0;i<SLOTS.length;i++){
+    const x=16+i*56,y=488,h=j.jogador.habilidades.find(k=>k.tecla===SLOTS[i]);
+    c.fillStyle='rgba(0,0,0,.55)';c.fillRect(x,y,48,44);
+    c.strokeStyle=h&&h._rest<=0?'#ffd166':'#3a4a78';c.lineWidth=2;c.strokeRect(x,y,48,44);
+    if(h){c.font='24px sans-serif';c.fillStyle='#fff';c.fillText(h.icone,x+24,y+20);
+      if(h._rest>0){c.fillStyle='rgba(0,0,0,.65)';c.fillRect(x,y,48,44*(h._rest/h.recarga));
+        c.font='bold 14px ui-monospace,Consolas,monospace';c.fillStyle='#fff';c.fillText(String(Math.ceil(h._rest)),x+24,y+20);}}
+    c.font='bold 11px ui-monospace,Consolas,monospace';c.fillStyle='#ffd166';c.fillText(SLOTS[i],x+41,y+36);
+  }
+  c.restore();
+}
+function desenharEscolha(){
+  const j=jogo;if(j.estado!=='escolha'||!j.opcoes)return;const c=ctx,F='ui-monospace,Consolas,monospace';
+  c.save();c.textAlign='center';c.textBaseline='top';
+  c.fillStyle='rgba(5,8,20,.86)';c.fillRect(0,0,LARG,ALT);
+  c.font='900 34px '+F;c.fillStyle='#ffd166';c.fillText('ESCOLHA UMA HABILIDADE',LARG/2,28);
+  c.font='14px '+F;c.fillStyle='#9fb3e8';c.fillText('Ela será ativada com a tecla ['+SLOTS[j.slot]+']',LARG/2,76);
+  j.opcoes.forEach((o,k)=>{
+    const x=CARDS[k],y=120,sel=k===j.cursor;
+    c.fillStyle=sel?'#1b2c63':'#111830';c.beginPath();c.roundRect(x,y,340,300,12);c.fill();
+    c.strokeStyle=sel?'#3ee6ff':'#2a3a62';c.lineWidth=sel?4:2;c.stroke();
+    c.fillStyle='#fff';c.font='64px sans-serif';c.fillText(o.icone,x+170,y+22);
+    c.font='bold 22px '+F;c.fillStyle='#ffd166';c.fillText(o.nome,x+170,y+112);
+    c.font='14px '+F;c.fillStyle='#dbe6ff';quebrar(c,o.desc,x+170,y+152,296,20);
+    c.font='bold 14px '+F;c.fillStyle='#7cf59a';c.fillText('Recarga: '+o.recarga+'s',x+170,y+240);
+    c.fillStyle='#9fb3e8';c.fillText('['+(k+1)+']',x+170,y+266);
+  });
+  c.font='bold 15px '+F;c.fillStyle='#fff';c.fillText('← → escolher   ·   ENTER confirmar   ·   ou clique no cartão',LARG/2,452);
+  c.restore();
+}
+cv.addEventListener('click',e=>{
+  if(jogo.estado!=='escolha'||jogo.pausado||!jogo.opcoes)return;
+  const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*LARG/r.width,y=(e.clientY-r.top)*ALT/r.height;
+  for(let k=0;k<2;k++)if(x>=CARDS[k]&&x<=CARDS[k]+340&&y>=120&&y<=420){escolher(k);return;}
+});
+
+/* ativa a observação do diagrama sobre as classes reais */
+[Entidade,Onda,Jogador,Inimigo,Projetil,Lanca,Habilidade,Soldado,Atirador,Drone,Chefe].forEach(instrumentar);
+
+/* =====================================================================
+   4) MOTOR DO JOGO
+   ===================================================================== */
+const FASES=[
+  {nome:'Selva Crepuscular',tipo:'selva',ceu:['#1b1038','#ff7a45'],astro:'#ffd9a0',ax:.72,ay:130,ar:46,longe:'#2d1f52',perto:'#12301f',chao:'#1f3d2a',topo:'#58c46a',plat:'#5a4326',platTopo:'#b88a4a',
+    plats:[[110,370,210],[640,370,210],[385,270,190]]},
+  {nome:'Ruínas do Deserto',tipo:'deserto',ceu:['#14305a','#f6c177'],astro:'#fff1c9',ax:.25,ay:120,ar:52,longe:'#8a5a3c',perto:'#5e3b26',chao:'#7a5232',topo:'#e0b872',plat:'#6b4a2b',platTopo:'#d9b36a',
+    plats:[[60,390,180],[720,390,180],[270,300,150],[540,300,150],[400,200,160]]},
+  {nome:'Cidade Neon',tipo:'cidade',estrelas:1,ceu:['#050818','#26123f'],astro:'#cfd8ff',ax:.8,ay:90,ar:34,longe:'#101a3d',perto:'#0a1030',chao:'#12182e',topo:'#2ee6d6',plat:'#1c2547',platTopo:'#ff4fd8',
+    plats:[[0,360,260],[700,360,260],[330,270,300],[130,170,160],[670,170,160]]},
+  {nome:'Vulcão em Chamas',tipo:'vulcao',ceu:['#1a0505','#b3260e'],astro:'#ff9a3c',ax:.5,ay:150,ar:60,longe:'#3a0f0a',perto:'#240806',chao:'#2b1410',topo:'#ff6a2b',plat:'#3a2a28',platTopo:'#ff8a3c',
+    plats:[[100,390,160],[700,390,160],[400,330,160],[220,230,140],[600,230,140]]},
+  {nome:'Estação Ômega',tipo:'espaco',estrelas:1,ceu:['#05010f','#2a0b4d'],astro:'#6b3cff',ax:.2,ay:130,ar:70,longe:'#1a0b38',perto:'#0e0620',chao:'#150a2e',topo:'#b04bff',plat:'#241046',platTopo:'#6cf0ff',
+    plats:[[0,380,200],[760,380,200],[280,310,160],[520,310,160],[380,210,200],[40,230,140],[780,230,140]]}
+];
+jogo.tema=FASES[0];
+
+function gerarFundo(t,n){
+  const o=document.createElement('canvas');o.width=LARG;o.height=ALT;const c=o.getContext('2d'),r=mulberry(n*7919+3);
+  const g=c.createLinearGradient(0,0,0,CHAO);g.addColorStop(0,t.ceu[0]);g.addColorStop(1,t.ceu[1]);c.fillStyle=g;c.fillRect(0,0,LARG,ALT);
+  if(t.estrelas)for(let i=0;i<90;i++){c.fillStyle=`rgba(255,255,255,${.3+r()*.7})`;const s=r()<.1?2:1;c.fillRect(r()*LARG,r()*(CHAO-140),s,s);}
+  const ax=t.ax*LARG,ay=t.ay,rg=c.createRadialGradient(ax,ay,t.ar*.4,ax,ay,t.ar*3.2);rg.addColorStop(0,t.astro+'66');rg.addColorStop(1,'rgba(0,0,0,0)');
+  c.fillStyle=rg;c.fillRect(0,0,LARG,CHAO);c.fillStyle=t.astro;c.beginPath();c.arc(ax,ay,t.ar,0,6.283);c.fill();
+  if(t.tipo==='espaco'){c.strokeStyle='rgba(176,75,255,.5)';c.lineWidth=5;c.beginPath();c.ellipse(ax,ay,t.ar*1.7,t.ar*.35,-.3,0,6.283);c.stroke();}
+  c.fillStyle=t.longe;c.beginPath();c.moveTo(0,CHAO);
+  for(let x=0;x<=LARG;x+=6)c.lineTo(x,CHAO-120-Math.sin(x*.011+n)*38-Math.sin(x*.029+n*2)*20-Math.sin(x*.07+n*3)*6);
+  c.lineTo(LARG,CHAO);c.fill();
+  c.fillStyle=t.perto;
+  if(t.tipo==='selva'){for(let i=0;i<22;i++){const x=i*46+r()*20,h=70+r()*90;c.fillRect(x,CHAO-h,8,h);for(let k=0;k<3;k++){c.beginPath();c.arc(x+4+(k-1)*16,CHAO-h+r()*10,20+r()*16,0,6.283);c.fill();}}}
+  else if(t.tipo==='deserto'){for(let i=0;i<4;i++){const bx=60+i*260+r()*60,s=70+r()*80;c.beginPath();c.moveTo(bx-s,CHAO);c.lineTo(bx,CHAO-s*1.1);c.lineTo(bx+s,CHAO);c.fill();}
+    for(let i=0;i<9;i++){const x=40+i*108+r()*30,h=40+r()*70;c.fillRect(x,CHAO-h,16,h);c.fillRect(x-4,CHAO-h-6,24,8);}}
+  else if(t.tipo==='cidade'){let x=0;while(x<LARG){const w=34+r()*50,h=80+r()*190;c.fillStyle=t.perto;c.fillRect(x,CHAO-h,w,h);
+    for(let yy=CHAO-h+8;yy<CHAO-10;yy+=14)for(let xx=x+5;xx<x+w-6;xx+=10)if(r()<.45){c.fillStyle=r()<.2?'#ff4fd8aa':'#ffd166aa';c.fillRect(xx,yy,4,6);}
+    x+=w+4;}}
+  else if(t.tipo==='vulcao'){c.beginPath();c.moveTo(0,CHAO);for(let x=0;x<=LARG;x+=24)c.lineTo(x,CHAO-40-r()*110);c.lineTo(LARG,CHAO);c.fill();
+    const lg=c.createLinearGradient(0,CHAO-90,0,CHAO);lg.addColorStop(0,'rgba(255,90,31,0)');lg.addColorStop(1,'rgba(255,90,31,.55)');c.fillStyle=lg;c.fillRect(0,CHAO-90,LARG,90);}
+  else{for(let i=0;i<12;i++){const x=i*84+r()*20,h=100+r()*160;c.fillStyle=t.perto;c.fillRect(x,CHAO-h,48,h);c.fillStyle='rgba(108,240,255,.7)';
+    for(let yy=CHAO-h+10;yy<CHAO-10;yy+=22)c.fillRect(x+6,yy,36,2);}}
+  return o;
+}
+function desenharChao(t){
+  const c=ctx;c.fillStyle=t.chao;c.fillRect(0,CHAO,LARG,ALT-CHAO);c.fillStyle=t.topo;c.fillRect(0,CHAO,LARG,6);
+  c.fillStyle='rgba(0,0,0,.18)';for(let x=0;x<LARG;x+=48)c.fillRect(x,CHAO+14,2,ALT);for(let y=CHAO+26;y<ALT;y+=26)c.fillRect(0,y,LARG,2);
+  for(const p of jogo.plataformas){if(p.chao)continue;c.fillStyle=t.plat;c.fillRect(p.x,p.y,p.w,p.h);c.fillStyle=t.platTopo;c.fillRect(p.x,p.y,p.w,4);
+    c.fillStyle='rgba(0,0,0,.25)';for(let x=p.x+10;x<p.x+p.w-6;x+=24)c.fillRect(x,p.y+6,10,3);}
+}
+
+/* ---------- entrada do teclado ---------- */
+const teclas={},apertou={};
+const TRAVA=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space'];
+addEventListener('keydown',e=>{if(TRAVA.includes(e.code))e.preventDefault();if(!teclas[e.code])apertou[e.code]=true;teclas[e.code]=true;});
+addEventListener('keyup',e=>{if(e.code==='Space')e.preventDefault();teclas[e.code]=false;});
+addEventListener('blur',()=>{for(const k in teclas)teclas[k]=false;});
+
+function novoJogo(){
+  Diagrama.reset();
+  jogo.inimigos=[];jogo.projeteis=[];jogo.particulas=[];jogo.textos=[];jogo.banner=null;jogo.pausado=false;jogo.t=0;jogo.tremor=0;jogo.congela=0;
+  $('#bPausa').textContent='⏸ Pausar';
+  jogo.estado='jogando';
+  jogo.plataformas=[{x:-300,y:CHAO,w:LARG+600,h:60,chao:true}];
+  jogo.jogador=criar(Jogador,LARG/2-13,CHAO-46);
+  jogo.onda=criar(Onda);
+  jogo.onda.iniciar(1);
+  jogo.aneis=[];jogo.slowT=0;jogo.opcoes=null;
+  abrirEscolha(0,'jogando');
+}
+function alternarPausa(){jogo.pausado=!jogo.pausado;$('#bPausa').textContent=jogo.pausado?'▶ Continuar':'⏸ Pausar';}
+
+function atualizar(dt){
+  const j=jogo;
+  if((apertou.KeyP||apertou.Escape)&&j.estado!=='titulo')alternarPausa();
+  if(j.estado==='titulo'){if(apertou.Enter||apertou.Space||apertou.KeyJ)novoJogo();return;}
+  if(j.pausado)return;
+  if(j.estado==='escolha'){
+    if(apertou.ArrowLeft||apertou.KeyA)j.cursor=0;
+    if(apertou.ArrowRight||apertou.KeyD)j.cursor=1;
+    if(apertou.Digit1||apertou.Numpad1)escolher(0);
+    else if(apertou.Digit2||apertou.Numpad2)escolher(1);
+    else if(apertou.Enter||apertou.KeyJ)escolher(j.cursor);
+    return;
+  }
+  if((j.estado==='fim'||j.estado==='vitoria')&&j.fimT>.9&&apertou.Enter){novoJogo();return;}
+  j.t+=dt;
+  if(j.banner){j.banner.t+=dt;if(j.banner.t>=j.banner.dur)j.banner=null;}
+  if(j.tremor>0)j.tremor=Math.max(0,j.tremor-50*dt);
+  if(j.estado==='fim'||j.estado==='vitoria')j.fimT+=dt;
+  if(j.estado==='vitoria'&&Math.random()<.18)j.explosao(rnd(100,860),rnd(60,300),['#ffd166','#ff4fd8','#3ee6ff','#7cf59a'][(Math.random()*4)|0],18);
+  if(j.estado==='intervalo'){
+    j.intervalo-=dt;
+    if(j.intervalo<=0){
+      if(j.onda.numero<5){j.estado='jogando';j.onda.iniciar(j.onda.numero+1);}
+      else{j.estado='vitoria';j.fimT=0;j.mostrar('VITÓRIA!','Todos os chefes foram derrotados','#ffd166',4);}
+    }
+  }
+  const jog=j.jogador;
+  const dte=j.slowT>0?dt*.35:dt;j.slowT=Math.max(0,j.slowT-dt);
+  jog.atualizar(dt);
+  if(j.estado==='jogando')j.onda.atualizar(dt);
+  for(const e of j.inimigos){
+    if(e._flash>0)e._flash-=dt;if(e._cdAtq>0)e._cdAtq-=dt;
+    if(e._kb>0)e._kb-=dt;else e.atualizarIA(jog,dte);
+    e.mover(dte);
+    if(jog.vida>0&&!jog.invencivel&&e._cdAtq<=0&&!(e._espera>0)&&inter(ret(jog,6),ret(e,5))){e.atacar(jog);e._cdAtq=.9;}
+  }
+  for(const p of j.projeteis){
+    p.mover(p._amigo?dt:dte);
+    if(p.x<-100||p.x>LARG+100||p.y<-120||p.y>ALT+60){p._remover=true;continue;}
+    if(p._remover)continue;
+    if(p._amigo){
+      if(p._tipo==='lanca'&&p.vy>0&&p.y+p.alt>=CHAO){p._remover=true;j.faisca(p.cx,CHAO,'#cfe8ff',5,120);continue;}
+      for(const e of j.inimigos){
+        if(e._remover||e.vida<=0||p._acertou.has(e)||(e instanceof Chefe&&e._espera>0))continue;
+        if(inter(ret(p),ret(e))){p._acertou.add(e);e.receberDano(p.dano);j.faisca(e.cx,e.cy,'#fff',6,200);som(190,.08,'square',.06,90);
+          if(!p._perf){p._remover=true;break;}}
+      }
+      continue;
+    }
+    if(jog._parry>0&&Math.hypot(p.cx-jog.cx,p.cy-jog.cy)<85){refletir(p);continue;}
+    if(jog.vida>0&&!jog.invencivel&&inter(ret(p),ret(jog,5)))p.explodir(jog);
+  }
+  if(jog.vida>0){
+    const area=jog.lanca.area();
+    if(area){
+      for(const a of[...j.inimigos,...j.projeteis]){
+        if(a._remover||a.vida<=0||a._amigo)continue;if(a instanceof Chefe&&a._espera>0)continue;
+        if(inter(area,ret(a))&&jog.lanca.acertar(a)){
+          j.congela=.04;j.tremor=Math.max(j.tremor,4);j.faisca(a.cx,a.cy,'#fff',6,200);som(190,.08,'square',.06,90);
+          if(jog.lanca.direcao==='baixo'&&!jog._noChao){jog.vy=-560;jog.pulosRestantes=2;}
         }
       }
-
-      receberDano(dano) {
-        Inspector.logMethod(this.constructor.name, 'receberDano', dano);
-        this.hp -= dano;
-      }
-
-      mover(dx) {
-        this.vx = dx;
-        if (dx !== 0) {
-          Inspector.logMethod(this.constructor.name, 'mover', `dx: ${dx}`);
-        }
-      }
-
-      pular() {
-        if (this.noChao) {
-          this.vy = -12;
-          this.noChao = false;
-          Inspector.logMethod(this.constructor.name, 'mover', 'Pulo');
-        }
-      }
-
-      atualizarFisica(larguraTela, alturaChao) {
-        this.x += this.vx;
-        this.y += this.vy;
-
-        // Gravidade
-        if (this.y + this.alturaCorpo < alturaChao) {
-          this.vy += 0.6;
-          this.noChao = false;
-        } else {
-          this.y = alturaChao - this.alturaCorpo;
-          this.vy = 0;
-          this.noChao = true;
-        }
-
-        // Limites de tela
-        if (this.x < 0) this.x = 0;
-        if (this.x + this.largura > larguraTela) this.x = larguraTela - this.largura;
-
-        // Desaceleração horizontal
-        this.vx *= 0.8;
-      }
     }
+  }
+  j.inimigos=j.inimigos.filter(e=>{if(e._remover){Diagrama.removerObjeto(e);return false;}return true;});
+  j.projeteis=j.projeteis.filter(p=>{if(p._remover){Diagrama.removerObjeto(p);return false;}return true;});
+  for(const p of j.particulas){p.t-=dt;p.vy+=p.g*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;}
+  j.particulas=j.particulas.filter(p=>p.t>0);
+  for(const a of j.aneis)a.t-=dt;j.aneis=j.aneis.filter(a=>a.t>0);
+  for(const t of j.textos){t.t-=dt;t.y-=40*dt;}
+  j.textos=j.textos.filter(t=>t.t>0);
+}
 
-    // 2. SUBCLASSE: Pikachu
-    class Pikachu extends Pokemon {
-      constructor(x, y) {
-        super('Pikachu', 25, 'Eletrico', 10, 100, 6.0, 0.4, x, y, '#f1c40f');
-        this._cargaEletrica = 100;
-        this._nivelPopularidade = 99;
-        this.eIconeEmpresa = true;
-        this.estagiosEvolutivos = 3;
-      }
-
-      get cargaEletrica() { return this._cargaEletrica; }
-      set cargaEletrica(v) {
-        const old = this._cargaEletrica;
-        this._cargaEletrica = Math.max(0, Math.min(100, Math.round(v)));
-        Inspector.logAttribute('Pikachu', 'cargaEletrica', old, this._cargaEletrica);
-      }
-
-      // Habilidade 1
-      usarChoqueDoTrovao(alvo) {
-        Inspector.logMethod('Pikachu', 'usarChoqueDoTrovao');
-        if (this.cargaEletrica >= 15) {
-          this.cargaEletrica -= 15;
-          this.atacar(alvo, 20, 'Choque do Trovão');
-          criarEfeitoAtaque(alvo.x, alvo.y, '#f39c12', '⚡');
-        } else {
-          Inspector.logMethod('Pikachu', 'semEnergia');
-        }
-      }
-
-      // Habilidade 2
-      usarInvestidaTrovao(alvo) {
-        Inspector.logMethod('Pikachu', 'usarInvestidaTrovao');
-        if (this.cargaEletrica >= 25) {
-          this.cargaEletrica -= 25;
-          this.vx = (alvo.x > this.x) ? 15 : -15;
-          this.atacar(alvo, 30, 'Investida Trovão');
-          criarEfeitoAtaque(alvo.x, alvo.y, '#e67e22', '💥');
-        }
-      }
-
-      // Habilidade 3
-      armazenarEnergiaBochechas() {
-        Inspector.logMethod('Pikachu', 'armazenarEnergiaBochechas');
-        this.cargaEletrica += 35;
-        this.hp += 15;
-        criarEfeitoAtaque(this.x, this.y, '#2ecc71', '✨');
-      }
-
-      // Habilidade 4
-      serMascoteOficial(alvo) {
-        Inspector.logMethod('Pikachu', 'serMascoteOficial');
-        this.atacar(alvo, 18, 'Poder do Mascote');
-        this.cargaEletrica += 15;
-        criarEfeitoAtaque(alvo.x, alvo.y, '#f1c40f', '⭐');
-      }
+/* ---------- desenho ---------- */
+function coracao(c,x,y,cheio){
+  c.fillStyle=cheio?'#ff3b5c':'#3a2a3a';c.beginPath();c.moveTo(x+10,y+18);c.bezierCurveTo(x-6,y+6,x+2,y-6,x+10,y+4);c.bezierCurveTo(x+18,y-6,x+26,y+6,x+10,y+18);c.fill();
+  c.strokeStyle='#000';c.lineWidth=2;c.stroke();
+}
+function hud(){
+  const j=jogo,c=ctx;c.save();c.textBaseline='top';
+  if(j.jogador&&j.estado!=='titulo'){
+    const jg=j.jogador;
+    for(let i=0;i<jg.vidaMax;i++)coracao(c,16+i*27,12,i<jg.vida);
+    c.textAlign='left';c.font='bold 16px ui-monospace,Consolas,monospace';c.fillStyle='#fff';c.fillText('ONDA '+j.onda.numero+'/5',16,42);
+    c.font='12px ui-monospace,Consolas,monospace';c.fillStyle='#b9c8f2';c.fillText(j.tema.nome,16,62);
+    c.textAlign='right';c.font='bold 22px ui-monospace,Consolas,monospace';c.fillStyle='#ffd166';c.fillText(String(jg.pontos).padStart(6,'0'),LARG-16,12);
+    const b=j.onda.chefe;
+    if(b&&b.vida>0){
+      const w=440,x=(LARG-w)/2,y=34;c.fillStyle='rgba(0,0,0,.6)';c.fillRect(x-3,y-3,w+6,20);c.fillStyle='#2a0f2a';c.fillRect(x,y,w,14);
+      c.fillStyle=b._cfg.cor;c.fillRect(x,y,w*(b.vida/b.vidaMax),14);c.fillStyle='rgba(255,255,255,.55)';c.fillRect(x+w/3,y,2,14);c.fillRect(x+w*2/3,y,2,14);
+      c.textAlign='center';c.font='bold 13px ui-monospace,Consolas,monospace';c.fillStyle='#fff';c.fillText(b.nome.toUpperCase()+'  ·  FASE '+b.fase,LARG/2,y-22>0?y-22:0);
     }
+  }
+  if(j.banner){
+    const b=j.banner,a=Math.max(0,Math.min(1,b.t/.25,(b.dur-b.t)/.5));
+    c.globalAlpha=a;c.fillStyle='rgba(0,0,0,.5)';c.fillRect(0,170,LARG,100);
+    c.textAlign='center';c.font='900 44px ui-monospace,Consolas,monospace';c.lineWidth=6;c.strokeStyle='#000';c.strokeText(b.tit,LARG/2,184);c.fillStyle=b.cor;c.fillText(b.tit,LARG/2,184);
+    c.font='bold 18px ui-monospace,Consolas,monospace';c.fillStyle='#fff';c.fillText(b.sub,LARG/2,236);c.globalAlpha=1;
+  }
+  c.textAlign='center';
+  if(j.estado==='titulo'){
+    c.fillStyle='rgba(5,8,20,.62)';c.fillRect(0,0,LARG,ALT);
+    c.save();c.translate(LARG/2,190);c.rotate(-.08);
+    c.strokeStyle='#b98a52';c.lineWidth=6;c.beginPath();c.moveTo(-330,26);c.lineTo(330,-26);c.stroke();
+    c.fillStyle='#eaf7ff';c.beginPath();c.moveTo(372,-29);c.lineTo(325,-40);c.lineTo(328,-10);c.closePath();c.fill();
+    c.strokeStyle='#e53935';c.lineWidth=6;c.beginPath();c.moveTo(300,-18);c.lineTo(316,-22);c.stroke();c.restore();
+    c.font='900 76px ui-monospace,Consolas,monospace';c.lineWidth=8;c.strokeStyle='#05101f';c.strokeText('LANÇA CONTRA',LARG/2,110);
+    const g=c.createLinearGradient(0,110,0,190);g.addColorStop(0,'#fff');g.addColorStop(1,'#3ee6ff');c.fillStyle=g;c.fillText('LANÇA CONTRA',LARG/2,110);
+    c.font='bold 20px ui-monospace,Consolas,monospace';c.fillStyle='#ffd166';c.fillText('uma aventura de Programação Orientada a Objetos',LARG/2,300);
+    c.font='13px ui-monospace,Consolas,monospace';c.fillStyle='#9fb3e8';
+    c.fillText('←→ / AD  mover   ·   Espaço / K  pular   ·   J / X  atacar   ·   Shift / C  dash (lançada)',LARG/2,340);
+    c.fillText('Habilidades:  O · V · B · N · M   (você escolhe uma nova a cada onda)',LARG/2,362);
+    if(Math.floor(performance.now()/500)%2===0){c.font='bold 24px ui-monospace,Consolas,monospace';c.fillStyle='#fff';c.fillText('PRESSIONE ENTER PARA COMEÇAR',LARG/2,410);}
+  }
+  if(j.pausado){c.fillStyle='rgba(0,0,0,.55)';c.fillRect(0,0,LARG,ALT);c.font='900 54px ui-monospace,Consolas,monospace';c.fillStyle='#fff';c.fillText('PAUSADO',LARG/2,230);
+    c.font='15px ui-monospace,Consolas,monospace';c.fillStyle='#9fb3e8';c.fillText('Aproveite para estudar o diagrama de classes',LARG/2,300);}
+  if(j.estado==='fim'){
+    const a=Math.min(1,j.fimT/1.2);c.fillStyle=`rgba(20,0,10,${.6*a})`;c.fillRect(0,0,LARG,ALT);c.globalAlpha=a;
+    c.font='900 62px ui-monospace,Consolas,monospace';c.fillStyle='#ff4a6b';c.fillText('FIM DE JOGO',LARG/2,190);
+    c.font='bold 22px ui-monospace,Consolas,monospace';c.fillStyle='#fff';c.fillText('Pontos: '+j.jogador.pontos+'   ·   Onda '+j.onda.numero+'/5',LARG/2,282);
+    if(j.fimT>.9){c.font='bold 18px ui-monospace,Consolas,monospace';c.fillStyle='#ffd166';c.fillText('ENTER para tentar de novo',LARG/2,340);}c.globalAlpha=1;
+  }
+  if(j.estado==='vitoria'&&j.fimT>2.2){
+    c.fillStyle='rgba(0,0,0,.45)';c.fillRect(0,290,LARG,120);c.font='bold 24px ui-monospace,Consolas,monospace';c.fillStyle='#fff';c.fillText('Pontuação final: '+j.jogador.pontos,LARG/2,312);
+    c.font='bold 17px ui-monospace,Consolas,monospace';c.fillStyle='#ffd166';c.fillText('ENTER para jogar de novo',LARG/2,356);
+  }
+  c.restore();
+}
+function desenharTudo(){
+  const j=jogo,c=ctx,tema=j.tema||FASES[0];
+  if(!j.fundo||j.fundoTema!==tema){j.fundo=gerarFundo(tema,FASES.indexOf(tema)+1);j.fundoTema=tema;}
+  c.save();
+  if(j.tremor>.3&&!j.pausado)c.translate(rnd(-1,1)*j.tremor,rnd(-1,1)*j.tremor);
+  c.drawImage(j.fundo,0,0);desenharChao(tema);
+  if(j.jogador){
+    for(const e of j.inimigos)e.desenhar(c);
+    for(const p of j.projeteis)p.desenhar(c);
+    j.jogador.desenhar(c);
+  }
+  for(const p of j.particulas){c.globalAlpha=Math.max(0,p.t/p.T);c.fillStyle=p.cor;c.fillRect(p.x,p.y,p.s,p.s);}
+  c.globalAlpha=1;
+  c.font='bold 16px ui-monospace,Consolas,monospace';c.textAlign='center';
+  for(const t of j.textos){c.globalAlpha=Math.min(1,t.t*2);c.fillStyle='#000';c.fillText(t.s,t.x+1,t.y+1);c.fillStyle=t.cor;c.fillText(t.s,t.x,t.y);}
+  c.globalAlpha=1;c.restore();
+  hud();hudHabilidades();desenharEscolha();
+}
 
-    // 3. SUBCLASSE: Mimikyu
-    class Mimikyu extends Pokemon {
-      constructor(x, y) {
-        super('Mimikyu', 778, 'Fantasma/Fada', 10, 110, 0.7, 0.2, x, y, '#a8a29e');
-        this._nivelCiumes = 50;
-        this._disfarceIntacto = true;
-        this.tipoFantasia = 'Pikachu de Pano';
-        this.estaAssustador = false;
-      }
+/* ---------- laço principal ---------- */
+let ult=performance.now();
+function quadro(now){
+  let dt=Math.min(.033,(now-ult)/1000);ult=now;
+  if(jogo.lento)dt*=.35;
+  if(jogo.congela>0){jogo.congela-=dt;dt=0;}
+  atualizar(dt);desenharTudo();Diagrama.tick(now);
+  for(const k in apertou)delete apertou[k];
+  requestAnimationFrame(quadro);
+}
 
-      get nivelCiumes() { return this._nivelCiumes; }
-      set nivelCiumes(v) {
-        const old = this._nivelCiumes;
-        this._nivelCiumes = Math.max(0, Math.min(100, Math.round(v)));
-        Inspector.logAttribute('Mimikyu', 'nivelCiumes', old, this._nivelCiumes);
-      }
+/* ---------- botões ---------- */
+$('#bPausa').onclick=e=>{if(jogo.estado!=='titulo')alternarPausa();e.currentTarget.blur();};
+$('#bLento').onclick=e=>{jogo.lento=!jogo.lento;e.currentTarget.classList.toggle('on',jogo.lento);e.currentTarget.blur();};
+$('#bSom').onclick=e=>{jogo.som=!jogo.som;e.currentTarget.textContent=jogo.som?'🔊 Som':'🔇 Mudo';e.currentTarget.blur();};
+$('#bLimpar').onclick=e=>{Diagrama.logEl.innerHTML='';e.currentTarget.blur();};
 
-      get disfarceIntacto() { return this._disfarceIntacto; }
-      set disfarceIntacto(v) {
-        const old = this._disfarceIntacto;
-        this._disfarceIntacto = v;
-        Inspector.logAttribute('Mimikyu', 'disfarceIntacto', old, this._disfarceIntacto);
-      }
-
-      // Sobrescreve receberDano com regra do Disfarce (Polimorfismo)
-      receberDano(dano) {
-        if (this.disfarceIntacto) {
-          Inspector.logMethod('Mimikyu', 'receberDano', 'Disfarce Absorveu!');
-          this.disfarceIntacto = false;
-          criarEfeitoAtaque(this.x, this.y, '#94a3b8', '🛡️');
-          return;
-        }
-        super.receberDano(dano);
-      }
-
-      // Habilidade 1
-      ativarDisfarce() {
-        Inspector.logMethod('Mimikyu', 'ativarDisfarce');
-        this.disfarceIntacto = true;
-        this.hp += 10;
-        criarEfeitoAtaque(this.x, this.y, '#8b5cf6', '🎭');
-      }
-
-      // Habilidade 2
-      atacarComGarraSombria(alvo) {
-        Inspector.logMethod('Mimikyu', 'atacarComGarraSombria');
-        this.atacar(alvo, 22, 'Garra Sombria');
-        this.nivelCiumes += 10;
-        criarEfeitoAtaque(alvo.x, alvo.y, '#7c3aed', '👻');
-      }
-
-      // Habilidade 3
-      expressarInveja(alvo) {
-        Inspector.logMethod('Mimikyu', 'expressarInveja');
-        this.nivelCiumes += 15;
-        this.atacar(alvo, 15, 'Olhar Invejoso');
-        criarEfeitoAtaque(alvo.x, alvo.y, '#ef4444', '👁️');
-      }
-
-      // Habilidade 4
-      assustarTreinador(alvo) {
-        Inspector.logMethod('Mimikyu', 'assustarTreinador');
-        this.atacar(alvo, 25, 'Susto Sombrio');
-        criarEfeitoAtaque(alvo.x, alvo.y, '#1e293b', '💀');
-      }
-    }
-
-    // ==========================================
-    // INSTANCIAÇÃO E LOOP DO JOGO
-    // ==========================================
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-
-    // Instanciação dos objetos
-    const player = new Pikachu(100, 200);
-    const enemy = new Mimikyu(550, 200);
-
-    const teclas = {};
-    const efeitosvisuais = [];
-
-    function criarEfeitoAtaque(x, y, cor, icone) {
-      efeitosvisuais.push({ x, y, cor, icone, tempo: 30 });
-    }
-
-    window.addEventListener('keydown', (e) => {
-      teclas[e.code] = true;
-
-      // Teclas numéricas para habilidades
-      if (e.key === '1') player.usarChoqueDoTrovao(enemy);
-      if (e.key === '2') player.usarInvestidaTrovao(enemy);
-      if (e.key === '3') player.armazenarEnergiaBochechas();
-      if (e.key === '4') player.serMascoteOficial(enemy);
-    });
-
-    window.addEventListener('keyup', (e) => {
-      teclas[e.code] = false;
-    });
-
-    // Inteligência Artificial (IA) do Mimikyu
-    let iaTimer = 0;
-    function processarIAMimikyu() {
-      iaTimer++;
-      if (iaTimer % 90 === 0) { // Tomada de decisão a cada 1.5s
-        const distancia = Math.abs(enemy.x - player.x);
-
-        if (!enemy.disfarceIntacto && Math.random() < 0.4) {
-          enemy.ativarDisfarce();
-        } else if (distancia < 70) {
-          if (Math.random() > 0.5) enemy.atacarComGarraSombria(player);
-          else enemy.assustarTreinador(player);
-        } else {
-          // Aproxima-se do Pikachu
-          enemy.mover(enemy.x > player.x ? -4 : 4);
-          if (Math.random() < 0.6) enemy.expressarInveja(player);
-        }
-      }
-    }
-
-    function processarEntradasJogador() {
-      if (teclas['KeyA'] || teclas['ArrowLeft']) player.mover(-5);
-      if (teclas['KeyD'] || teclas['ArrowRight']) player.mover(5);
-      if (teclas['KeyW'] || teclas['ArrowUp'] || teclas['Space']) player.pular();
-    }
-
-    function desenharInterfaceHUD() {
-      // HUD Pikachu (Player)
-      ctx.fillStyle = '#f1c40f';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.fillText(`Pikachu (Nível ${player.nivel})`, 20, 25);
-
-      // Barra de Vida
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(20, 32, 200, 14);
-      ctx.fillStyle = '#22c55e';
-      ctx.fillRect(20, 32, (player.hp / player.hpMaximo) * 200, 14);
-
-      // Barra de Carga Elétrica
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = '11px sans-serif';
-      ctx.fillText(`Carga Elétrica: ${player.cargaEletrica}%`, 20, 60);
-
-      // HUD Mimikyu (IA)
-      ctx.fillStyle = '#a8a29e';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.fillText(`Mimikyu (IA)`, 530, 25);
-
-      // Barra de Vida
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(530, 32, 200, 14);
-      ctx.fillStyle = '#ef4444';
-      ctx.fillRect(530, 32, (enemy.hp / enemy.hpMaximo) * 200, 14);
-
-      // Indicadores do Mimikyu
-      ctx.fillStyle = '#cbd5e1';
-      ctx.font = '11px sans-serif';
-      ctx.fillText(`Disfarce: ${enemy.disfarceIntacto ? 'Ativo 🛡️' : 'Quebrado 💔'}`, 530, 60);
-      ctx.fillText(`Nível Ciúmes: ${enemy.nivelCiumes}`, 530, 75);
-    }
-
-    function desenharPersonagens() {
-      // Pikachu
-      ctx.fillStyle = player.cor;
-      ctx.beginPath();
-      ctx.arc(player.x + 20, player.y + 20, 20, 0, Math.PI * 2);
-      ctx.fill();
-      // Orelhas Pikachu
-      ctx.fillStyle = '#f1c40f';
-      ctx.fillRect(player.x + 5, player.y - 10, 8, 12);
-      ctx.fillRect(player.x + 27, player.y - 10, 8, 12);
-
-      // Mimikyu
-      ctx.fillStyle = enemy.disfarceIntacto ? enemy.cor : '#64748b';
-      ctx.fillRect(enemy.x, enemy.y, enemy.largura, enemy.alturaCorpo);
-      // Olhos desenhados do pano
-      ctx.fillStyle = '#000000';
-      ctx.fillText('👀', enemy.x + 10, enemy.y + 25);
-    }
-
-    function renderizarEfeitos() {
-      efeitosvisuais.forEach((ef, index) => {
-        ctx.font = '20px sans-serif';
-        ctx.fillText(ef.icone, ef.x + 10, ef.y - 10);
-        ef.tempo--;
-        if (ef.tempo <= 0) efeitosvisuais.splice(index, 1);
-      });
-    }
-
-    function loopJogo() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      processarEntradasJogador();
-      processarIAMimikyu();
-
-      player.atualizarFisica(canvas.width, 320);
-      enemy.atualizarFisica(canvas.width, 320);
-
-      desenharPersonagens();
-      renderizarEfeitos();
-      desenharInterfaceHUD();
-
-      requestAnimationFrame(loopJogo);
-    }
-
-    // Iniciar
-    loopJogo();
-  </script>
+Diagrama.montar();
+requestAnimationFrame(quadro);
+</script>
 </body>
 </html>

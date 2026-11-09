@@ -1,0 +1,204 @@
+/* Padroniza o tamanho dos elementos e remove os recuos padrão do navegador. */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Define o visual geral e centraliza o conteúdo principal da página. */
+body {
+    min-height: 100vh;
+    padding: 20px 10px;
+    background-color: #f6e5c8;
+    color: #123b67;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+}
+
+.pri {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 20px 15px;
+    border: 3px solid #087eaa;
+    border-radius: 30px;
+    background-color: #fffaf0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilo do título principal e da apresentação sobre a Bossa Nova. */
+.titulo {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.bossa-nova {
+    font-family: 'DynaPuff', system-ui, sans-serif;
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    line-height: 1.2;
+}
+
+.bossa,
+.card,
+.video-secao,
+.barralado {
+    padding: 18px;
+    border: 1.5px solid #087eaa;
+    border-radius: 10px;
+    background-color: #ffffff;
+}
+
+.bossa {
+    margin-bottom: 30px;
+}
+
+/* Mantém a imagem da seção centralizada e ajustada ao espaço disponível. */
+.bossa  img {
+    display: block;
+    width: 70%;
+    max-height: 420px;
+    margin: 0 auto;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.bossa-texto h2,
+.artista  h2 {
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #d9eff7;
+}
+
+/* Organiza os cartões de conteúdo em uma linha com espaçamento. */
+.cards {
+    display: flex;
+    flex-direction:row; 
+    gap: 15px;
+}
+
+.card {
+    padding: 15px;
+    transition: border-color 0.3s, transform 0.3s;
+}
+
+.card:hover {
+    border-color: #e6a23c;
+    transform: scale(1.01);
+}
+
+/* Ajusta a hierarquia visual dos textos dentro dos cartões. */
+.card h3,
+.album-info h3 {
+    color: #087eaa;
+}
+
+.card h3 {
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.card p {
+    color: #334155;
+    line-height: 1.5;
+}
+
+.card p em {
+    font-weight: 600;
+}
+
+/* Divide a área de mídia entre o vídeo e a barra lateral. */
+.layout-media {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+    align-items: start;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.video-section,
+.sidebar {
+    min-width: 0;
+}
+
+.video-section h2,
+.bloco-lado h2 {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.video-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    aspect-ratio: 16 / 9;
+}
+
+/* Faz o vídeo preencher o contêiner sem perder a proporção definida. */
+.video-container iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.bloco-lado {
+    margin-bottom: 24px;
+}
+
+.bloco-lado:last-child {
+    margin-bottom: 0;
+}
+
+/* Formata listas e cartões de álbuns da barra lateral. */
+.list-track {
+    padding-left: 22px;
+}
+
+.list-track li {
+    margin-bottom: 12px;
+}
+
+.list-track span {
+    font-size: 0.9rem;
+}
+
+.album-list {
+    display: grid;
+    gap: 18px;
+}
+
+.album-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border: 1px solid #d9eff7;
+    border-radius: 8px;
+    background-color: #ffffff;
+    transition: transform 0.2s;
+}
+
+.album-card:hover {
+    transform: translateY(-2px);
+}
+
+.album-card img {
+    width: 90px;
+    height: 90px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.album-info h3 {
+    font-size: 1rem;
+}
+
+/* Organiza e centraliza as informações do rodapé. */
+.rodape {
+    display: grid;
+    gap: 8px;
+    margin-top: 30px;
+    padding-top: 18px;
+    border-top: 2px solid #d9eff7;
+    text-align: center;
+}
